@@ -1,0 +1,1370 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>FrontRow VR · Primera Fila. En Todas Partes.</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Unbounded:wght@400;600;700;800;900&family=DM+Sans:ital,wght@0,300;0,400;0,500;1,300&display=swap" rel="stylesheet" />
+
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --black:   #050507;
+      --surface: #0a0a10;
+      --white:   #ffffff;
+      --offwhite:#e8e8f2;
+      --muted:   #7a7a8c;
+      --faint:   rgba(255,255,255,0.06);
+      --border:  rgba(255,255,255,0.08);
+      --accent:  #00e5ff;
+      --accent-dim: rgba(0,229,255,0.12);
+    }
+
+    html { scroll-behavior: smooth; }
+
+    body {
+      background: var(--black);
+      color: var(--white);
+      font-family: 'DM Sans', sans-serif;
+      font-weight: 400;
+      line-height: 1.6;
+      overflow-x: hidden;
+      cursor: none;
+    }
+
+    /* ── SCROLLBAR ── */
+    ::-webkit-scrollbar { width: 4px; }
+    ::-webkit-scrollbar-track { background: var(--black); }
+    ::-webkit-scrollbar-thumb { background: var(--accent); border-radius: 2px; }
+
+    /* ── CUSTOM CURSOR ── */
+    .cursor {
+      position: fixed; width: 8px; height: 8px;
+      background: var(--accent); border-radius: 50%;
+      pointer-events: none; z-index: 9999;
+      transform: translate(-50%,-50%);
+      transition: width .15s, height .15s;
+    }
+    .cursor-ring {
+      position: fixed; width: 36px; height: 36px;
+      border: 1px solid rgba(0,229,255,.35); border-radius: 50%;
+      pointer-events: none; z-index: 9998;
+      transform: translate(-50%,-50%);
+      transition: width .25s, height .25s, border-color .25s;
+    }
+    body:hover .cursor { opacity: 1; }
+
+    /* ── NAV ── */
+    nav {
+      position: fixed; top: 0; left: 0; right: 0; z-index: 100;
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 1.6rem 4%;
+      transition: background .3s, border-bottom-color .3s;
+      border-bottom: 1px solid transparent;
+    }
+    nav.scrolled {
+      background: rgba(5,5,7,.88);
+      backdrop-filter: blur(20px);
+      border-bottom-color: var(--border);
+    }
+
+    .logo {
+      font-family: 'Unbounded', sans-serif;
+      font-weight: 800; font-size: 1.15rem; letter-spacing: .02em;
+      text-decoration: none; color: var(--white);
+    }
+    .logo em { color: var(--accent); font-style: normal; }
+
+    .nav-right { display: flex; align-items: center; gap: 2.8rem; }
+
+    .nav-links { list-style: none; display: flex; gap: 2.5rem; }
+    .nav-links a {
+      color: rgba(255,255,255,.5); text-decoration: none;
+      font-size: .82rem; letter-spacing: .08em; text-transform: uppercase;
+      transition: color .2s;
+    }
+    .nav-links a:hover { color: var(--white); }
+
+    .nav-auth { display: flex; align-items: center; gap: 1.6rem; }
+
+    .nav-login {
+      font-size: .82rem; letter-spacing: .08em; text-transform: uppercase;
+      color: rgba(255,255,255,.7); text-decoration: none; font-weight: 500;
+      transition: color .2s;
+    }
+    .nav-login:hover { color: var(--white); }
+
+    .nav-cta {
+      font-size: .8rem; letter-spacing: .08em; text-transform: uppercase;
+      color: var(--black); background: var(--accent);
+      text-decoration: none; font-weight: 700;
+      padding: .55rem 1.1rem;
+      transition: background .2s, transform .2s;
+    }
+    .nav-cta:hover { background: #33ecff; transform: translateY(-1px); }
+
+    /* ── HERO ── */
+    .hero {
+      position: relative; height: 100vh; min-height: 680px;
+      display: flex; flex-direction: column; justify-content: flex-end;
+      padding: 0 4% 6%;
+      overflow: hidden;
+    }
+
+    .hero-bg {
+      position: absolute; inset: 0;
+      background: url('https://picsum.photos/seed/stagefront/1920/1080') center/cover no-repeat;
+    }
+    .hero-bg::after {
+      content: '';
+      position: absolute; inset: 0;
+      background:
+        linear-gradient(to top,  rgba(5,5,7,1) 0%, rgba(5,5,7,.65) 40%, rgba(5,5,7,.25) 80%),
+        linear-gradient(to right, rgba(5,5,7,.7) 0%, transparent 65%);
+    }
+
+    .hero-content { position: relative; z-index: 2; max-width: 820px; }
+
+    .eyebrow {
+      display: inline-flex; align-items: center; gap: .7rem;
+      font-size: .75rem; letter-spacing: .16em; text-transform: uppercase;
+      color: var(--accent); font-weight: 500; margin-bottom: 2rem;
+    }
+    .eyebrow::before {
+      content: ''; display: inline-block;
+      width: 30px; height: 1px; background: var(--accent);
+    }
+
+    .hero h1 {
+      font-family: 'Unbounded', sans-serif;
+      font-size: clamp(3.6rem, 8.5vw, 8.5rem);
+      font-weight: 800; line-height: .95; letter-spacing: -.035em;
+      margin-bottom: 2rem;
+    }
+
+    .hero-sub {
+      font-size: 1.05rem; color: rgba(255,255,255,.5);
+      font-weight: 300; max-width: 400px;
+      line-height: 1.75; margin-bottom: 3rem;
+    }
+
+    .hero-actions { display: flex; align-items: center; gap: 2.2rem; }
+
+    .btn-fill {
+      display: inline-flex; align-items: center; gap: .7rem;
+      padding: .95rem 2rem;
+      background: var(--accent); color: var(--black);
+      font-family: 'Unbounded', sans-serif;
+      font-weight: 700; font-size: .85rem; letter-spacing: .1em;
+      text-transform: uppercase; text-decoration: none;
+      transition: background .2s, transform .2s;
+    }
+    .btn-fill:hover { background: #33ecff; transform: translateY(-2px); }
+    .btn-fill .arr { transition: transform .2s; }
+    .btn-fill:hover .arr { transform: translate(3px,-3px); }
+
+    .btn-text {
+      font-size: .88rem; color: rgba(255,255,255,.5); text-decoration: none;
+      border-bottom: 1px solid rgba(255,255,255,.2); padding-bottom: 2px;
+      letter-spacing: .04em; transition: color .2s, border-color .2s;
+    }
+    .btn-text:hover { color: var(--white); border-color: var(--white); }
+
+    .hero-scroll-hint {
+      position: absolute; bottom: 3.5rem; right: 4%;
+      z-index: 2; display: flex; flex-direction: column;
+      align-items: center; gap: .5rem;
+      font-size: .68rem; letter-spacing: .14em; text-transform: uppercase;
+      color: rgba(255,255,255,.25); writing-mode: vertical-rl;
+    }
+    .hero-scroll-hint::after {
+      content: ''; width: 1px; height: 55px;
+      background: linear-gradient(to bottom, rgba(255,255,255,.25), transparent);
+      animation: scrollLine 2s ease-in-out infinite;
+    }
+    @keyframes scrollLine {
+      0%,100% { transform: scaleY(0); transform-origin: top; opacity: 0; }
+      50%      { transform: scaleY(1); opacity: 1; }
+    }
+
+    /* ── TICKER ── */
+    .ticker {
+      overflow: hidden;
+      border-top: 1px solid var(--border);
+      border-bottom: 1px solid var(--border);
+      padding: 1.1rem 0;
+      background: rgba(0,229,255,.025);
+    }
+    .ticker-track {
+      display: flex; gap: 3.5rem; width: max-content; white-space: nowrap;
+      animation: tickMove 28s linear infinite;
+    }
+    .ticker-track span {
+      font-family: 'Unbounded', sans-serif; font-size: .78rem;
+      font-weight: 700; letter-spacing: .15em; text-transform: uppercase;
+      color: rgba(255,255,255,.3);
+    }
+    .ticker-track .dot { color: var(--accent); font-size: .45rem; vertical-align: middle; }
+    @keyframes tickMove { from { transform: translateX(0); } to { transform: translateX(-50%); } }
+
+    /* ── SHOWCASE ── */
+    #trabajo { padding: 7rem 4% 5rem; }
+
+    .section-head {
+      display: flex; justify-content: space-between; align-items: flex-end;
+      margin-bottom: 3rem;
+    }
+    .section-head h2 {
+      font-family: 'Unbounded', sans-serif;
+      font-size: clamp(2.4rem, 5vw, 4.5rem);
+      font-weight: 800; line-height: 1.05; letter-spacing: -.03em;
+    }
+    .section-head p {
+      max-width: 260px; font-size: .9rem; color: var(--muted);
+      line-height: 1.65; text-align: right;
+    }
+
+    /* Asymmetric 3-col × 2-row grid */
+    .showcase-grid {
+      display: grid;
+      grid-template-columns: 1.6fr 1fr 1fr;
+      grid-template-rows: 320px 260px;
+      gap: 10px;
+    }
+    .sc-item {
+      position: relative; overflow: hidden;
+      background: #111118;
+    }
+    .sc-item.tall { grid-row: 1 / 3; }
+
+    .sc-item img {
+      width: 100%; height: 100%; object-fit: cover; display: block;
+      filter: brightness(.7) saturate(.9);
+      transition: transform .7s cubic-bezier(.25,.46,.45,.94), filter .4s;
+    }
+    .sc-item:hover img { transform: scale(1.07); filter: brightness(.85) saturate(1.1); }
+
+    .sc-bar {
+      position: absolute; top: 0; left: 0; right: 0; height: 2px;
+      background: var(--accent); transform: scaleX(0); transform-origin: left;
+      transition: transform .45s cubic-bezier(.25,.46,.45,.94);
+    }
+    .sc-item:hover .sc-bar { transform: scaleX(1); }
+
+    .sc-label {
+      position: absolute; bottom: 1.1rem; left: 1.1rem;
+      font-family: 'Unbounded', sans-serif;
+      font-size: .73rem; font-weight: 700; letter-spacing: .1em; text-transform: uppercase;
+      padding: .3rem .7rem;
+      background: rgba(5,5,7,.72); backdrop-filter: blur(8px);
+      border: 1px solid rgba(255,255,255,.09);
+      color: rgba(255,255,255,.8);
+    }
+
+    /* ── STATEMENT ── */
+    .statement {
+      padding: 7rem 4%;
+      border-top: 1px solid var(--border);
+      border-bottom: 1px solid var(--border);
+    }
+    .statement-inner { max-width: 1100px; }
+
+    .tag {
+      display: inline-block; font-size: .72rem; letter-spacing: .17em;
+      text-transform: uppercase; color: var(--accent); font-weight: 500;
+      margin-bottom: 1.5rem;
+    }
+
+    .statement h2 {
+      font-family: 'Unbounded', sans-serif;
+      font-size: clamp(2rem, 4.5vw, 4rem);
+      font-weight: 800; line-height: 1.15; letter-spacing: -.025em;
+      max-width: 860px;
+    }
+    .statement h2 em {
+      font-style: italic; color: rgba(255,255,255,.4);
+    }
+    .statement-link {
+      display: inline-flex; align-items: center; gap: .5rem;
+      margin-top: 2.8rem;
+      font-family: 'Unbounded', sans-serif; font-size: .82rem;
+      font-weight: 700; letter-spacing: .1em; text-transform: uppercase;
+      color: var(--accent); text-decoration: none;
+      transition: opacity .2s;
+    }
+    .statement-link:hover { opacity: .65; }
+
+    /* ── FEATURE ROWS ── */
+    #servicios {}
+
+    .feat-row {
+      display: grid; grid-template-columns: 1fr 1fr;
+      border-top: 1px solid var(--border);
+    }
+    .feat-row:nth-child(even) .feat-img { order: -1; }
+
+    .feat-img {
+      position: relative; overflow: hidden; min-height: 480px;
+      background: #111118;
+    }
+    .feat-img img {
+      width: 100%; height: 100%; object-fit: cover; display: block;
+      filter: brightness(.65) saturate(.8);
+      transition: transform .9s cubic-bezier(.25,.46,.45,.94), filter .5s;
+    }
+    .feat-row:hover .feat-img img { transform: scale(1.04); filter: brightness(.75) saturate(1); }
+
+    .feat-body {
+      padding: 5rem 6%;
+      display: flex; flex-direction: column; justify-content: center;
+      background: var(--surface);
+      border-left: 1px solid var(--border);
+    }
+    .feat-row:nth-child(even) .feat-body { border-left: none; border-right: 1px solid var(--border); }
+
+    .feat-num {
+      font-family: 'Unbounded', sans-serif; font-size: 4.5rem; font-weight: 800;
+      line-height: 1; letter-spacing: -.05em;
+      color: rgba(255,255,255,.04); margin-bottom: .8rem;
+      user-select: none;
+    }
+    .feat-tag { margin-bottom: .9rem; }
+
+    .feat-body h3 {
+      font-family: 'Unbounded', sans-serif;
+      font-size: clamp(1.6rem, 2.4vw, 2.3rem);
+      font-weight: 800; line-height: 1.15; letter-spacing: -.02em;
+      margin-bottom: 1.1rem;
+    }
+    .feat-body p {
+      color: var(--muted); font-size: .95rem; line-height: 1.78;
+      max-width: 370px;
+    }
+
+    /* ── EVENTS SWITCHER ── */
+    #eventos {
+      padding: 7rem 4%;
+      border-top: 1px solid var(--border);
+    }
+
+    .ev-head {
+      display: flex; justify-content: space-between; align-items: flex-end;
+      margin-bottom: 4rem; gap: 2rem;
+    }
+    .ev-head h2 {
+      font-family: 'Unbounded', sans-serif;
+      font-size: clamp(2rem, 4vw, 3.5rem);
+      font-weight: 800; letter-spacing: -.025em; line-height: 1.1;
+      margin-top: .8rem;
+    }
+    .ev-head p { color: var(--muted); font-size: .92rem; max-width: 320px; text-align: right; }
+
+    .ev-switcher {
+      display: grid;
+      grid-template-columns: 1fr 1.25fr;
+      gap: 3rem;
+      min-height: 600px;
+    }
+
+    /* ── LEFT: MENU ── */
+    .ev-menu {
+      display: flex; flex-direction: column;
+      border-top: 1px solid var(--border);
+    }
+
+    .ev-tab {
+      display: grid;
+      grid-template-columns: 48px 1fr 24px;
+      align-items: center; gap: 1.5rem;
+      padding: 1.6rem 0 1.6rem 0;
+      border-bottom: 1px solid var(--border);
+      cursor: pointer;
+      position: relative;
+      transition: padding-left .4s cubic-bezier(.25,.46,.45,.94);
+    }
+    .ev-tab::before {
+      content: '';
+      position: absolute; left: -1rem; top: 50%;
+      width: 4px; height: 0;
+      background: var(--accent);
+      transform: translateY(-50%);
+      transition: height .4s cubic-bezier(.25,.46,.45,.94);
+    }
+    .ev-tab:hover,
+    .ev-tab.active {
+      padding-left: 1.2rem;
+      border-bottom-color: rgba(0,229,255,.3);
+    }
+    .ev-tab.active::before { height: 60%; }
+
+    .ev-tab-num {
+      font-family: 'Unbounded', sans-serif;
+      font-size: .78rem; font-weight: 700;
+      letter-spacing: .12em; color: var(--muted);
+      transition: color .3s;
+    }
+    .ev-tab:hover .ev-tab-num,
+    .ev-tab.active .ev-tab-num { color: var(--accent); }
+
+    .ev-tab-name {
+      font-family: 'Unbounded', sans-serif;
+      font-size: clamp(1.15rem, 1.8vw, 1.7rem);
+      font-weight: 800; letter-spacing: -.015em; line-height: 1.15;
+      color: rgba(255,255,255,.45);
+      transition: color .3s;
+    }
+    .ev-tab:hover .ev-tab-name,
+    .ev-tab.active .ev-tab-name { color: var(--white); }
+
+    .ev-tab-arrow {
+      color: var(--accent); font-size: 1.1rem;
+      opacity: 0; transform: translateX(-12px);
+      transition: opacity .3s, transform .3s;
+    }
+    .ev-tab:hover .ev-tab-arrow,
+    .ev-tab.active .ev-tab-arrow { opacity: 1; transform: translateX(0); }
+
+    /* ── RIGHT: STAGE ── */
+    .ev-stage {
+      position: relative; overflow: hidden;
+      background: #0c0c14;
+      min-height: 580px;
+    }
+
+    .ev-slide {
+      position: absolute; inset: 0;
+      opacity: 0; visibility: hidden;
+      transition: opacity .7s cubic-bezier(.25,.46,.45,.94), visibility 0s linear .7s;
+    }
+    .ev-slide.active {
+      opacity: 1; visibility: visible;
+      transition: opacity .7s cubic-bezier(.25,.46,.45,.94), visibility 0s linear 0s;
+    }
+
+    .ev-slide img {
+      width: 100%; height: 100%;
+      object-fit: cover; display: block;
+      filter: brightness(.7) saturate(.9);
+      transform: scale(1.05);
+      transition: transform 6s linear;
+    }
+    .ev-slide.active img { transform: scale(1); }
+
+    .ev-slide::after {
+      content: '';
+      position: absolute; inset: 0;
+      background:
+        linear-gradient(to top, rgba(5,5,7,.95) 0%, rgba(5,5,7,.3) 45%, rgba(5,5,7,.1) 100%),
+        linear-gradient(to right, rgba(5,5,7,.3) 0%, transparent 50%);
+      pointer-events: none;
+    }
+
+    .ev-slide-meta {
+      position: absolute; bottom: 2.4rem; left: 2.4rem; right: 2.4rem;
+      z-index: 2;
+    }
+
+    .ev-slide-pill {
+      display: inline-block;
+      font-family: 'Unbounded', sans-serif;
+      font-size: .67rem; font-weight: 600;
+      letter-spacing: .14em; text-transform: uppercase;
+      padding: .4rem .9rem;
+      border: 1px solid rgba(0,229,255,.35);
+      background: rgba(0,229,255,.1);
+      color: var(--accent);
+      border-radius: 100px;
+      margin-bottom: 1.2rem;
+    }
+
+    .ev-slide-meta h4 {
+      font-family: 'Unbounded', sans-serif;
+      font-size: clamp(1.6rem, 2.8vw, 2.6rem);
+      font-weight: 800; letter-spacing: -.02em; line-height: 1.05;
+      margin-bottom: .9rem;
+      color: var(--white);
+    }
+
+    .ev-slide-meta p {
+      color: rgba(255,255,255,.7);
+      font-size: .95rem; line-height: 1.7;
+      max-width: 480px; margin-bottom: 1.6rem;
+    }
+
+    .ev-slide-stats {
+      display: flex; gap: 2rem; flex-wrap: wrap;
+      padding-top: 1.3rem;
+      border-top: 1px solid rgba(255,255,255,.12);
+    }
+    .ev-slide-stat .num {
+      font-family: 'Unbounded', sans-serif;
+      font-size: 1.2rem; font-weight: 800;
+      color: var(--accent); letter-spacing: -.01em;
+      line-height: 1; display: block;
+    }
+    .ev-slide-stat .lab {
+      font-size: .72rem; letter-spacing: .08em;
+      text-transform: uppercase; color: rgba(255,255,255,.4);
+      margin-top: .35rem;
+    }
+
+    .ev-slide-index {
+      position: absolute; top: 1.8rem; right: 1.8rem;
+      z-index: 2;
+      font-family: 'Unbounded', sans-serif;
+      font-size: 5rem; font-weight: 800;
+      line-height: 1; letter-spacing: -.04em;
+      color: rgba(255,255,255,.08);
+      user-select: none;
+    }
+
+    /* ── SUSCRIPCIÓN ── */
+    #suscripcion {
+      padding: 7rem 4%;
+      border-top: 1px solid var(--border);
+      position: relative;
+      background:
+        radial-gradient(ellipse 80% 60% at 50% 0%, rgba(0,229,255,.07) 0%, transparent 60%),
+        var(--black);
+    }
+
+    .sub-head {
+      display: flex; justify-content: space-between; align-items: flex-end;
+      margin-bottom: 4rem; gap: 2rem; flex-wrap: wrap;
+    }
+    .sub-head h2 {
+      font-family: 'Unbounded', sans-serif;
+      font-size: clamp(2rem, 4vw, 3.5rem);
+      font-weight: 800; letter-spacing: -.025em; line-height: 1.1;
+      margin-top: .8rem;
+    }
+    .sub-head p {
+      color: var(--muted); font-size: .95rem;
+      max-width: 380px; line-height: 1.7; text-align: right;
+    }
+
+    .plans-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 1.5rem;
+    }
+
+    .plan {
+      position: relative;
+      padding: 2.5rem 2.2rem 2.8rem;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      display: flex; flex-direction: column;
+      transition: transform .3s, border-color .3s;
+    }
+    .plan:hover { transform: translateY(-4px); border-color: rgba(0,229,255,.25); }
+
+    .plan.featured {
+      background: linear-gradient(180deg, rgba(0,229,255,.08) 0%, var(--surface) 60%);
+      border-color: rgba(0,229,255,.4);
+      transform: translateY(-8px);
+      box-shadow: 0 30px 80px rgba(0,229,255,.06);
+    }
+    .plan.featured:hover { transform: translateY(-12px); }
+
+    .plan-badge {
+      position: absolute; top: -10px; right: 1.8rem;
+      background: var(--accent); color: var(--black);
+      font-family: 'Unbounded', sans-serif;
+      font-size: .65rem; font-weight: 700; letter-spacing: .12em;
+      text-transform: uppercase;
+      padding: .35rem .8rem;
+    }
+
+    .plan-tier {
+      font-size: .72rem; letter-spacing: .18em;
+      text-transform: uppercase; font-weight: 600;
+      color: var(--muted); margin-bottom: 1rem;
+    }
+    .plan.featured .plan-tier { color: var(--accent); }
+
+    .plan-name {
+      font-family: 'Unbounded', sans-serif;
+      font-size: 2rem; font-weight: 800;
+      letter-spacing: -.02em; line-height: 1;
+      margin-bottom: 1.2rem;
+    }
+
+    .plan-price {
+      display: flex; align-items: baseline; gap: .4rem;
+      margin-bottom: .4rem;
+    }
+    .plan-price .amount {
+      font-family: 'Unbounded', sans-serif;
+      font-size: 2.6rem; font-weight: 800;
+      letter-spacing: -.03em;
+      color: var(--white);
+    }
+    .plan.featured .plan-price .amount { color: var(--accent); }
+    .plan-price .period {
+      font-size: .82rem; color: var(--muted);
+      font-weight: 400;
+    }
+
+    .plan-desc {
+      font-size: .88rem; color: var(--muted);
+      margin-bottom: 2rem; line-height: 1.6;
+    }
+
+    .plan hr {
+      border: none; height: 1px; background: var(--border);
+      margin-bottom: 1.8rem;
+    }
+
+    .plan-feats {
+      list-style: none; margin-bottom: 2.5rem;
+      display: flex; flex-direction: column; gap: .85rem;
+      flex: 1;
+    }
+    .plan-feats li {
+      display: flex; align-items: flex-start; gap: .7rem;
+      font-size: .88rem; color: var(--offwhite); line-height: 1.5;
+    }
+    .plan-feats li::before {
+      content: '✓';
+      color: var(--accent); font-weight: 700;
+      flex-shrink: 0; font-size: .85rem;
+      margin-top: 2px;
+    }
+    .plan-feats li.muted { color: var(--muted); }
+    .plan-feats li.muted::before { content: '·'; color: var(--muted); font-size: 1.4rem; line-height: 1; margin-top: -2px; }
+
+    .plan-btn {
+      display: block; text-align: center;
+      padding: .95rem 1.5rem;
+      font-family: 'Unbounded', sans-serif;
+      font-size: .8rem; font-weight: 700;
+      letter-spacing: .1em; text-transform: uppercase;
+      text-decoration: none;
+      border: 1px solid rgba(255,255,255,.15);
+      color: var(--white);
+      transition: background .2s, border-color .2s, color .2s;
+    }
+    .plan-btn:hover {
+      border-color: var(--accent); color: var(--accent);
+    }
+    .plan-btn.primary {
+      background: var(--accent); color: var(--black);
+      border-color: var(--accent);
+    }
+    .plan-btn.primary:hover { background: #33ecff; color: var(--black); }
+
+    /* ── STATS ── */
+    .stats-wrap {
+      border-top: 1px solid var(--border);
+      border-bottom: 1px solid var(--border);
+    }
+    .stats-grid {
+      display: grid; grid-template-columns: repeat(4,1fr);
+      gap: 0;
+    }
+    .stat-cell {
+      padding: 4rem 2.5rem; text-align: center;
+      border-right: 1px solid var(--border);
+      background: var(--surface);
+    }
+    .stat-cell:last-child { border-right: none; }
+
+    .stat-val {
+      font-family: 'Unbounded', sans-serif;
+      font-size: clamp(3rem, 5.5vw, 5.5rem);
+      font-weight: 800; line-height: 1; letter-spacing: -.04em;
+      color: var(--accent);
+    }
+    .stat-lbl {
+      font-size: .75rem; letter-spacing: .13em; text-transform: uppercase;
+      color: var(--muted); margin-top: .65rem;
+    }
+
+    /* ── PROCESS ── */
+    #proceso { padding: 7rem 4%; border-top: 1px solid var(--border); }
+
+    .proc-head { margin-bottom: 4.5rem; }
+    .proc-head h2 {
+      font-family: 'Unbounded', sans-serif;
+      font-size: clamp(2rem, 4vw, 3.5rem);
+      font-weight: 800; letter-spacing: -.025em;
+    }
+
+    .proc-grid {
+      display: grid; grid-template-columns: repeat(4,1fr);
+      gap: 0; border-top: 1px solid var(--border);
+    }
+    .proc-step {
+      padding: 2.5rem 2rem 2.5rem 0;
+      border-right: 1px solid var(--border);
+      padding-left: 0;
+    }
+    .proc-step:last-child { border-right: none; padding-right: 0; }
+    .proc-step:not(:first-child) { padding-left: 2rem; }
+
+    .proc-n {
+      font-family: 'Unbounded', sans-serif; font-size: .73rem; font-weight: 700;
+      letter-spacing: .12em; color: var(--accent); margin-bottom: 1.6rem;
+      display: flex; align-items: center; gap: .5rem;
+    }
+    .proc-n::after { content: ''; flex: 1; height: 1px; background: rgba(0,229,255,.2); }
+
+    .proc-step h4 {
+      font-family: 'Unbounded', sans-serif; font-weight: 800; font-size: 1rem;
+      margin-bottom: .7rem; letter-spacing: -.005em;
+    }
+    .proc-step p { font-size: .86rem; color: var(--muted); line-height: 1.72; }
+
+    /* ── TESTIMONIAL ── */
+    .testimonial {
+      padding: 8rem 4%;
+      background: var(--surface);
+      border-top: 1px solid var(--border);
+    }
+    .t-inner { max-width: 820px; margin: 0 auto; }
+
+    .t-mark {
+      font-family: 'Unbounded', sans-serif; font-size: 7rem; line-height: .55;
+      color: var(--accent); opacity: .18; margin-bottom: .8rem;
+      user-select: none;
+    }
+    .t-quote {
+      font-family: 'Unbounded', sans-serif;
+      font-size: clamp(1.4rem, 2.8vw, 2.4rem);
+      font-weight: 700; line-height: 1.35; letter-spacing: -.02em;
+      margin-bottom: 2.5rem;
+    }
+    .t-source { display: flex; align-items: center; gap: 1rem; }
+    .t-avatar {
+      width: 46px; height: 46px; border-radius: 50%;
+      object-fit: cover; filter: grayscale(.4);
+    }
+    .t-name { font-weight: 600; font-size: .9rem; }
+    .t-role { font-size: .8rem; color: var(--muted); }
+
+    /* ── CTA ── */
+    #contacto {
+      position: relative; min-height: 88vh;
+      display: flex; align-items: center;
+      overflow: hidden;
+    }
+    .cta-bg {
+      position: absolute; inset: 0;
+      background: url('https://picsum.photos/seed/vrshow2025/1920/1080') center/cover no-repeat;
+    }
+    .cta-bg::after {
+      content: '';
+      position: absolute; inset: 0;
+      background: linear-gradient(120deg, rgba(5,5,7,.93) 0%, rgba(5,5,7,.55) 100%);
+    }
+    .cta-body {
+      position: relative; z-index: 2;
+      padding: 0 4%; max-width: 780px;
+    }
+    .cta-body h2 {
+      font-family: 'Unbounded', sans-serif;
+      font-size: clamp(2.6rem, 5.5vw, 5.5rem);
+      font-weight: 800; line-height: 1; letter-spacing: -.035em;
+      margin: 1.2rem 0 1.5rem;
+    }
+    .cta-body p {
+      color: rgba(255,255,255,.5); font-size: 1rem;
+      font-weight: 300; max-width: 400px; line-height: 1.75; margin-bottom: 3rem;
+    }
+    .cta-email {
+      font-family: 'Unbounded', sans-serif;
+      font-size: clamp(1.2rem, 2.5vw, 2.2rem);
+      font-weight: 800; letter-spacing: -.01em;
+      color: var(--white); text-decoration: none;
+      border-bottom: 2px solid var(--accent); padding-bottom: 4px;
+      transition: color .2s;
+    }
+    .cta-email:hover { color: var(--accent); }
+
+    /* ── FOOTER ── */
+    footer {
+      background: var(--black);
+      border-top: 1px solid var(--border);
+      padding: 2.5rem 4%;
+      display: flex; justify-content: space-between; align-items: center;
+      flex-wrap: wrap; gap: 1.2rem;
+    }
+    .f-logo {
+      font-family: 'Unbounded', sans-serif; font-weight: 800;
+      font-size: 1rem; letter-spacing: .02em;
+      text-decoration: none; color: var(--white);
+    }
+    .f-logo em { color: var(--accent); font-style: normal; }
+
+    .f-links { display: flex; gap: 2rem; flex-wrap: wrap; }
+    .f-links a {
+      font-size: .8rem; color: var(--muted); text-decoration: none;
+      letter-spacing: .04em; transition: color .2s;
+    }
+    .f-links a:hover { color: var(--white); }
+
+    .f-copy { font-size: .75rem; color: rgba(255,255,255,.18); }
+
+    /* ── RESPONSIVE ── */
+    @media (max-width: 960px) {
+      .nav-links { display: none; }
+      .nav-login { display: none; }
+      .showcase-grid {
+        grid-template-columns: 1fr 1fr;
+        grid-template-rows: auto;
+      }
+      .sc-item.tall { grid-row: auto; }
+      .feat-row { grid-template-columns: 1fr; }
+      .feat-row:nth-child(even) .feat-img { order: 0; }
+      .feat-img { min-height: 300px; }
+      .feat-body { border-left: none !important; border-right: none !important; border-top: 1px solid var(--border); }
+      .stats-grid { grid-template-columns: 1fr 1fr; }
+      .stat-cell:nth-child(2n) { border-right: none; }
+      .stat-cell:nth-child(n+3) { border-top: 1px solid var(--border); }
+      .proc-grid { grid-template-columns: 1fr 1fr; }
+      .proc-step { border-right: none; border-bottom: 1px solid var(--border); padding: 2rem 0; }
+      .proc-step:not(:first-child) { padding-left: 0; }
+      .section-head { flex-direction: column; align-items: flex-start; gap: .8rem; }
+      .section-head p { text-align: left; max-width: 100%; }
+      .ev-head { flex-direction: column; align-items: flex-start; }
+      .ev-head p { text-align: left; }
+      .ev-switcher { grid-template-columns: 1fr; gap: 1.5rem; }
+      .ev-stage { min-height: 440px; order: -1; }
+      .ev-slide-meta { bottom: 1.5rem; left: 1.5rem; right: 1.5rem; }
+      .ev-slide-index { font-size: 3.2rem; top: 1rem; right: 1.2rem; }
+      .sub-head { flex-direction: column; align-items: flex-start; }
+      .sub-head p { text-align: left; }
+      .plans-grid { grid-template-columns: 1fr; }
+      .plan.featured { transform: none; }
+      .plan.featured:hover { transform: translateY(-4px); }
+    }
+    @media (max-width: 600px) {
+      .hero h1 { font-size: 3.2rem; }
+      .stats-grid { grid-template-columns: 1fr 1fr; }
+      .proc-grid { grid-template-columns: 1fr; }
+      .ev-stage { min-height: 380px; }
+      .ev-slide-stats { gap: 1.2rem; }
+      footer { flex-direction: column; align-items: flex-start; }
+    }
+  </style>
+</head>
+<body>
+
+  <div class="cursor" id="cur"></div>
+  <div class="cursor-ring" id="curRing"></div>
+
+  <!-- ══ NAV ══ -->
+  <nav id="nav">
+    <a href="#" class="logo">FrontRow<em>VR</em></a>
+    <div class="nav-right">
+      <ul class="nav-links">
+        <li><a href="#trabajo">Trabajo</a></li>
+        <li><a href="#servicios">Servicios</a></li>
+        <li><a href="#eventos">Eventos</a></li>
+        <li><a href="#suscripcion">Suscripción</a></li>
+        <li><a href="#proceso">Proceso</a></li>
+      </ul>
+      <div class="nav-auth">
+        <a href="#login" class="nav-login">Login</a>
+        <a href="#contacto" class="nav-cta">Hablemos →</a>
+      </div>
+    </div>
+  </nav>
+
+  <!-- ══ HERO ══ -->
+  <section class="hero">
+    <div class="hero-bg"></div>
+    <div class="hero-content">
+      <div class="eyebrow">Video 180° &amp; Realidad Virtual</div>
+      <h1>Primera<br />fila.<br />En todas<br />partes.</h1>
+      <p class="hero-sub">
+        Capturamos conciertos, festivales y experiencias en vivo para que
+        tu audiencia las sienta desde adentro, sin importar dónde esté.
+      </p>
+      <div class="hero-actions">
+        <a href="#trabajo" class="btn-fill">Ver Trabajo <span class="arr">↗</span></a>
+        <a href="#contacto" class="btn-text">Cotiza tu evento</a>
+      </div>
+    </div>
+    <div class="hero-scroll-hint">Scroll</div>
+  </section>
+
+  <!-- ══ TICKER ══ -->
+  <div class="ticker" aria-hidden="true">
+    <div class="ticker-track">
+      <span>FrontRow VR</span><span class="dot">◆</span>
+      <span>Video 180°</span><span class="dot">◆</span>
+      <span>Audio Espacial</span><span class="dot">◆</span>
+      <span>Entretenimiento Inmersivo</span><span class="dot">◆</span>
+      <span>Conciertos en VR</span><span class="dot">◆</span>
+      <span>Festivales</span><span class="dot">◆</span>
+      <span>Charlas Profesionales</span><span class="dot">◆</span>
+      <span>Chile</span><span class="dot">◆</span>
+      <span>FrontRow VR</span><span class="dot">◆</span>
+      <span>Video 180°</span><span class="dot">◆</span>
+      <span>Audio Espacial</span><span class="dot">◆</span>
+      <span>Entretenimiento Inmersivo</span><span class="dot">◆</span>
+      <span>Conciertos en VR</span><span class="dot">◆</span>
+      <span>Festivales</span><span class="dot">◆</span>
+      <span>Charlas Profesionales</span><span class="dot">◆</span>
+      <span>Chile</span><span class="dot">◆</span>
+    </div>
+  </div>
+
+  <!-- ══ SHOWCASE ══ -->
+  <section id="trabajo">
+    <div class="section-head">
+      <h2>Lo que<br />capturamos.</h2>
+      <p>Cada producción diseñada para llevar al espectador al centro de la experiencia.</p>
+    </div>
+    <div class="showcase-grid">
+      <div class="sc-item tall">
+        <div class="sc-bar"></div>
+        <img src="https://picsum.photos/seed/liveshow01/800/700" alt="Concierto en VR 180°" loading="lazy" />
+        <span class="sc-label">Conciertos · Rock / Pop / Electrónica</span>
+      </div>
+      <div class="sc-item">
+        <div class="sc-bar"></div>
+        <img src="https://picsum.photos/seed/festival2025a/600/340" alt="Festival de música" loading="lazy" />
+        <span class="sc-label">Festivales</span>
+      </div>
+      <div class="sc-item">
+        <div class="sc-bar"></div>
+        <img src="https://picsum.photos/seed/tedtalk55/600/340" alt="Charla profesional" loading="lazy" />
+        <span class="sc-label">Charlas &amp; Conferencias</span>
+      </div>
+      <div class="sc-item">
+        <div class="sc-bar"></div>
+        <img src="https://picsum.photos/seed/theater2024/600/300" alt="Teatro y artes escénicas" loading="lazy" />
+        <span class="sc-label">Teatro &amp; Danza</span>
+      </div>
+      <div class="sc-item">
+        <div class="sc-bar"></div>
+        <img src="https://picsum.photos/seed/sportslive2/600/300" alt="Deportes en vivo" loading="lazy" />
+        <span class="sc-label">Deportes &amp; eSports</span>
+      </div>
+    </div>
+  </section>
+
+  <!-- ══ STATEMENT ══ -->
+  <div class="statement">
+    <div class="statement-inner">
+      <span class="tag">Nuestra misión</span>
+      <h2>"No importa dónde estés. <em>La primera fila siempre es tuya.</em>"</h2>
+      <a href="#servicios" class="statement-link">Ver servicios →</a>
+    </div>
+  </div>
+
+  <!-- ══ SERVICIOS ══ -->
+  <div id="servicios">
+
+    <div class="feat-row">
+      <div class="feat-body">
+        <div class="feat-num">01</div>
+        <span class="tag feat-tag">Grabación Profesional</span>
+        <h3>Video 180° Estereoscópico de Alta Resolución</h3>
+        <p>Cámaras de nivel broadcast con lentes duales capturan cada escenario en hasta 8K por ojo, preservando la profundidad y el detalle que el contenido VR exige.</p>
+      </div>
+      <div class="feat-img">
+        <img src="https://picsum.photos/seed/camera180vr/700/520" alt="Grabación VR" loading="lazy" />
+      </div>
+    </div>
+
+    <div class="feat-row">
+      <div class="feat-body">
+        <div class="feat-num">02</div>
+        <span class="tag feat-tag">Audio Inmersivo</span>
+        <h3>Sonido Espacial que Te Rodea</h3>
+        <p>Audio ambisónico de alto orden captura el campo sonoro completo. Cada fuente de sonido tiene su lugar exacto en el espacio. Cierra los ojos y estás ahí.</p>
+      </div>
+      <div class="feat-img">
+        <img src="https://picsum.photos/seed/spatialaudio/700/520" alt="Audio espacial inmersivo" loading="lazy" />
+      </div>
+    </div>
+
+    <div class="feat-row">
+      <div class="feat-body">
+        <div class="feat-num">03</div>
+        <span class="tag feat-tag">Distribución Multi-Plataforma</span>
+        <h3>Listo para Cualquier Visor del Mercado</h3>
+        <p>Stitching, color grading y masterizado especializado para VR. Entregamos formatos compatibles con Meta Quest, Apple Vision Pro, PlayStation VR2 y YouTube VR.</p>
+      </div>
+      <div class="feat-img">
+        <img src="https://picsum.photos/seed/vrheadset22/700/520" alt="Distribución VR multi-plataforma" loading="lazy" />
+      </div>
+    </div>
+
+  </div>
+
+  <!-- ══ EVENTOS ══ -->
+  <section id="eventos">
+    <div class="ev-head">
+      <div>
+        <span class="tag">Tipos de Evento</span>
+        <h2>¿Qué tipo de<br />evento tienes?</h2>
+      </div>
+      <p>Trabajamos con todo tipo de espectáculos y experiencias en vivo, cada uno capturado a medida.</p>
+    </div>
+
+    <div class="ev-switcher">
+      <div class="ev-menu" id="evMenu">
+        <div class="ev-tab active" data-target="ev-concerts">
+          <span class="ev-tab-num">01</span>
+          <span class="ev-tab-name">Conciertos</span>
+          <span class="ev-tab-arrow">→</span>
+        </div>
+        <div class="ev-tab" data-target="ev-festivals">
+          <span class="ev-tab-num">02</span>
+          <span class="ev-tab-name">Festivales</span>
+          <span class="ev-tab-arrow">→</span>
+        </div>
+        <div class="ev-tab" data-target="ev-talks">
+          <span class="ev-tab-num">03</span>
+          <span class="ev-tab-name">Charlas &amp; Conferencias</span>
+          <span class="ev-tab-arrow">→</span>
+        </div>
+        <div class="ev-tab" data-target="ev-theater">
+          <span class="ev-tab-num">04</span>
+          <span class="ev-tab-name">Teatro &amp; Danza</span>
+          <span class="ev-tab-arrow">→</span>
+        </div>
+        <div class="ev-tab" data-target="ev-sports">
+          <span class="ev-tab-num">05</span>
+          <span class="ev-tab-name">Deportes &amp; eSports</span>
+          <span class="ev-tab-arrow">→</span>
+        </div>
+        <div class="ev-tab" data-target="ev-live">
+          <span class="ev-tab-num">06</span>
+          <span class="ev-tab-name">Streaming VR en Vivo</span>
+          <span class="ev-tab-arrow">→</span>
+        </div>
+      </div>
+
+      <div class="ev-stage">
+        <div class="ev-slide active" id="ev-concerts">
+          <img src="https://picsum.photos/seed/evConcert/1000/700" alt="Conciertos" loading="lazy" />
+          <span class="ev-slide-index">01</span>
+          <div class="ev-slide-meta">
+            <span class="ev-slide-pill">Alta Energía</span>
+            <h4>Conciertos en Vivo</h4>
+            <p>Rock, pop, electrónica, clásica. Capturamos la energía del escenario desde ángulos que ningún espectador pudo ver esa noche.</p>
+            <div class="ev-slide-stats">
+              <div class="ev-slide-stat"><span class="num">8K</span><span class="lab">Por ojo</span></div>
+              <div class="ev-slide-stat"><span class="num">7.1</span><span class="lab">Audio Ambisónico</span></div>
+              <div class="ev-slide-stat"><span class="num">12+</span><span class="lab">Producciones</span></div>
+            </div>
+          </div>
+        </div>
+
+        <div class="ev-slide" id="ev-festivals">
+          <img src="https://picsum.photos/seed/evFestival/1000/700" alt="Festivales" loading="lazy" />
+          <span class="ev-slide-index">02</span>
+          <div class="ev-slide-meta">
+            <span class="ev-slide-pill">Multi-cámara</span>
+            <h4>Festivales de Música</h4>
+            <p>Multi-escenario, multitud real y atmósfera completa. Cubrimos hasta 3 escenarios en paralelo con flujo sincronizado de video y audio.</p>
+            <div class="ev-slide-stats">
+              <div class="ev-slide-stat"><span class="num">3</span><span class="lab">Escenarios paralelos</span></div>
+              <div class="ev-slide-stat"><span class="num">48h</span><span class="lab">Cobertura continua</span></div>
+              <div class="ev-slide-stat"><span class="num">6+</span><span class="lab">Producciones</span></div>
+            </div>
+          </div>
+        </div>
+
+        <div class="ev-slide" id="ev-talks">
+          <img src="https://picsum.photos/seed/evTalk/1000/700" alt="Conferencias" loading="lazy" />
+          <span class="ev-slide-index">03</span>
+          <div class="ev-slide-meta">
+            <span class="ev-slide-pill">Corporativo</span>
+            <h4>Charlas &amp; Conferencias</h4>
+            <p>Keynotes, TED-style talks y eventos corporativos con presencia como si estuvieras sentado en la primera fila del auditorio.</p>
+            <div class="ev-slide-stats">
+              <div class="ev-slide-stat"><span class="num">1:1</span><span class="lab">Presencia real</span></div>
+              <div class="ev-slide-stat"><span class="num">HDR</span><span class="lab">Color grading</span></div>
+              <div class="ev-slide-stat"><span class="num">20+</span><span class="lab">Producciones</span></div>
+            </div>
+          </div>
+        </div>
+
+        <div class="ev-slide" id="ev-theater">
+          <img src="https://picsum.photos/seed/evTheater/1000/700" alt="Teatro" loading="lazy" />
+          <span class="ev-slide-index">04</span>
+          <div class="ev-slide-meta">
+            <span class="ev-slide-pill">Cultural</span>
+            <h4>Teatro &amp; Artes Escénicas</h4>
+            <p>Arte en vivo preservado en su dimensión completa. Cada gesto, cada coreografía, cada emoción capturada para generaciones futuras.</p>
+            <div class="ev-slide-stats">
+              <div class="ev-slide-stat"><span class="num">60fps</span><span class="lab">Movimiento fluido</span></div>
+              <div class="ev-slide-stat"><span class="num">Archivo</span><span class="lab">Permanente</span></div>
+              <div class="ev-slide-stat"><span class="num">8+</span><span class="lab">Producciones</span></div>
+            </div>
+          </div>
+        </div>
+
+        <div class="ev-slide" id="ev-sports">
+          <img src="https://picsum.photos/seed/evSports/1000/700" alt="Deportes" loading="lazy" />
+          <span class="ev-slide-index">05</span>
+          <div class="ev-slide-meta">
+            <span class="ev-slide-pill">Acción</span>
+            <h4>Deportes &amp; eSports</h4>
+            <p>La adrenalina del evento desde los mejores ángulos. Primera persona, cancha, tribunas. Tu audiencia vive cada jugada en directo.</p>
+            <div class="ev-slide-stats">
+              <div class="ev-slide-stat"><span class="num">120fps</span><span class="lab">Alta velocidad</span></div>
+              <div class="ev-slide-stat"><span class="num">POV</span><span class="lab">Primera persona</span></div>
+              <div class="ev-slide-stat"><span class="num">4+</span><span class="lab">Producciones</span></div>
+            </div>
+          </div>
+        </div>
+
+        <div class="ev-slide" id="ev-live">
+          <img src="https://picsum.photos/seed/evLive/1000/700" alt="Live Streaming" loading="lazy" />
+          <span class="ev-slide-index">06</span>
+          <div class="ev-slide-meta">
+            <span class="ev-slide-pill">Transmisión Global</span>
+            <h4>Streaming VR en Vivo</h4>
+            <p>Transmisión en tiempo real para audiencias globales, sin límite de aforo. Llega a miles de visores simultáneos alrededor del mundo.</p>
+            <div class="ev-slide-stats">
+              <div class="ev-slide-stat"><span class="num">&lt;500ms</span><span class="lab">Latencia</span></div>
+              <div class="ev-slide-stat"><span class="num">∞</span><span class="lab">Aforo global</span></div>
+              <div class="ev-slide-stat"><span class="num">24/7</span><span class="lab">Soporte live</span></div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ══ SUSCRIPCIÓN ══ -->
+  <section id="suscripcion">
+    <div class="sub-head">
+      <div>
+        <span class="tag">Streaming VR</span>
+        <h2>Accede a todo<br />el catálogo.</h2>
+      </div>
+      <p>Más que grabar eventos, construimos una biblioteca de experiencias inmersivas bajo demanda. Elige el plan que va contigo.</p>
+    </div>
+
+    <div class="plans-grid">
+
+      <div class="plan">
+        <div class="plan-tier">Free</div>
+        <h3 class="plan-name">Discover</h3>
+        <div class="plan-price">
+          <span class="amount">$0</span>
+          <span class="period">CLP / mes</span>
+        </div>
+        <p class="plan-desc">Prueba la experiencia FrontRow VR sin compromiso.</p>
+        <hr />
+        <ul class="plan-feats">
+          <li>Acceso a trailers y previews</li>
+          <li>Contenido destacado semanal</li>
+          <li>Resolución hasta 4K por ojo</li>
+          <li>1 dispositivo a la vez</li>
+          <li class="muted">Con anuncios</li>
+          <li class="muted">Sin descarga offline</li>
+        </ul>
+        <a href="#" class="plan-btn">Crear Cuenta</a>
+      </div>
+
+      <div class="plan featured">
+        <div class="plan-badge">Más Popular</div>
+        <div class="plan-tier">Pro</div>
+        <h3 class="plan-name">Pro</h3>
+        <div class="plan-price">
+          <span class="amount">$7.990</span>
+          <span class="period">CLP / mes</span>
+        </div>
+        <p class="plan-desc">El catálogo completo a tu disposición, sin interrupciones.</p>
+        <hr />
+        <ul class="plan-feats">
+          <li>Catálogo completo de eventos</li>
+          <li>Sin anuncios</li>
+          <li>Resolución hasta 6K por ojo</li>
+          <li>Audio espacial ambisónico</li>
+          <li>2 dispositivos simultáneos</li>
+          <li>Descarga para offline</li>
+        </ul>
+        <a href="#" class="plan-btn primary">Suscribirme</a>
+      </div>
+
+      <div class="plan">
+        <div class="plan-tier">Premium</div>
+        <h3 class="plan-name">Pro Max</h3>
+        <div class="plan-price">
+          <span class="amount">$14.990</span>
+          <span class="period">CLP / mes</span>
+        </div>
+        <p class="plan-desc">La experiencia VR más completa que existe.</p>
+        <hr />
+        <ul class="plan-feats">
+          <li>Todo lo de Pro</li>
+          <li>Resolución 8K máxima por ojo</li>
+          <li>Estrenos anticipados</li>
+          <li>Eventos en vivo exclusivos</li>
+          <li>4 dispositivos simultáneos</li>
+          <li>Detrás de cámaras exclusivo</li>
+        </ul>
+        <a href="#" class="plan-btn">Ir Pro Max</a>
+      </div>
+
+    </div>
+  </section>
+
+  <!-- ══ STATS ══ -->
+  <div class="stats-wrap">
+    <div class="stats-grid">
+      <div class="stat-cell">
+        <div class="stat-val">8K</div>
+        <div class="stat-lbl">Resolución por ojo</div>
+      </div>
+      <div class="stat-cell">
+        <div class="stat-val">180°</div>
+        <div class="stat-lbl">Campo visual capturado</div>
+      </div>
+      <div class="stat-cell">
+        <div class="stat-val">HOA</div>
+        <div class="stat-lbl">Audio ambisónico</div>
+      </div>
+      <div class="stat-cell">
+        <div class="stat-val">4+</div>
+        <div class="stat-lbl">Plataformas VR compatibles</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ══ PROCESO ══ -->
+  <section id="proceso">
+    <div class="proc-head">
+      <span class="tag">Proceso</span>
+      <h2>De tu evento<br />al visor.</h2>
+    </div>
+    <div class="proc-grid">
+      <div class="proc-step">
+        <div class="proc-n">01</div>
+        <h4>Consultoría &amp; Planificación</h4>
+        <p>Analizamos el venue, el tipo de evento y los objetivos para diseñar el plan de producción perfecto.</p>
+      </div>
+      <div class="proc-step">
+        <div class="proc-n">02</div>
+        <h4>Setup &amp; Grabación</h4>
+        <p>Desplegamos cámaras y sistemas de audio durante el evento con supervisión técnica en tiempo real.</p>
+      </div>
+      <div class="proc-step">
+        <div class="proc-n">03</div>
+        <h4>Post-Producción VR</h4>
+        <p>Stitching, color grading y masterizado de audio espacial para la experiencia más fluida posible.</p>
+      </div>
+      <div class="proc-step">
+        <div class="proc-n">04</div>
+        <h4>Entrega &amp; Distribución</h4>
+        <p>Formatos listos para todas las plataformas. El contenido llega a tu audiencia en tiempo récord.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- ══ TESTIMONIAL ══ -->
+  <div class="testimonial">
+    <div class="t-inner">
+      <div class="t-mark">"</div>
+      <p class="t-quote">
+        "FrontRow VR convirtió nuestro festival en una experiencia que 50.000 personas
+        pudieron vivir desde casa como si estuvieran en primera fila.
+        La calidad superó todo lo que esperábamos."
+      </p>
+      <div class="t-source">
+        <img class="t-avatar" src="https://picsum.photos/seed/person42/48/48" alt="Rodrigo Fuentes" loading="lazy" />
+        <div>
+          <div class="t-name">Rodrigo Fuentes</div>
+          <div class="t-role">Director de Producción · Festival Sur</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ══ CTA ══ -->
+  <section id="contacto">
+    <div class="cta-bg"></div>
+    <div class="cta-body">
+      <span class="tag">Trabajemos juntos</span>
+      <h2>¿Tienes un<br />evento que<br />merece ser vivido?</h2>
+      <p>Cuéntanos sobre tu proyecto y preparamos una propuesta a medida, sin compromiso.</p>
+      <a href="mailto:hola@frontrowvr.cl" class="cta-email">hola@frontrowvr.cl</a>
+    </div>
+  </section>
+
+  <!-- ══ FOOTER ══ -->
+  <footer>
+    <a href="#" class="f-logo">FrontRow<em>VR</em></a>
+    <div class="f-links">
+      <a href="#trabajo">Trabajo</a>
+      <a href="#servicios">Servicios</a>
+      <a href="#eventos">Eventos</a>
+      <a href="#suscripcion">Suscripción</a>
+      <a href="#proceso">Proceso</a>
+      <a href="#contacto">Contacto</a>
+      <a href="#login">Login</a>
+    </div>
+    <span class="f-copy">© 2025 FrontRow VR · Chile</span>
+  </footer>
+
+  <script>
+    // Nav on scroll
+    const nav = document.getElementById('nav');
+    window.addEventListener('scroll', () => {
+      nav.classList.toggle('scrolled', window.scrollY > 50);
+    }, { passive: true });
+
+    // Custom cursor
+    const cur = document.getElementById('cur');
+    const ring = document.getElementById('curRing');
+    let mx = 0, my = 0, rx = 0, ry = 0;
+
+    document.addEventListener('mousemove', e => {
+      mx = e.clientX; my = e.clientY;
+      cur.style.left = mx + 'px';
+      cur.style.top  = my + 'px';
+    });
+
+    (function loopRing() {
+      rx += (mx - rx) * 0.11;
+      ry += (my - ry) * 0.11;
+      ring.style.left = rx + 'px';
+      ring.style.top  = ry + 'px';
+      requestAnimationFrame(loopRing);
+    })();
+
+    // Event switcher
+    const evTabs = document.querySelectorAll('.ev-tab');
+    const evSlides = document.querySelectorAll('.ev-slide');
+    function activateEvent(target) {
+      evTabs.forEach(t => t.classList.toggle('active', t.dataset.target === target));
+      evSlides.forEach(s => s.classList.toggle('active', s.id === target));
+    }
+    evTabs.forEach(tab => {
+      tab.addEventListener('mouseenter', () => activateEvent(tab.dataset.target));
+      tab.addEventListener('click',      () => activateEvent(tab.dataset.target));
+    });
+
+    document.querySelectorAll('a, button').forEach(el => {
+      el.addEventListener('mouseenter', () => {
+        cur.style.width  = '14px';
+        cur.style.height = '14px';
+        ring.style.width  = '56px';
+        ring.style.height = '56px';
+        ring.style.borderColor = 'rgba(0,229,255,.65)';
+      });
+      el.addEventListener('mouseleave', () => {
+        cur.style.width  = '8px';
+        cur.style.height = '8px';
+        ring.style.width  = '36px';
+        ring.style.height = '36px';
+        ring.style.borderColor = 'rgba(0,229,255,.35)';
+      });
+    });
+  </script>
+</body>
+</html>
