@@ -1798,7 +1798,6 @@
         });
       } catch (err) {
         console.error('[Auth0] Error al inicializar:', err);
-        alert('Error Auth0: ' + err.message);
         return;
       }
 
@@ -1807,10 +1806,17 @@
         try {
           var result = await auth0.handleRedirectCallback();
           if (result && result.appState && result.appState.returnTo) {
-            window.location.replace(result.appState.returnTo);
-            return;
+            var returnTo = result.appState.returnTo;
+            // Validar que sea una URL del mismo origen (previene open redirect)
+            if (typeof returnTo === 'string' &&
+                (returnTo.startsWith('/') || returnTo.startsWith(window.location.origin + '/'))) {
+              window.location.replace(returnTo);
+              return;
+            }
           }
-        } catch (_) {}
+        } catch (cbErr) {
+          console.warn('[Auth0] Error en handleRedirectCallback:', cbErr);
+        }
         window.history.replaceState({}, document.title, window.location.pathname);
       }
 

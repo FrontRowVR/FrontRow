@@ -601,11 +601,14 @@
 
         var head = document.createElement('div');
         head.className = 'lib-section-head';
-        head.innerHTML =
-          '<span class="lib-sec-num">' + cat.num + '</span>' +
-          '<span class="lib-sec-title">' + cat.title + '</span>' +
-          (cat.subscribed ? '<span class="lib-sec-count">🔒 Suscriptores</span>'
-            : '<span class="lib-sec-count">' + cat.videos.length + ' video' + (cat.videos.length !== 1 ? 's' : '') + '</span>');
+        // Usar textContent (no innerHTML) para evitar XSS si los datos vinieran de una fuente externa
+        var numEl = document.createElement('span'); numEl.className = 'lib-sec-num';   numEl.textContent = cat.num;
+        var ttlEl = document.createElement('span'); ttlEl.className = 'lib-sec-title'; ttlEl.textContent = cat.title;
+        var cntEl = document.createElement('span'); cntEl.className = 'lib-sec-count';
+        cntEl.textContent = cat.subscribed
+          ? '🔒 Suscriptores'
+          : cat.videos.length + ' video' + (cat.videos.length !== 1 ? 's' : '');
+        head.appendChild(numEl); head.appendChild(ttlEl); head.appendChild(cntEl);
 
         var gridWrap = document.createElement('div');
         gridWrap.className = 'lib-section-grid-wrap';
