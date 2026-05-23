@@ -1058,8 +1058,6 @@
   </style>
   <!-- A-Frame: visor VR WebXR -->
   <script src="https://aframe.io/releases/1.5.0/aframe.min.js"></script>
-  <!-- Auth0 SPA SDK -->
-  <script src="https://cdn.auth0.com/js/auth0-spa-js/1.22.5/auth0-spa-js.production.js"></script>
 </head>
 <body>
 
@@ -1079,11 +1077,6 @@
       </ul>
       <div class="nav-auth">
         <a href="catalogo.html" class="nav-login">Cat&#xE1;logo</a>
-        <a href="#" id="authLoginBtn" class="nav-login">Login</a>
-        <span id="authUserPanel" style="display:none;align-items:center;gap:.6rem;">
-          <span id="authUserName" style="font-size:.78rem;color:rgba(255,255,255,.7);font-family:'DM Sans',sans-serif;max-width:150px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;"></span>
-          <a href="#" id="authLogoutBtn" class="nav-login">Salir</a>
-        </span>
         <a href="#contacto" class="nav-cta">Hablemos →</a>
       </div>
     </div>
@@ -1777,72 +1770,7 @@
     <p class="vr-modal-hint">Arrastra para girar la vista · En visor VR presiona ⊙ para entrar</p>
   </div>
 
-  <script>
-    // ╔═══════════════════════════════════════════════════════════════╗
-    // ║  AUTH0 – CONFIGURACIÓN                                        ║
-    // ║  1. Ve a auth0.com → Create Application → Single Page App     ║
-    // ║  2. En Settings copia tu Domain y Client ID                   ║
-    // ║  3. En Allowed Callback / Logout / Web Origins pon tu URL     ║
-    // ╚═══════════════════════════════════════════════════════════════╝
-    var AUTH0_DOMAIN    = 'dev-8ng8ezuk7sax0rok.us.auth0.com'; // ← CAMBIAR
-    var AUTH0_CLIENT_ID = 'fibiT7GRcL53gUEf3r8v5Q9Iop9Fo9Mg';             // ← CAMBIAR
 
-    document.addEventListener('DOMContentLoaded', async function () {
-      var auth0;
-      try {
-        auth0 = await createAuth0Client({
-          domain:         AUTH0_DOMAIN,
-          client_id:      AUTH0_CLIENT_ID,
-          redirect_uri:   window.location.origin + '/index.html',
-          cacheLocation:  'localstorage'
-        });
-      } catch (err) {
-        console.error('[Auth0] Error al inicializar:', err);
-        return;
-      }
-
-      // Manejar el redirect de vuelta desde Auth0
-      if (window.location.search.includes('code=') && window.location.search.includes('state=')) {
-        try {
-          var result = await auth0.handleRedirectCallback();
-          if (result && result.appState && result.appState.returnTo) {
-            var returnTo = result.appState.returnTo;
-            // Validar que sea una URL del mismo origen (previene open redirect)
-            if (typeof returnTo === 'string' &&
-                (returnTo.startsWith('/') || returnTo.startsWith(window.location.origin + '/'))) {
-              window.location.replace(returnTo);
-              return;
-            }
-          }
-        } catch (cbErr) {
-          console.warn('[Auth0] Error en handleRedirectCallback:', cbErr);
-        }
-        window.history.replaceState({}, document.title, window.location.pathname);
-      }
-
-      var loginBtn   = document.getElementById('authLoginBtn');
-      var userPanel  = document.getElementById('authUserPanel');
-      var userNameEl = document.getElementById('authUserName');
-      var logoutBtn  = document.getElementById('authLogoutBtn');
-
-      if (await auth0.isAuthenticated()) {
-        var user = await auth0.getUser();
-        loginBtn.style.display  = 'none';
-        userPanel.style.display = 'flex';
-        userNameEl.textContent  = user.name || user.email || 'Usuario';
-      }
-
-      loginBtn.addEventListener('click', function (e) {
-        e.preventDefault();
-        auth0.loginWithRedirect();
-      });
-
-      logoutBtn.addEventListener('click', function (e) {
-        e.preventDefault();
-        auth0.logout({ returnTo: window.location.origin + '/index.html' });
-      });
-    });
-  </script>
 
 </body>
 </html>

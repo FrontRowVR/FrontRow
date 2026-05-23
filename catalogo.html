@@ -8,8 +8,6 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Unbounded:wght@400;600;700;800;900&family=DM+Sans:ital,wght@0,300;0,400;0,500;1,300&display=swap" rel="stylesheet" />
   <script src="https://aframe.io/releases/1.5.0/aframe.min.js"></script>
-  <!-- Auth0 SPA SDK -->
-  <script src="https://cdn.auth0.com/js/auth0-spa-js/1.22.5/auth0-spa-js.production.js"></script>
 
   <style>
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
@@ -225,8 +223,7 @@
     .lib-card-sub { font-size: .74rem; color: var(--muted); letter-spacing: .04em; }
 
     /* ── Sección bloqueada (blur gate) ── */
-    #libContent { opacity: 0; transition: opacity .35s; }
-    #libContent.cat-ready { opacity: 1; }
+    #libContent { opacity: 1; }
 
     .lib-section-grid-wrap { position: relative; }
     .lib-section.locked .lib-grid {
@@ -363,11 +360,6 @@
     <div class="header-divider"></div>
     <span class="header-title">Catálogo</span>
     <span class="header-count" id="headerCount"></span>
-    <div style="display:flex;align-items:center;gap:.8rem;">
-      <span id="catUserDisplay" style="font-size:.75rem;color:rgba(255,255,255,.6);font-family:'DM Sans',sans-serif;max-width:160px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;"></span>
-      <a href="#" id="catLoginBtn"  class="back-btn" style="padding:.45rem .85rem;display:none;">Iniciar sesión →</a>
-      <a href="#" id="catLogoutBtn" class="back-btn" style="padding:.45rem .85rem;display:none;">Salir →</a>
-    </div>
   </header>
 
   <!-- ══ CONTENIDO PRINCIPAL ══ -->
@@ -443,7 +435,7 @@
       },
       // ── SECCIÓN SUSCRIPCIÓN — agrega aquí los videos exclusivos ──
       {
-        id: 'suscripcion', num: '04', title: 'Suscripción', subscribed: true,
+      { id: 'suscripcion', num: '04', title: 'Suscripción',
         videos: [
           // { src: 'videos/TuVideo.mp4', title: 'Título' },
         ]
@@ -591,7 +583,7 @@
       }
 
       // ── Construye toda la biblioteca ──
-      var total = VR_CATEGORIES.reduce(function (acc, c) { return acc + (!c.subscribed ? c.videos.length : 0); }, 0);
+      var total = VR_CATEGORIES.reduce(function (acc, c) { return acc + c.videos.length; }, 0);
       headerCount.innerHTML = '<strong>' + total + '</strong> video' + (total !== 1 ? 's' : '') + ' disponibles';
 
       VR_CATEGORIES.forEach(function (cat) {
@@ -648,66 +640,7 @@
       });
     });
   </script>
-  <script>
-    // ══ MISMOS VALORES QUE EN index.html ══
-    var AUTH0_DOMAIN    = 'dev-8ng8ezuk7sax0rok.us.auth0.com';
-    var AUTH0_CLIENT_ID = 'fibiT7GRcL53gUEf3r8v5Q9Iop9Fo9Mg';
 
-    (async function () {
-      var auth0;
-      try {
-        auth0 = await createAuth0Client({
-          domain:         AUTH0_DOMAIN,
-          client_id:      AUTH0_CLIENT_ID,
-          redirect_uri:   window.location.origin + '/index.html',
-          cacheLocation:  'localstorage'
-        });
-      } catch (err) {
-        console.error('[Auth0] Error al inicializar:', err);
-        return;
-      }
-
-      var isAuthenticated = await auth0.isAuthenticated();
-
-      var userDisplayEl = document.getElementById('catUserDisplay');
-      var logoutBtn     = document.getElementById('catLogoutBtn');
-      var loginBtn      = document.getElementById('catLoginBtn');
-      var libContent    = document.getElementById('libContent');
-
-      if (isAuthenticated) {
-        var user = await auth0.getUser();
-        if (userDisplayEl) userDisplayEl.textContent = user.name || user.email || '';
-        if (logoutBtn) {
-          logoutBtn.style.display = '';
-          logoutBtn.addEventListener('click', function (e) {
-            e.preventDefault();
-            auth0.logout({ returnTo: window.location.origin + '/index.html' });
-          });
-        }
-        // Desbloquear todas las secciones que requieren suscripción
-        document.querySelectorAll('.lib-section.locked').forEach(function (s) {
-          s.classList.remove('locked');
-        });
-      } else {
-        // Mostrar botón de login en el header
-        if (loginBtn) {
-          loginBtn.style.display = '';
-          loginBtn.addEventListener('click', function (e) {
-            e.preventDefault();
-            auth0.loginWithRedirect({ appState: { returnTo: window.location.href } });
-          });
-        }
-        // Botón dentro del overlay de cada sección bloqueada
-        document.querySelectorAll('.lib-lock-btn').forEach(function (btn) {
-          btn.addEventListener('click', function () {
-            auth0.loginWithRedirect({ appState: { returnTo: window.location.href } });
-          });
-        });
-      }
-
-      if (libContent) libContent.classList.add('cat-ready');
-    })();
-  </script>
 
 </body>
 </html>
