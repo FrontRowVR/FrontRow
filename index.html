@@ -116,7 +116,7 @@
 
     .hero-bg {
       position: absolute; inset: 0;
-      background: url('https://picsum.photos/seed/stagefront/1920/1080') center/cover no-repeat;
+      background: url('https://images.unsplash.com/photo-1740843184864-705b63d80ca5?auto=format&fit=crop&w=1920&q=80') center/cover no-repeat;
     }
     .hero-bg::after {
       content: '';
@@ -227,25 +227,51 @@
       line-height: 1.65; text-align: right;
     }
 
-    /* Asymmetric 3-col × 2-row grid */
-    .showcase-grid {
+    /* ── SHOWCASE MOSAIC ── */
+    #showcaseGrid {
       display: grid;
-      grid-template-columns: 1.6fr 1fr 1fr;
-      grid-template-rows: 320px 260px;
-      gap: 10px;
+      grid-template-columns: repeat(3, 1fr);
+      grid-auto-rows: 320px;
+      gap: 8px;
+    }
+    .sc-large { grid-column: span 2; }
+    /* sc-small fills its row via grid-auto-rows */
+    .sc-vr-badge {
+      position: absolute; top: .9rem; right: .9rem;
+      font-family: 'Unbounded', sans-serif;
+      font-size: .55rem; font-weight: 700; letter-spacing: .1em;
+      padding: .2rem .55rem;
+      background: rgba(0,0,0,.55); backdrop-filter: blur(6px);
+      border: 1px solid rgba(0,229,255,.45);
+      color: var(--accent); pointer-events: none;
     }
     .sc-item {
       position: relative; overflow: hidden;
       background: #111118;
     }
-    .sc-item.tall { grid-row: 1 / 3; }
 
-    .sc-item img {
+    .sc-item { cursor: pointer; }
+    .sc-item img,
+    .sc-item video {
       width: 100%; height: 100%; object-fit: cover; display: block;
       filter: brightness(.7) saturate(.9);
       transition: transform .7s cubic-bezier(.25,.46,.45,.94), filter .4s;
     }
-    .sc-item:hover img { transform: scale(1.07); filter: brightness(.85) saturate(1.1); }
+    .sc-item:hover img,
+    .sc-item:hover video { transform: scale(1.07); filter: brightness(.85) saturate(1.1); }
+
+    .sc-play-ring {
+      position: absolute; top: 50%; left: 50%;
+      transform: translate(-50%, -50%) scale(.8);
+      width: 60px; height: 60px; border-radius: 50%;
+      border: 2px solid rgba(255,255,255,.75);
+      display: flex; align-items: center; justify-content: center;
+      font-size: 1.3rem; color: white; padding-left: 4px;
+      background: rgba(0,0,0,.35); backdrop-filter: blur(8px);
+      transition: transform .35s, opacity .35s;
+      opacity: 0; pointer-events: none;
+    }
+    .sc-item:hover .sc-play-ring { transform: translate(-50%, -50%) scale(1); opacity: 1; }
 
     .sc-bar {
       position: absolute; top: 0; left: 0; right: 0; height: 2px;
@@ -754,7 +780,7 @@
     }
     .cta-bg {
       position: absolute; inset: 0;
-      background: url('https://picsum.photos/seed/vrshow2025/1920/1080') center/cover no-repeat;
+      background: url('https://images.unsplash.com/photo-1614487331144-b5b141c11eab?auto=format&fit=crop&w=1920&q=80') center/cover no-repeat;
     }
     .cta-bg::after {
       content: '';
@@ -813,11 +839,8 @@
     @media (max-width: 960px) {
       .nav-links { display: none; }
       .nav-login { display: none; }
-      .showcase-grid {
-        grid-template-columns: 1fr 1fr;
-        grid-template-rows: auto;
-      }
-      .sc-item.tall { grid-row: auto; }
+      #showcaseGrid { grid-template-columns: 1fr 1fr; grid-auto-rows: 200px; }
+      .sc-large { grid-column: span 1; }
       .feat-row { grid-template-columns: 1fr; }
       .feat-row:nth-child(even) .feat-img { order: 0; }
       .feat-img { min-height: 300px; }
@@ -850,7 +873,193 @@
       .ev-slide-stats { gap: 1.2rem; }
       footer { flex-direction: column; align-items: flex-start; }
     }
+
+    /* ── VR DEMO SECTION ── */
+    .vr-demo {
+      padding: 6rem 4%;
+    }
+    .vr-preview-wrap {
+      position: relative;
+      margin-top: 3rem;
+      border-radius: 12px;
+      overflow: hidden;
+      aspect-ratio: 16 / 7;
+      background: var(--surface);
+      cursor: pointer;
+      border: 1px solid var(--border);
+      transition: border-color .3s;
+    }
+    .vr-preview-wrap:hover { border-color: var(--accent); }
+    .vr-preview-img {
+      width: 100%; height: 100%;
+      object-fit: cover; display: block;
+      filter: brightness(.55);
+      transition: filter .4s, transform .5s;
+    }
+    .vr-preview-wrap:hover .vr-preview-img {
+      filter: brightness(.4);
+      transform: scale(1.03);
+    }
+    .vr-preview-overlay {
+      position: absolute; inset: 0;
+      display: flex; flex-direction: column;
+      align-items: center; justify-content: center;
+      gap: 1.2rem;
+    }
+    .vr-play-ring {
+      width: 80px; height: 80px;
+      border: 2px solid var(--accent); border-radius: 50%;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 1.6rem; color: var(--accent);
+      backdrop-filter: blur(8px);
+      background: rgba(0,229,255,.08);
+      transition: transform .25s, background .25s;
+    }
+    .vr-preview-wrap:hover .vr-play-ring {
+      transform: scale(1.12);
+      background: rgba(0,229,255,.18);
+    }
+    .vr-preview-title {
+      font-family: 'Unbounded', sans-serif;
+      font-size: .8rem; font-weight: 700;
+      letter-spacing: .14em; text-transform: uppercase;
+    }
+    .vr-preview-hint { font-size: .78rem; color: rgba(255,255,255,.45); letter-spacing: .04em; }
+    .vr-preview-badges {
+      position: absolute; bottom: 1.5rem; left: 1.5rem;
+      display: flex; gap: .6rem; flex-wrap: wrap;
+    }
+    .vr-badge {
+      background: rgba(0,0,0,.55);
+      border: 1px solid var(--border);
+      backdrop-filter: blur(10px);
+      padding: .3rem .9rem; border-radius: 999px;
+      font-size: .72rem; letter-spacing: .05em; color: var(--offwhite);
+    }
+
+    /* ── VR MODAL ── */
+    .vr-modal {
+      position: fixed; inset: 0; z-index: 2000;
+      background: #000;
+      visibility: hidden; opacity: 0; pointer-events: none;
+      transition: opacity .25s;
+    }
+    .vr-modal.open { visibility: visible; opacity: 1; pointer-events: auto; }
+    .vr-modal-bar {
+      position: absolute; top: 0; left: 0; right: 0; z-index: 10;
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 1rem 1.5rem;
+      background: linear-gradient(to bottom, rgba(0,0,0,.75) 0%, transparent 100%);
+    }
+    .vr-modal-logo {
+      font-family: 'Unbounded', sans-serif;
+      font-size: .9rem; font-weight: 800; letter-spacing: .02em;
+    }
+    .vr-modal-logo em { color: var(--accent); font-style: normal; }
+    .vr-modal-close {
+      background: rgba(255,255,255,.1);
+      border: 1px solid rgba(255,255,255,.2);
+      color: var(--white); width: 40px; height: 40px;
+      border-radius: 50%; font-size: 1rem; cursor: pointer;
+      display: flex; align-items: center; justify-content: center;
+      transition: background .2s;
+    }
+    .vr-modal-close:hover { background: rgba(255,255,255,.22); }
+    .vr-modal a-scene { width: 100%; height: 100vh; display: block; }
+    .vr-modal-hint {
+      position: absolute; bottom: 1.8rem; left: 50%; transform: translateX(-50%);
+      z-index: 10; background: rgba(0,0,0,.55);
+      border: 1px solid var(--border); backdrop-filter: blur(8px);
+      padding: .5rem 1.4rem; border-radius: 999px;
+      font-size: .76rem; color: rgba(255,255,255,.6);
+      letter-spacing: .04em; white-space: nowrap; pointer-events: none;
+      animation: hintFade 5s ease forwards 3s;
+    }
+    .vr-no-video {
+      position: absolute; inset: 0; z-index: 6;
+      display: flex; flex-direction: column;
+      align-items: center; justify-content: center; gap: 1rem;
+      pointer-events: none;
+    }
+    .vr-no-video p {
+      font-size: .85rem; color: rgba(255,255,255,.38);
+      max-width: 320px; text-align: center; line-height: 1.7;
+    }
+    .vr-no-video code {
+      font-size: .78rem; background: rgba(0,229,255,.1); color: var(--accent);
+      padding: .2rem .6rem; border-radius: 4px; border: 1px solid rgba(0,229,255,.2);
+    }
+    @keyframes hintFade { to { opacity: 0; } }
+    @keyframes spin { to { transform: rotate(360deg); } }
+
+    /* ── VR LOADING / ERROR ── */
+    .vr-loading {
+      position: absolute; inset: 0; z-index: 7;
+      display: none; flex-direction: column;
+      align-items: center; justify-content: center; gap: 1.2rem;
+      background: #050507;
+    }
+    .vr-loading.show { display: flex; }
+    .vr-spinner {
+      width: 52px; height: 52px;
+      border: 2px solid rgba(0,229,255,.15);
+      border-top-color: var(--accent);
+      border-radius: 50%;
+      animation: spin .85s linear infinite;
+    }
+    .vr-loading p { font-size: .8rem; color: rgba(255,255,255,.4); letter-spacing: .06em; }
+    .vr-error {
+      position: absolute; inset: 0; z-index: 8;
+      display: none; flex-direction: column;
+      align-items: center; justify-content: center; gap: 1rem;
+      background: #050507;
+    }
+    .vr-error.show { display: flex; }
+    .vr-error p { font-size: .85rem; color: rgba(255,100,100,.75); max-width: 360px; text-align: center; line-height: 1.75; }
+    .vr-error code { font-size: .76rem; color: var(--accent); background: rgba(0,229,255,.08); padding: .2rem .5rem; border-radius: 4px; }
+    .vr-error-retry {
+      background: transparent; border: 1px solid rgba(255,100,100,.35);
+      color: rgba(255,100,100,.75); padding: .5rem 1.6rem;
+      border-radius: 999px; font-size: .8rem; cursor: pointer;
+      transition: background .2s;
+    }
+    .vr-error-retry:hover { background: rgba(255,100,100,.08); }
+
+    /* ── VR PICKER ── */
+    .vr-picker {
+      position: absolute; inset: 0; z-index: 6;
+      display: none; flex-direction: column;
+      align-items: center; justify-content: center; gap: 2rem;
+      background: rgba(5,5,7,.95);
+    }
+    .vr-picker.show { display: flex; }
+    .vr-picker h3 {
+      font-family: 'Unbounded', sans-serif;
+      font-size: 1rem; font-weight: 700; letter-spacing: .06em;
+    }
+    .vr-picker-list {
+      list-style: none;
+      display: flex; flex-direction: column; gap: .6rem;
+      width: 100%; max-width: 520px; padding: 0 1.5rem;
+      max-height: 60vh; overflow-y: auto;
+    }
+    .vr-picker-item {
+      padding: 1rem 1.4rem;
+      border: 1px solid var(--border); border-radius: 8px;
+      cursor: pointer; font-size: .88rem;
+      transition: border-color .2s, background .2s;
+      white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+    }
+    .vr-picker-item:hover { border-color: var(--accent); background: var(--accent-dim); }
+    .vr-picker-item .pi-num {
+      font-family: 'Unbounded', sans-serif; font-size: .68rem;
+      color: var(--accent); margin-right: .8rem; opacity: .7;
+    }
   </style>
+  <!-- A-Frame: visor VR WebXR -->
+  <script src="https://aframe.io/releases/1.5.0/aframe.min.js"></script>
+  <!-- Auth0 SPA SDK -->
+  <script src="https://cdn.auth0.com/js/auth0-spa-js/1.22.5/auth0-spa-js.production.js"></script>
 </head>
 <body>
 
@@ -869,7 +1078,12 @@
         <li><a href="#proceso">Proceso</a></li>
       </ul>
       <div class="nav-auth">
-        <a href="#login" class="nav-login">Login</a>
+        <a href="catalogo.html" class="nav-login">Cat&#xE1;logo</a>
+        <a href="#" id="authLoginBtn" class="nav-login">Login</a>
+        <span id="authUserPanel" style="display:none;align-items:center;gap:.6rem;">
+          <span id="authUserName" style="font-size:.78rem;color:rgba(255,255,255,.7);font-family:'DM Sans',sans-serif;max-width:150px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;"></span>
+          <a href="#" id="authLogoutBtn" class="nav-login">Salir</a>
+        </span>
         <a href="#contacto" class="nav-cta">Hablemos →</a>
       </div>
     </div>
@@ -921,32 +1135,57 @@
       <h2>Lo que<br />capturamos.</h2>
       <p>Cada producción diseñada para llevar al espectador al centro de la experiencia.</p>
     </div>
-    <div class="showcase-grid">
-      <div class="sc-item tall">
+    <div id="showcaseGrid">
+
+      <!-- ╔══════════════════════════════════════════════════════╗ -->
+      <!-- ║  TILE 1 · Grande izquierda (fila 1)                  ║ -->
+      <!-- ║  Cambia el src de <img> por tu URL de imagen         ║ -->
+      <!-- ╚══════════════════════════════════════════════════════╝ -->
+      <div class="sc-item sc-large" data-cat="0" data-vid="0" role="button" tabindex="0" aria-label="Ver Danza en VR 180°">
         <div class="sc-bar"></div>
-        <img src="https://picsum.photos/seed/liveshow01/800/700" alt="Concierto en VR 180°" loading="lazy" />
-        <span class="sc-label">Conciertos · Rock / Pop / Electrónica</span>
+        <!-- IMAGEN TILE 1 ↓ -->
+        <img src="https://images.unsplash.com/photo-1518611012118-696072aa579a?auto=format&fit=crop&w=1200&q=80" alt="Danza" loading="lazy" />
+        <span class="sc-vr-badge">VR 180°</span>
+        <div class="sc-play-ring">&#9654;</div>
+        <span class="sc-label">Danza</span>
       </div>
-      <div class="sc-item">
+
+      <!-- ╔══════════════════════════════════════════════════════╗ -->
+      <!-- ║  TILE 2 · Pequeña derecha (fila 1)                   ║ -->
+      <!-- ╚══════════════════════════════════════════════════════╝ -->
+      <div class="sc-item sc-small" data-cat="0" data-vid="1" role="button" tabindex="0" aria-label="Ver Cocina en VR 180°">
         <div class="sc-bar"></div>
-        <img src="https://picsum.photos/seed/festival2025a/600/340" alt="Festival de música" loading="lazy" />
-        <span class="sc-label">Festivales</span>
+        <!-- IMAGEN TILE 2 ↓ -->
+        <img src="https://images.unsplash.com/photo-1556909114-f6e7ad7d3136?auto=format&fit=crop&w=700&q=80" alt="Cocina" loading="lazy" />
+        <span class="sc-vr-badge">VR 180°</span>
+        <div class="sc-play-ring">&#9654;</div>
+        <span class="sc-label">Cocina</span>
       </div>
-      <div class="sc-item">
+
+      <!-- ╔══════════════════════════════════════════════════════╗ -->
+      <!-- ║  TILE 3 · Pequeña izquierda (fila 2)                 ║ -->
+      <!-- ╚══════════════════════════════════════════════════════╝ -->
+      <div class="sc-item sc-small" data-cat="1" data-vid="0" role="button" tabindex="0" aria-label="Ver Maquillaje en VR 180°">
         <div class="sc-bar"></div>
-        <img src="https://picsum.photos/seed/tedtalk55/600/340" alt="Charla profesional" loading="lazy" />
-        <span class="sc-label">Charlas &amp; Conferencias</span>
+        <!-- IMAGEN TILE 3 ↓ -->
+        <img src="https://images.unsplash.com/photo-1487412720507-e7ab37603c6f?auto=format&fit=crop&w=700&q=80" alt="Maquillaje" loading="lazy" />
+        <span class="sc-vr-badge">VR 180°</span>
+        <div class="sc-play-ring">&#9654;</div>
+        <span class="sc-label">Maquillaje</span>
       </div>
-      <div class="sc-item">
+
+      <!-- ╔══════════════════════════════════════════════════════╗ -->
+      <!-- ║  TILE 4 · Grande derecha (fila 2)                    ║ -->
+      <!-- ╚══════════════════════════════════════════════════════╝ -->
+      <div class="sc-item sc-large" data-cat="2" data-vid="0" role="button" tabindex="0" aria-label="Ver Moda en VR 180°">
         <div class="sc-bar"></div>
-        <img src="https://picsum.photos/seed/theater2024/600/300" alt="Teatro y artes escénicas" loading="lazy" />
-        <span class="sc-label">Teatro &amp; Danza</span>
+        <!-- IMAGEN TILE 4 ↓ -->
+        <img src="https://images.unsplash.com/photo-1483985988355-763728e1935b?auto=format&fit=crop&w=1200&q=80" alt="Moda" loading="lazy" />
+        <span class="sc-vr-badge">VR 180°</span>
+        <div class="sc-play-ring">&#9654;</div>
+        <span class="sc-label">Moda</span>
       </div>
-      <div class="sc-item">
-        <div class="sc-bar"></div>
-        <img src="https://picsum.photos/seed/sportslive2/600/300" alt="Deportes en vivo" loading="lazy" />
-        <span class="sc-label">Deportes &amp; eSports</span>
-      </div>
+
     </div>
   </section>
 
@@ -970,7 +1209,7 @@
         <p>Cámaras de nivel broadcast con lentes duales capturan cada escenario en hasta 8K por ojo, preservando la profundidad y el detalle que el contenido VR exige.</p>
       </div>
       <div class="feat-img">
-        <img src="https://picsum.photos/seed/camera180vr/700/520" alt="Grabación VR" loading="lazy" />
+        <img src="https://images.unsplash.com/photo-1556340346-5e30da977c4d?auto=format&fit=crop&w=700&q=80" alt="Grabación VR" loading="lazy" />
       </div>
     </div>
 
@@ -982,7 +1221,7 @@
         <p>Audio ambisónico de alto orden captura el campo sonoro completo. Cada fuente de sonido tiene su lugar exacto en el espacio. Cierra los ojos y estás ahí.</p>
       </div>
       <div class="feat-img">
-        <img src="https://picsum.photos/seed/spatialaudio/700/520" alt="Audio espacial inmersivo" loading="lazy" />
+        <img src="https://images.unsplash.com/photo-1551034261-3bd672e0a970?auto=format&fit=crop&w=700&q=80" alt="Audio espacial inmersivo" loading="lazy" />
       </div>
     </div>
 
@@ -994,7 +1233,7 @@
         <p>Stitching, color grading y masterizado especializado para VR. Entregamos formatos compatibles con Meta Quest, Apple Vision Pro, PlayStation VR2 y YouTube VR.</p>
       </div>
       <div class="feat-img">
-        <img src="https://picsum.photos/seed/vrheadset22/700/520" alt="Distribución VR multi-plataforma" loading="lazy" />
+        <img src="https://images.unsplash.com/photo-1558008258-3256797b43f3?auto=format&fit=crop&w=700&q=80" alt="Distribución VR multi-plataforma" loading="lazy" />
       </div>
     </div>
 
@@ -1046,7 +1285,7 @@
 
       <div class="ev-stage">
         <div class="ev-slide active" id="ev-concerts">
-          <img src="https://picsum.photos/seed/evConcert/1000/700" alt="Conciertos" loading="lazy" />
+          <img src="https://images.unsplash.com/photo-1524368535928-5b5e00ddc76b?auto=format&fit=crop&w=1000&q=80" alt="Conciertos" loading="lazy" />
           <span class="ev-slide-index">01</span>
           <div class="ev-slide-meta">
             <span class="ev-slide-pill">Alta Energía</span>
@@ -1061,7 +1300,7 @@
         </div>
 
         <div class="ev-slide" id="ev-festivals">
-          <img src="https://picsum.photos/seed/evFestival/1000/700" alt="Festivales" loading="lazy" />
+          <img src="https://images.unsplash.com/photo-1619229725920-ac8b63b0631a?auto=format&fit=crop&w=1000&q=80" alt="Festivales" loading="lazy" />
           <span class="ev-slide-index">02</span>
           <div class="ev-slide-meta">
             <span class="ev-slide-pill">Multi-cámara</span>
@@ -1076,7 +1315,7 @@
         </div>
 
         <div class="ev-slide" id="ev-talks">
-          <img src="https://picsum.photos/seed/evTalk/1000/700" alt="Conferencias" loading="lazy" />
+          <img src="https://images.unsplash.com/photo-1544531586-fde5298cdd40?auto=format&fit=crop&w=1000&q=80" alt="Conferencias" loading="lazy" />
           <span class="ev-slide-index">03</span>
           <div class="ev-slide-meta">
             <span class="ev-slide-pill">Corporativo</span>
@@ -1091,7 +1330,7 @@
         </div>
 
         <div class="ev-slide" id="ev-theater">
-          <img src="https://picsum.photos/seed/evTheater/1000/700" alt="Teatro" loading="lazy" />
+          <img src="https://images.unsplash.com/photo-1741671323163-5da1c3dcb4b2?auto=format&fit=crop&w=1000&q=80" alt="Teatro" loading="lazy" />
           <span class="ev-slide-index">04</span>
           <div class="ev-slide-meta">
             <span class="ev-slide-pill">Cultural</span>
@@ -1106,7 +1345,7 @@
         </div>
 
         <div class="ev-slide" id="ev-sports">
-          <img src="https://picsum.photos/seed/evSports/1000/700" alt="Deportes" loading="lazy" />
+          <img src="https://images.unsplash.com/photo-1590674680695-8b9efe9b764d?auto=format&fit=crop&w=1000&q=80" alt="Deportes" loading="lazy" />
           <span class="ev-slide-index">05</span>
           <div class="ev-slide-meta">
             <span class="ev-slide-pill">Acción</span>
@@ -1121,7 +1360,7 @@
         </div>
 
         <div class="ev-slide" id="ev-live">
-          <img src="https://picsum.photos/seed/evLive/1000/700" alt="Live Streaming" loading="lazy" />
+          <img src="https://images.unsplash.com/photo-1626125345510-4603468eedfb?auto=format&fit=crop&w=1000&q=80" alt="Live Streaming" loading="lazy" />
           <span class="ev-slide-index">06</span>
           <div class="ev-slide-meta">
             <span class="ev-slide-pill">Transmisión Global</span>
@@ -1365,6 +1604,239 @@
         ring.style.borderColor = 'rgba(0,229,255,.35)';
       });
     });
+
+    // ══════════════════════════════════════════════════════
+    // VR VIDEOS — Para agregar más, copia una línea al array.
+    // Coloca los archivos de video en la carpeta videos/ junto a index.html.
+    // ══════════════════════════════════════════════════════
+    const VR_CATEGORIES = [
+      {
+        id: 'entretenimiento', num: '01', title: 'Entretenimiento',
+        videos: [
+          { src: 'videos/Dancing Girl.mp4',   title: 'Danza',      img: 'imagenes/danza.jpg' },
+          { src: 'videos/Indoor Kitchen.mp4', title: 'Cocina',     img: 'imagenes/cocina.jpg' },
+        ]
+      },
+      {
+        id: 'educacion', num: '02', title: 'Educación',
+        videos: [
+          { src: 'videos/Makeup Girl_GRWM.mp4', title: 'Maquillaje', img: 'imagenes/maquillaje.jpg' },
+        ]
+      },
+      {
+        id: 'clientes', num: '03', title: 'Nuestros Clientes', fullWidth: true,
+        videos: [
+          { src: 'videos/Outfit of the Day.mp4', title: 'Moda', img: 'imagenes/moda.jpg' },
+        ]
+      }
+    ];
+
+    // ── VR Modal ──
+    document.addEventListener('DOMContentLoaded', function () {
+      const vrModal    = document.getElementById('vrModal');
+      const vrVideo    = document.getElementById('vrVideo');
+      const vrLoading  = document.getElementById('vrLoading');
+      const vrError    = document.getElementById('vrError');
+      const vrErrorMsg = document.getElementById('vrErrorMsg');
+      const closeVrBtn = document.getElementById('closeVrPlayer');
+      // ── Sync showcase tile images from VR_CATEGORIES ──
+      document.querySelectorAll('#showcaseGrid .sc-item[data-cat]').forEach(function (item) {
+        var cat    = parseInt(item.getAttribute('data-cat'));
+        var vid    = parseInt(item.getAttribute('data-vid'));
+        var catObj = VR_CATEGORIES[cat];
+        var vidObj = catObj && catObj.videos[vid];
+        var imgEl  = item.querySelector('img');
+        if (imgEl && vidObj && vidObj.img) {
+          imgEl.src = vidObj.img;
+          imgEl.alt = vidObj.title;
+        }
+      });
+
+      // ── Bind showcase items (click → VR player) ──
+      document.querySelectorAll('#showcaseGrid .sc-item[data-cat]').forEach(function (item) {
+        item.addEventListener('click', function () {
+          var cat = parseInt(item.getAttribute('data-cat'));
+          var vid = parseInt(item.getAttribute('data-vid'));
+          openVr(VR_CATEGORIES[cat].videos[vid]);
+        });
+        item.addEventListener('keydown', function (e) {
+          if (e.key === 'Enter' || e.key === ' ') {
+            e.preventDefault();
+            var cat = parseInt(item.getAttribute('data-cat'));
+            var vid = parseInt(item.getAttribute('data-vid'));
+            openVr(VR_CATEGORIES[cat].videos[vid]);
+          }
+        });
+      });
+
+      // ── Crea un MeshBasicMaterial nuevo con VideoTexture ──
+      function applyVideoTexture(video) {
+        var sphere = document.getElementById('vrSphere');
+        var mesh   = sphere.getObject3D('mesh');
+        if (!mesh) {
+          setTimeout(function () { applyVideoTexture(video); }, 200);
+          return;
+        }
+        var renderer = document.getElementById('vrScene').renderer;
+        var texture  = new THREE.VideoTexture(video);
+        texture.wrapS          = THREE.RepeatWrapping;
+        texture.wrapT          = THREE.RepeatWrapping;
+        texture.repeat.set(0.5, 1);  // 180° SBS: mostrar solo ojo izquierdo (0-50%)
+        texture.offset.set(0, 0);
+        texture.minFilter      = THREE.LinearFilter;
+        texture.magFilter      = THREE.LinearFilter;
+        texture.generateMipmaps = false;
+        // Filtrado anisotrópico al máximo de la GPU (A-Frame lo pone siempre, nosotros también)
+        if (renderer && renderer.capabilities) {
+          texture.anisotropy = renderer.capabilities.getMaxAnisotropy();
+        }
+        // Color space correcto para THREE.js r148+ / r152+
+        if (THREE.SRGBColorSpace !== undefined) {
+          texture.colorSpace = THREE.SRGBColorSpace;
+        } else if (THREE.sRGBEncoding !== undefined) {
+          texture.encoding = THREE.sRGBEncoding;
+        }
+        if (mesh.material) mesh.material.dispose();
+        mesh.material = new THREE.MeshBasicMaterial({
+          map:  texture,
+          side: THREE.BackSide
+        });
+      }
+
+      // ── Abre el visor VR con el video seleccionado ──
+      function openVr(vid) {
+        vrModal.classList.add('open');
+        document.body.style.overflow = 'hidden';
+        vrError.classList.remove('show');
+        vrLoading.classList.add('show');
+
+        vrVideo.src = vid.src;
+        vrVideo.load();
+
+        var fired = false;
+        function onReady() {
+          if (fired) return;
+          fired = true;
+          vrVideo.removeEventListener('canplay', onReady);
+          vrVideo.play().catch(function () {});
+          applyVideoTexture(vrVideo);
+          vrLoading.classList.remove('show');
+        }
+        vrVideo.addEventListener('canplay', onReady);
+        setTimeout(onReady, 3000); // fallback si canplay ya disparó
+      }
+
+      function closeVr() {
+        vrModal.classList.remove('open');
+        document.body.style.overflow = '';
+        vrVideo.pause();
+      }
+
+      closeVrBtn.addEventListener('click', closeVr);
+      document.addEventListener('keydown', function (e) {
+        if (e.key === 'Escape' && vrModal.classList.contains('open')) closeVr();
+      });
+    });
   </script>
+  <!-- ══ VR PLAYER MODAL ══ -->
+  <div id="vrModal" class="vr-modal">
+    <div class="vr-modal-bar">
+      <span class="vr-modal-logo">FrontRow<em>VR</em></span>
+      <button class="vr-modal-close" id="closeVrPlayer" aria-label="Cerrar visor">✕</button>
+    </div>
+
+    <div class="vr-loading" id="vrLoading">
+      <div class="vr-spinner"></div>
+      <p>Cargando experiencia VR&hellip;</p>
+    </div>
+
+    <div class="vr-error" id="vrError">
+      <p id="vrErrorMsg">Error al cargar el video.</p>
+    </div>
+
+    <!-- video fuera de a-assets para no pasar por el sistema de caché de A-Frame -->
+    <video id="vrVideo" style="display:none" loop playsinline webkit-playsinline preload="auto"></video></video>
+
+    <a-scene
+      id="vrScene"
+      embedded
+      vr-mode-ui="enabled: true"
+      loading-screen="dotsColor: #00e5ff; backgroundColor: #050507"
+      renderer="antialias: true; colorManagement: true"
+    >
+      <a-sky color="#050507"></a-sky>
+      <a-entity
+        id="vrSphere"
+        geometry="primitive: sphere; radius: 100; segmentsWidth: 64; segmentsHeight: 64; phiStart: 0; phiLength: 180; thetaStart: 0; thetaLength: 180"
+        material="shader: flat; side: back; color: #050507"
+        rotation="0 90 0"
+      ></a-entity>
+      <a-camera look-controls="reverseMouseDrag: false" wasd-controls="enabled: false"></a-camera>
+    </a-scene>
+
+    <p class="vr-modal-hint">Arrastra para girar la vista · En visor VR presiona ⊙ para entrar</p>
+  </div>
+
+  <script>
+    // ╔═══════════════════════════════════════════════════════════════╗
+    // ║  AUTH0 – CONFIGURACIÓN                                        ║
+    // ║  1. Ve a auth0.com → Create Application → Single Page App     ║
+    // ║  2. En Settings copia tu Domain y Client ID                   ║
+    // ║  3. En Allowed Callback / Logout / Web Origins pon tu URL     ║
+    // ╚═══════════════════════════════════════════════════════════════╝
+    var AUTH0_DOMAIN    = 'dev-8ng8ezuk7sax0rok.us.auth0.com'; // ← CAMBIAR
+    var AUTH0_CLIENT_ID = 'fibiT7GRcL53gUEf3r8v5Q9Iop9Fo9Mg';             // ← CAMBIAR
+
+    document.addEventListener('DOMContentLoaded', async function () {
+      var auth0;
+      try {
+        auth0 = await createAuth0Client({
+          domain:         AUTH0_DOMAIN,
+          client_id:      AUTH0_CLIENT_ID,
+          redirect_uri:   window.location.origin + '/index.html',
+          cacheLocation:  'localstorage'
+        });
+      } catch (err) {
+        console.error('[Auth0] Error al inicializar:', err);
+        alert('Error Auth0: ' + err.message);
+        return;
+      }
+
+      // Manejar el redirect de vuelta desde Auth0
+      if (window.location.search.includes('code=') && window.location.search.includes('state=')) {
+        try {
+          var result = await auth0.handleRedirectCallback();
+          if (result && result.appState && result.appState.returnTo) {
+            window.location.replace(result.appState.returnTo);
+            return;
+          }
+        } catch (_) {}
+        window.history.replaceState({}, document.title, window.location.pathname);
+      }
+
+      var loginBtn   = document.getElementById('authLoginBtn');
+      var userPanel  = document.getElementById('authUserPanel');
+      var userNameEl = document.getElementById('authUserName');
+      var logoutBtn  = document.getElementById('authLogoutBtn');
+
+      if (await auth0.isAuthenticated()) {
+        var user = await auth0.getUser();
+        loginBtn.style.display  = 'none';
+        userPanel.style.display = 'flex';
+        userNameEl.textContent  = user.name || user.email || 'Usuario';
+      }
+
+      loginBtn.addEventListener('click', function (e) {
+        e.preventDefault();
+        auth0.loginWithRedirect();
+      });
+
+      logoutBtn.addEventListener('click', function (e) {
+        e.preventDefault();
+        auth0.logout({ returnTo: window.location.origin + '/index.html' });
+      });
+    });
+  </script>
+
 </body>
 </html>

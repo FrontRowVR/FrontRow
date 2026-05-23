@@ -1,0 +1,710 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Catálogo · FrontRow VR</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Unbounded:wght@400;600;700;800;900&family=DM+Sans:ital,wght@0,300;0,400;0,500;1,300&display=swap" rel="stylesheet" />
+  <script src="https://aframe.io/releases/1.5.0/aframe.min.js"></script>
+  <!-- Auth0 SPA SDK -->
+  <script src="https://cdn.auth0.com/js/auth0-spa-js/1.22.5/auth0-spa-js.production.js"></script>
+
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --black:      #050507;
+      --surface:    #0a0a10;
+      --white:      #ffffff;
+      --offwhite:   #e8e8f2;
+      --muted:      #7a7a8c;
+      --faint:      rgba(255,255,255,0.06);
+      --border:     rgba(255,255,255,0.08);
+      --accent:     #00e5ff;
+      --accent-dim: rgba(0,229,255,0.12);
+    }
+
+    /* Evitar que A-Frame bloquee el scroll de la página */
+    html.a-fullscreen { height: auto !important; overflow: auto !important; }
+    html.a-fullscreen body { height: auto !important; overflow: visible !important; }
+
+    html { scroll-behavior: smooth; }
+
+    body {
+      background: var(--black);
+      color: var(--white);
+      font-family: 'DM Sans', sans-serif;
+      font-weight: 400;
+      line-height: 1.6;
+      overflow-x: hidden;
+      min-height: 100vh;
+    }
+
+    /* ── SCROLLBAR ── */
+    ::-webkit-scrollbar { width: 4px; }
+    ::-webkit-scrollbar-track { background: var(--black); }
+    ::-webkit-scrollbar-thumb { background: var(--accent); border-radius: 2px; }
+
+    /* ─────────────────────────────────────────────
+       PAGE HEADER
+    ───────────────────────────────────────────── */
+    .page-header {
+      position: sticky; top: 0; z-index: 100;
+      display: flex; align-items: center; gap: 1.2rem;
+      padding: 1.2rem 4%;
+      background: rgba(5,5,7,.96); backdrop-filter: blur(20px);
+      border-bottom: 1px solid var(--border);
+    }
+
+    .back-btn {
+      display: flex; align-items: center; gap: .55rem;
+      background: rgba(255,255,255,.07);
+      border: 1px solid var(--border);
+      color: var(--muted); font-size: .8rem; letter-spacing: .04em;
+      padding: .55rem 1rem; cursor: pointer;
+      text-decoration: none;
+      transition: background .2s, color .2s, border-color .2s;
+    }
+    .back-btn:hover { background: rgba(255,255,255,.13); color: var(--white); border-color: rgba(255,255,255,.2); }
+    .back-btn svg { width: 13px; height: 13px; flex-shrink: 0; }
+
+    .header-divider { width: 1px; height: 20px; background: var(--border); }
+
+    .header-logo {
+      font-family: 'Unbounded', sans-serif;
+      font-weight: 800; font-size: 1rem; letter-spacing: .02em;
+      color: var(--white); text-decoration: none;
+    }
+    .header-logo em { color: var(--accent); font-style: normal; }
+
+    .header-title {
+      font-family: 'Unbounded', sans-serif;
+      font-size: .7rem; font-weight: 700; letter-spacing: .16em;
+      text-transform: uppercase; color: var(--muted);
+    }
+
+    .header-count {
+      margin-left: auto;
+      font-size: .75rem; color: var(--muted); letter-spacing: .05em;
+    }
+    .header-count strong { color: var(--accent); font-weight: 700; }
+
+    /* ─────────────────────────────────────────────
+       PAGE BODY
+    ───────────────────────────────────────────── */
+    .lib-body {
+      padding: 5rem 4% 8rem;
+    }
+
+    /* ── Intro ── */
+    .lib-intro { margin-bottom: 5rem; }
+
+    .lib-intro-label {
+      font-family: 'Unbounded', sans-serif;
+      font-size: .7rem; font-weight: 700; letter-spacing: .16em;
+      text-transform: uppercase; color: var(--accent); margin-bottom: 1.1rem;
+      display: flex; align-items: center; gap: .7rem;
+    }
+    .lib-intro-label::before { content: ''; width: 26px; height: 1px; background: var(--accent); }
+
+    .lib-intro h1 {
+      font-family: 'Unbounded', sans-serif;
+      font-size: clamp(2.4rem, 5vw, 4.2rem);
+      font-weight: 800; letter-spacing: -.035em; line-height: 1.0;
+      margin-bottom: .9rem;
+    }
+
+    .lib-intro p {
+      color: var(--muted); font-size: .95rem; max-width: 520px; line-height: 1.75;
+    }
+
+    /* ── Section ── */
+    .lib-section { margin-bottom: 5rem; }
+
+    .lib-section-head {
+      display: flex; align-items: center; gap: .8rem;
+      padding-bottom: .9rem; margin-bottom: 1.8rem;
+      border-bottom: 1px solid rgba(255,255,255,.07);
+    }
+
+    .lib-sec-num {
+      font-family: 'Unbounded', sans-serif;
+      font-size: .65rem; font-weight: 700;
+      color: var(--accent); letter-spacing: .12em;
+    }
+
+    .lib-sec-title {
+      font-family: 'Unbounded', sans-serif;
+      font-size: .9rem; font-weight: 700; letter-spacing: -.01em;
+    }
+
+    .lib-sec-count {
+      margin-left: auto;
+      font-size: .72rem; color: var(--muted); letter-spacing: .05em;
+    }
+
+    /* ── Grid ── */
+    .lib-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+      gap: 1.5rem;
+    }
+
+    /* ── Card ── */
+    .lib-card {
+      position: relative; overflow: hidden;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      cursor: pointer;
+      transition: border-color .25s, transform .3s, box-shadow .3s;
+    }
+    .lib-card:hover {
+      border-color: var(--accent);
+      transform: translateY(-5px);
+      box-shadow: 0 20px 40px rgba(0,0,0,.4), 0 0 0 1px rgba(0,229,255,.15);
+    }
+
+    .lib-card-thumb {
+      position: relative; overflow: hidden;
+      aspect-ratio: 16 / 9; background: #0c0c14;
+    }
+
+    .lib-card-thumb .card-poster,
+    .lib-card-thumb video {
+      position: absolute; inset: 0;
+      width: 100%; height: 100%; object-fit: cover; display: block;
+      filter: brightness(.62);
+      transition: filter .4s, transform .55s;
+    }
+    .lib-card-thumb .card-poster { z-index: 0; }
+    .lib-card-thumb video {
+      z-index: 1; opacity: 0;
+      transition: filter .4s, transform .55s, opacity .35s;
+    }
+    .lib-card:hover .lib-card-thumb .card-poster,
+    .lib-card:hover .lib-card-thumb video { filter: brightness(.9); transform: scale(1.06); }
+    .lib-card:hover .lib-card-thumb video { opacity: 1; }
+
+    .lib-card-play {
+      position: absolute; top: 50%; left: 50%;
+      transform: translate(-50%,-50%) scale(.8);
+      width: 58px; height: 58px; border-radius: 50%;
+      border: 2px solid rgba(255,255,255,.85);
+      display: flex; align-items: center; justify-content: center;
+      font-size: 1.2rem; color: white; padding-left: 4px;
+      background: rgba(0,0,0,.35); backdrop-filter: blur(8px);
+      opacity: 0; transition: transform .3s, opacity .3s;
+    }
+    .lib-card:hover .lib-card-play { transform: translate(-50%,-50%) scale(1); opacity: 1; }
+
+    .lib-card-vr {
+      position: absolute; top: .8rem; right: .8rem;
+      background: rgba(0,229,255,.1); border: 1px solid rgba(0,229,255,.35);
+      color: var(--accent); font-size: .62rem; font-weight: 700;
+      letter-spacing: .1em; text-transform: uppercase;
+      padding: .22rem .65rem; backdrop-filter: blur(6px);
+    }
+
+    .lib-card-bar {
+      position: absolute; bottom: 0; left: 0; right: 0; height: 2px;
+      background: var(--accent); transform: scaleX(0); transform-origin: left;
+      transition: transform .35s;
+    }
+    .lib-card:hover .lib-card-bar { transform: scaleX(1); }
+
+    .lib-card-body { padding: 1rem 1.2rem 1.2rem; }
+
+    .lib-card-title {
+      font-family: 'Unbounded', sans-serif;
+      font-size: .82rem; font-weight: 700; letter-spacing: .015em;
+      line-height: 1.35; margin-bottom: .38rem;
+    }
+
+    .lib-card-sub { font-size: .74rem; color: var(--muted); letter-spacing: .04em; }
+
+    /* ── Sección bloqueada (blur gate) ── */
+    #libContent { opacity: 0; transition: opacity .35s; }
+    #libContent.cat-ready { opacity: 1; }
+
+    .lib-section-grid-wrap { position: relative; }
+    .lib-section.locked .lib-grid {
+      filter: blur(10px);
+      pointer-events: none;
+      user-select: none;
+    }
+    .lib-lock-overlay {
+      position: absolute; inset: 0; z-index: 5;
+      display: flex; flex-direction: column;
+      align-items: center; justify-content: center; gap: .9rem;
+      background: rgba(5,5,7,.6); text-align: center; padding: 2rem;
+    }
+    .lib-lock-overlay-icon { font-size: 2rem; line-height: 1; }
+    .lib-lock-overlay h3 {
+      font-family: 'Unbounded', sans-serif;
+      font-size: 1rem; font-weight: 700;
+      color: var(--white); margin: 0;
+    }
+    .lib-lock-overlay p {
+      font-size: .8rem; color: rgba(255,255,255,.5);
+      max-width: 280px; line-height: 1.65; margin: 0;
+    }
+    .lib-lock-btn {
+      font-family: 'Unbounded', sans-serif;
+      font-size: .72rem; font-weight: 700; letter-spacing: .08em;
+      text-transform: uppercase; border: none; cursor: pointer;
+      padding: .75rem 1.9rem;
+      background: var(--accent); color: #000; transition: opacity .2s;
+    }
+    .lib-lock-btn:hover { opacity: .85; }
+    .lib-card-ph {
+      background: linear-gradient(135deg,rgba(255,255,255,.05),rgba(255,255,255,.01));
+      border: 1px solid var(--border); min-height: 220px;
+    }
+
+    /* ── Responsive ── */
+    @media (max-width: 700px) {
+      .lib-grid { grid-template-columns: 1fr 1fr; }
+      .lib-intro h1 { font-size: 2.4rem; }
+    }
+    @media (max-width: 420px) {
+      .lib-grid { grid-template-columns: 1fr; }
+      .header-count { display: none; }
+    }
+
+    /* ─────────────────────────────────────────────
+       VR MODAL (identico al de index.html)
+    ───────────────────────────────────────────── */
+    .vr-modal {
+      position: fixed; inset: 0; z-index: 2000;
+      background: #000;
+      visibility: hidden; opacity: 0; pointer-events: none;
+      transition: opacity .25s;
+    }
+    .vr-modal.open { visibility: visible; opacity: 1; pointer-events: auto; }
+
+    .vr-modal-bar {
+      position: absolute; top: 0; left: 0; right: 0; z-index: 10;
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 1rem 1.5rem;
+      background: linear-gradient(to bottom, rgba(0,0,0,.75) 0%, transparent 100%);
+    }
+    .vr-modal-logo {
+      font-family: 'Unbounded', sans-serif;
+      font-size: .9rem; font-weight: 800; letter-spacing: .02em; color: var(--white);
+    }
+    .vr-modal-logo em { color: var(--accent); font-style: normal; }
+
+    .vr-modal-close {
+      background: rgba(255,255,255,.1);
+      border: 1px solid rgba(255,255,255,.2);
+      color: var(--white); width: 40px; height: 40px;
+      border-radius: 50%; font-size: 1rem; cursor: pointer;
+      display: flex; align-items: center; justify-content: center;
+      transition: background .2s;
+    }
+    .vr-modal-close:hover { background: rgba(255,255,255,.22); }
+
+    .vr-modal a-scene { width: 100%; height: 100vh; display: block; }
+
+    .vr-modal-hint {
+      position: absolute; bottom: 1.8rem; left: 50%; transform: translateX(-50%);
+      z-index: 10; background: rgba(0,0,0,.55);
+      border: 1px solid var(--border); backdrop-filter: blur(8px);
+      padding: .5rem 1.4rem; border-radius: 999px;
+      font-size: .76rem; color: rgba(255,255,255,.6);
+      letter-spacing: .04em; white-space: nowrap; pointer-events: none;
+      animation: hintFade 5s ease forwards 3s;
+    }
+
+    .vr-loading {
+      position: absolute; inset: 0; z-index: 7;
+      display: none; flex-direction: column;
+      align-items: center; justify-content: center; gap: 1.2rem;
+      background: #050507;
+    }
+    .vr-loading.show { display: flex; }
+    .vr-spinner {
+      width: 52px; height: 52px;
+      border: 2px solid rgba(0,229,255,.15);
+      border-top-color: var(--accent);
+      border-radius: 50%;
+      animation: spin .85s linear infinite;
+    }
+    .vr-loading p { font-size: .8rem; color: rgba(255,255,255,.4); letter-spacing: .06em; }
+
+    .vr-error {
+      position: absolute; inset: 0; z-index: 8;
+      display: none; flex-direction: column;
+      align-items: center; justify-content: center; gap: 1rem;
+      background: #050507;
+    }
+    .vr-error.show { display: flex; }
+    .vr-error p { font-size: .85rem; color: rgba(255,100,100,.75); max-width: 360px; text-align: center; line-height: 1.75; }
+    .vr-error code { font-size: .76rem; color: var(--accent); background: rgba(0,229,255,.08); padding: .2rem .5rem; border-radius: 4px; }
+
+    @keyframes hintFade { to { opacity: 0; } }
+    @keyframes spin     { to { transform: rotate(360deg); } }
+  </style>
+</head>
+<body>
+
+  <!-- ══ HEADER ══ -->
+  <header class="page-header">
+    <a href="index.html" class="back-btn" aria-label="Volver al inicio">
+      <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M10 3L5 8l5 5"/>
+      </svg>
+      Volver
+    </a>
+    <div class="header-divider"></div>
+    <a href="index.html" class="header-logo">FrontRow<em>VR</em></a>
+    <div class="header-divider"></div>
+    <span class="header-title">Catálogo</span>
+    <span class="header-count" id="headerCount"></span>
+    <div style="display:flex;align-items:center;gap:.8rem;">
+      <span id="catUserDisplay" style="font-size:.75rem;color:rgba(255,255,255,.6);font-family:'DM Sans',sans-serif;max-width:160px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;"></span>
+      <a href="#" id="catLoginBtn"  class="back-btn" style="padding:.45rem .85rem;display:none;">Iniciar sesión →</a>
+      <a href="#" id="catLogoutBtn" class="back-btn" style="padding:.45rem .85rem;display:none;">Salir →</a>
+    </div>
+  </header>
+
+  <!-- ══ CONTENIDO PRINCIPAL ══ -->
+  <main class="lib-body">
+    <div class="lib-intro">
+      <div class="lib-intro-label">Experiencias VR 180°</div>
+      <h1>Tu catálogo<br />de experiencias.</h1>
+      <p>Todos los videos disponibles en tu suscripción, organizados por categoría. Haz clic en cualquiera para abrirlo en el visor VR inmersivo.</p>
+    </div>
+
+    <div id="libContent"></div>
+  </main>
+
+  <!-- ══ VR PLAYER MODAL ══ -->
+  <div id="vrModal" class="vr-modal">
+    <div class="vr-modal-bar">
+      <span class="vr-modal-logo">FrontRow<em>VR</em></span>
+      <button class="vr-modal-close" id="closeVrPlayer" aria-label="Cerrar visor">✕</button>
+    </div>
+
+    <div class="vr-loading" id="vrLoading">
+      <div class="vr-spinner"></div>
+      <p>Cargando experiencia VR&hellip;</p>
+    </div>
+
+    <div class="vr-error" id="vrError">
+      <p id="vrErrorMsg">Error al cargar el video.</p>
+    </div>
+
+    <video id="vrVideo" style="display:none" loop playsinline webkit-playsinline preload="auto"></video>
+
+    <a-scene
+      id="vrScene"
+      embedded
+      vr-mode-ui="enabled: true"
+      loading-screen="dotsColor: #00e5ff; backgroundColor: #050507"
+      renderer="antialias: true; colorManagement: true"
+    >
+      <a-sky color="#050507"></a-sky>
+      <a-entity
+        id="vrSphere"
+        geometry="primitive: sphere; radius: 100; segmentsWidth: 64; segmentsHeight: 64; phiStart: 0; phiLength: 180; thetaStart: 0; thetaLength: 180"
+        material="shader: flat; side: back; color: #050507"
+        rotation="0 90 0"
+      ></a-entity>
+      <a-camera look-controls="reverseMouseDrag: false" wasd-controls="enabled: false"></a-camera>
+    </a-scene>
+
+    <p class="vr-modal-hint">Arrastra para girar la vista · En visor VR presiona ⊙ para entrar</p>
+  </div>
+
+  <script>
+    // ── Catálogo de videos (mantener sincronizado con index.html) ──
+    const VR_CATEGORIES = [
+      {
+        id: 'entretenimiento', num: '01', title: 'Entretenimiento',
+        videos: [
+          { src: 'videos/Dancing Girl.mp4',   title: 'Danza' },
+          { src: 'videos/Indoor Kitchen.mp4', title: 'Cocina' },
+        ]
+      },
+      {
+        id: 'educacion', num: '02', title: 'Educación',
+        videos: [
+          { src: 'videos/Makeup Girl_GRWM.mp4', title: 'Maquillaje' },
+        ]
+      },
+      {
+        id: 'clientes', num: '03', title: 'Nuestros Clientes',
+        videos: [
+          { src: 'videos/Outfit of the Day.mp4', title: 'Moda' },
+        ]
+      },
+      // ── SECCIÓN SUSCRIPCIÓN — agrega aquí los videos exclusivos ──
+      {
+        id: 'suscripcion', num: '04', title: 'Suscripción', subscribed: true,
+        videos: [
+          // { src: 'videos/TuVideo.mp4', title: 'Título' },
+        ]
+      }
+    ];
+
+    document.addEventListener('DOMContentLoaded', function () {
+      var vrModal    = document.getElementById('vrModal');
+      var vrVideo    = document.getElementById('vrVideo');
+      var vrLoading  = document.getElementById('vrLoading');
+      var vrError    = document.getElementById('vrError');
+      var closeVrBtn = document.getElementById('closeVrPlayer');
+      var libContent = document.getElementById('libContent');
+      var headerCount = document.getElementById('headerCount');
+
+      // ── Aplica VideoTexture a la esfera A-Frame ──
+      function applyVideoTexture(video) {
+        var sphere = document.getElementById('vrSphere');
+        var mesh   = sphere.getObject3D('mesh');
+        if (!mesh) { setTimeout(function () { applyVideoTexture(video); }, 200); return; }
+        var renderer = document.getElementById('vrScene').renderer;
+        var texture  = new THREE.VideoTexture(video);
+        texture.wrapS           = THREE.RepeatWrapping;
+        texture.wrapT           = THREE.RepeatWrapping;
+        texture.repeat.set(0.5, 1);
+        texture.offset.set(0, 0);
+        texture.minFilter       = THREE.LinearFilter;
+        texture.magFilter       = THREE.LinearFilter;
+        texture.generateMipmaps = false;
+        if (renderer && renderer.capabilities) {
+          texture.anisotropy = renderer.capabilities.getMaxAnisotropy();
+        }
+        if (THREE.SRGBColorSpace !== undefined) {
+          texture.colorSpace = THREE.SRGBColorSpace;
+        } else if (THREE.sRGBEncoding !== undefined) {
+          texture.encoding = THREE.sRGBEncoding;
+        }
+        if (mesh.material) mesh.material.dispose();
+        mesh.material = new THREE.MeshBasicMaterial({ map: texture, side: THREE.BackSide });
+      }
+
+      // ── Abre el visor VR ──
+      function openVr(vid) {
+        vrModal.classList.add('open');
+        document.body.style.overflow = 'hidden';
+        vrError.classList.remove('show');
+        vrLoading.classList.add('show');
+        vrVideo.src = vid.src;
+        vrVideo.load();
+        var fired = false;
+        function onReady() {
+          if (fired) return;
+          fired = true;
+          vrVideo.removeEventListener('canplay', onReady);
+          vrVideo.play().catch(function () {});
+          applyVideoTexture(vrVideo);
+          vrLoading.classList.remove('show');
+        }
+        vrVideo.addEventListener('canplay', onReady);
+        setTimeout(onReady, 3000);
+      }
+
+      // ── Cierra el visor VR ──
+      function closeVr() {
+        vrModal.classList.remove('open');
+        document.body.style.overflow = '';
+        vrVideo.pause();
+      }
+
+      closeVrBtn.addEventListener('click', closeVr);
+      document.addEventListener('keydown', function (e) {
+        if (e.key === 'Escape' && vrModal.classList.contains('open')) closeVr();
+      });
+
+      // ── Construye una tarjeta de video ──
+      function buildCard(vid) {
+        var card = document.createElement('div');
+        card.className = 'lib-card';
+        card.setAttribute('role', 'button');
+        card.setAttribute('tabindex', '0');
+        card.setAttribute('aria-label', 'Ver en VR: ' + vid.title);
+
+        var thumb = document.createElement('div');
+        thumb.className = 'lib-card-thumb';
+
+        // Imagen de fondo: usa vid.img si se especifica, si no lo deriva del nombre del video
+        var imgSrc = vid.img;
+        if (!imgSrc && vid.src) {
+          var fname = vid.src.split('/').pop().replace(/\.[^.]+$/, '');
+          imgSrc = 'imagenes/' + fname + '.jpg';
+        }
+        var posterImg = document.createElement('img');
+        posterImg.src = imgSrc;
+        posterImg.className = 'card-poster';
+        posterImg.alt = '';
+        thumb.appendChild(posterImg);
+
+        var video = document.createElement('video');
+        video.src = vid.src;
+        video.setAttribute('loop', '');
+        video.setAttribute('playsinline', '');
+        video.setAttribute('preload', 'metadata');
+        video.muted = true;
+
+        var playBtn = document.createElement('div');
+        playBtn.className = 'lib-card-play';
+        playBtn.innerHTML = '&#9654;';
+
+        var vrBadge = document.createElement('span');
+        vrBadge.className = 'lib-card-vr';
+        vrBadge.textContent = 'VR 180°';
+
+        var bar = document.createElement('div');
+        bar.className = 'lib-card-bar';
+
+        thumb.appendChild(video);
+        thumb.appendChild(playBtn);
+        thumb.appendChild(vrBadge);
+        thumb.appendChild(bar);
+
+        var body = document.createElement('div');
+        body.className = 'lib-card-body';
+
+        var title = document.createElement('div');
+        title.className = 'lib-card-title';
+        title.textContent = vid.title;
+
+        var sub = document.createElement('div');
+        sub.className = 'lib-card-sub';
+        sub.textContent = 'Video 180° · Estereoscópico';
+
+        body.appendChild(title);
+        body.appendChild(sub);
+        card.appendChild(thumb);
+        card.appendChild(body);
+
+        card.addEventListener('mouseenter', function () { video.play().catch(function () {}); });
+        card.addEventListener('mouseleave', function () { video.pause(); video.currentTime = 0; });
+        card.addEventListener('click', function () { openVr(vid); });
+        card.addEventListener('keydown', function (e) {
+          if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); openVr(vid); }
+        });
+
+        return card;
+      }
+
+      // ── Construye toda la biblioteca ──
+      var total = VR_CATEGORIES.reduce(function (acc, c) { return acc + (!c.subscribed ? c.videos.length : 0); }, 0);
+      headerCount.innerHTML = '<strong>' + total + '</strong> video' + (total !== 1 ? 's' : '') + ' disponibles';
+
+      VR_CATEGORIES.forEach(function (cat) {
+        var section = document.createElement('div');
+        section.className = 'lib-section' + (cat.subscribed ? ' locked' : '');
+        section.id = 'cat-sec-' + cat.id;
+
+        var head = document.createElement('div');
+        head.className = 'lib-section-head';
+        head.innerHTML =
+          '<span class="lib-sec-num">' + cat.num + '</span>' +
+          '<span class="lib-sec-title">' + cat.title + '</span>' +
+          (cat.subscribed ? '<span class="lib-sec-count">🔒 Suscriptores</span>'
+            : '<span class="lib-sec-count">' + cat.videos.length + ' video' + (cat.videos.length !== 1 ? 's' : '') + '</span>');
+
+        var gridWrap = document.createElement('div');
+        gridWrap.className = 'lib-section-grid-wrap';
+
+        var grid = document.createElement('div');
+        grid.className = 'lib-grid';
+
+        if (cat.subscribed) {
+          // Contenido detrás del blur: videos reales o placeholders visuales
+          if (cat.videos.length > 0) {
+            cat.videos.forEach(function (vid) { grid.appendChild(buildCard(vid)); });
+          } else {
+            for (var p = 0; p < 4; p++) {
+              var ph = document.createElement('div');
+              ph.className = 'lib-card lib-card-ph';
+              grid.appendChild(ph);
+            }
+          }
+          // Overlay con candado
+          var overlay = document.createElement('div');
+          overlay.className = 'lib-lock-overlay';
+          overlay.innerHTML =
+            '<div class="lib-lock-overlay-icon">🔒</div>' +
+            '<h3>Contenido exclusivo para suscriptores</h3>' +
+            '<p>Inicia sesión para acceder a los videos exclusivos de tu suscripción.</p>' +
+            '<button class="lib-lock-btn">Iniciar sesión →</button>';
+          gridWrap.appendChild(grid);
+          gridWrap.appendChild(overlay);
+        } else {
+          cat.videos.forEach(function (vid) { grid.appendChild(buildCard(vid)); });
+          gridWrap.appendChild(grid);
+        }
+
+        section.appendChild(head);
+        section.appendChild(gridWrap);
+        libContent.appendChild(section);
+      });
+    });
+  </script>
+  <script>
+    // ══ MISMOS VALORES QUE EN index.html ══
+    var AUTH0_DOMAIN    = 'dev-8ng8ezuk7sax0rok.us.auth0.com';
+    var AUTH0_CLIENT_ID = 'fibiT7GRcL53gUEf3r8v5Q9Iop9Fo9Mg';
+
+    (async function () {
+      var auth0;
+      try {
+        auth0 = await createAuth0Client({
+          domain:         AUTH0_DOMAIN,
+          client_id:      AUTH0_CLIENT_ID,
+          redirect_uri:   window.location.origin + '/index.html',
+          cacheLocation:  'localstorage'
+        });
+      } catch (err) {
+        console.error('[Auth0] Error al inicializar:', err);
+        return;
+      }
+
+      var isAuthenticated = await auth0.isAuthenticated();
+
+      var userDisplayEl = document.getElementById('catUserDisplay');
+      var logoutBtn     = document.getElementById('catLogoutBtn');
+      var loginBtn      = document.getElementById('catLoginBtn');
+      var libContent    = document.getElementById('libContent');
+
+      if (isAuthenticated) {
+        var user = await auth0.getUser();
+        if (userDisplayEl) userDisplayEl.textContent = user.name || user.email || '';
+        if (logoutBtn) {
+          logoutBtn.style.display = '';
+          logoutBtn.addEventListener('click', function (e) {
+            e.preventDefault();
+            auth0.logout({ returnTo: window.location.origin + '/index.html' });
+          });
+        }
+        // Desbloquear todas las secciones que requieren suscripción
+        document.querySelectorAll('.lib-section.locked').forEach(function (s) {
+          s.classList.remove('locked');
+        });
+      } else {
+        // Mostrar botón de login en el header
+        if (loginBtn) {
+          loginBtn.style.display = '';
+          loginBtn.addEventListener('click', function (e) {
+            e.preventDefault();
+            auth0.loginWithRedirect({ appState: { returnTo: window.location.href } });
+          });
+        }
+        // Botón dentro del overlay de cada sección bloqueada
+        document.querySelectorAll('.lib-lock-btn').forEach(function (btn) {
+          btn.addEventListener('click', function () {
+            auth0.loginWithRedirect({ appState: { returnTo: window.location.href } });
+          });
+        });
+      }
+
+      if (libContent) libContent.classList.add('cat-ready');
+    })();
+  </script>
+
+</body>
+</html>
