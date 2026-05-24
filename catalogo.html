@@ -38,12 +38,34 @@
       line-height: 1.6;
       overflow-x: hidden;
       min-height: 100vh;
+      cursor: none;
     }
 
     /* ── SCROLLBAR ── */
     ::-webkit-scrollbar { width: 4px; }
     ::-webkit-scrollbar-track { background: var(--black); }
     ::-webkit-scrollbar-thumb { background: var(--accent); border-radius: 2px; }
+
+    /* ── CUSTOM CURSOR ── */
+    .cursor {
+      position: fixed; width: 8px; height: 8px;
+      background: var(--accent); border-radius: 50%;
+      pointer-events: none; z-index: 9999;
+      transform: translate(-50%,-50%);
+      transition: width .15s, height .15s;
+    }
+    .cursor-ring {
+      position: fixed; width: 36px; height: 36px;
+      border: 1px solid rgba(0,229,255,.35); border-radius: 50%;
+      pointer-events: none; z-index: 9998;
+      transform: translate(-50%,-50%);
+      transition: width .25s, height .25s, border-color .25s;
+    }
+    body:hover .cursor { opacity: 1; }
+
+    /* Restablecer cursor del sistema dentro del visor VR (controles nativos) */
+    .vr-modal, .vr-modal * { cursor: auto; }
+    .vr-modal a-scene, .vr-modal a-scene * { cursor: grab; }
 
     /* ─────────────────────────────────────────────
        PAGE HEADER
@@ -347,6 +369,10 @@
 </head>
 <body>
 
+  <!-- ══ CURSOR ══ -->
+  <div class="cursor" id="cur"></div>
+  <div class="cursor-ring" id="curRing"></div>
+
   <!-- ══ HEADER ══ -->
   <header class="page-header">
     <a href="index.html" class="back-btn" aria-label="Volver al inicio">
@@ -389,7 +415,7 @@
       <p id="vrErrorMsg">Error al cargar el video.</p>
     </div>
 
-    <video id="vrVideo" style="display:none" loop playsinline webkit-playsinline preload="auto"></video>
+    <video id="vrVideo" style="position:absolute; width:1px; height:1px; opacity:0; pointer-events:none; left:-9999px" loop playsinline webkit-playsinline preload="auto"></video>
 
     <a-scene
       id="vrScene"
@@ -412,25 +438,68 @@
   </div>
 
   <script>
+    // ── Cursor personalizado ──
+    (function () {
+      var cur  = document.getElementById('cur');
+      var ring = document.getElementById('curRing');
+      var mx = 0, my = 0, rx = 0, ry = 0;
+
+      document.addEventListener('mousemove', function (e) {
+        mx = e.clientX; my = e.clientY;
+        cur.style.left = mx + 'px';
+        cur.style.top  = my + 'px';
+      });
+
+      (function loopRing() {
+        rx += (mx - rx) * 0.11;
+        ry += (my - ry) * 0.11;
+        ring.style.left = rx + 'px';
+        ring.style.top  = ry + 'px';
+        requestAnimationFrame(loopRing);
+      })();
+
+      // Enfatizar el cursor sobre elementos interactivos
+      function bindHoverTargets() {
+        document.querySelectorAll('a, button, .lib-card, .back-btn, .lib-lock-btn').forEach(function (el) {
+          if (el.dataset.curBound) return;
+          el.dataset.curBound = '1';
+          el.addEventListener('mouseenter', function () {
+            cur.style.width  = '14px'; cur.style.height = '14px';
+            ring.style.width = '56px'; ring.style.height = '56px';
+            ring.style.borderColor = 'rgba(0,229,255,.65)';
+          });
+          el.addEventListener('mouseleave', function () {
+            cur.style.width  = '8px';  cur.style.height = '8px';
+            ring.style.width = '36px'; ring.style.height = '36px';
+            ring.style.borderColor = 'rgba(0,229,255,.35)';
+          });
+        });
+      }
+      document.addEventListener('DOMContentLoaded', bindHoverTargets);
+      // Re-bind tras construir las tarjetas dinámicas
+      window.addEventListener('load', bindHoverTargets);
+      setTimeout(bindHoverTargets, 500);
+    })();
+
     // ── Catálogo de videos (mantener sincronizado con index.html) ──
     const VR_CATEGORIES = [
       {
         id: 'entretenimiento', num: '01', title: 'Entretenimiento',
         videos: [
-          { src: 'videos/Dancing Girl.mp4',   title: 'Danza' },
-          { src: 'videos/Indoor Kitchen.mp4', title: 'Cocina' },
+          { src: 'Danza.mp4',  title: 'Danza',  img: 'imagenes/Danza.png'  },
+          { src: 'Cocina.mp4', title: 'Cocina', img: 'imagenes/Cocina.png' },
         ]
       },
       {
         id: 'educacion', num: '02', title: 'Educación',
         videos: [
-          { src: 'videos/Makeup Girl_GRWM.mp4', title: 'Maquillaje' },
+          { src: 'Maquillaje.mp4', title: 'Maquillaje', img: 'imagenes/Maquillaje.png' },
         ]
       },
       {
         id: 'clientes', num: '03', title: 'Nuestros Clientes',
         videos: [
-          { src: 'videos/Outfit of the Day.mp4', title: 'Moda' },
+          { src: 'Moda.mp4', title: 'Moda', img: 'imagenes/Moda.png' },
         ]
       },
       // ── SECCIÓN SUSCRIPCIÓN — agrega aquí los videos exclusivos ──
@@ -451,16 +520,24 @@
       var headerCount = document.getElementById('headerCount');
 
       // ── Aplica VideoTexture a la esfera A-Frame ──
+      // Detecta automáticamente si el video es estereoscópico side-by-side
+      // (relación de aspecto ~2:1) o monoscópico (~1:1).
       function applyVideoTexture(video) {
         var sphere = document.getElementById('vrSphere');
         var mesh   = sphere.getObject3D('mesh');
         if (!mesh) { setTimeout(function () { applyVideoTexture(video); }, 200); return; }
         var renderer = document.getElementById('vrScene').renderer;
         var texture  = new THREE.VideoTexture(video);
-        texture.wrapS           = THREE.RepeatWrapping;
-        texture.wrapT           = THREE.RepeatWrapping;
-        texture.repeat.set(0.5, 1);
+
+        // Si el video es SBS (ancho >= 1.7x el alto), mostrar solo ojo izquierdo
+        var vw = video.videoWidth  || 1;
+        var vh = video.videoHeight || 1;
+        var isSBS = (vw / vh) >= 1.7;
+        texture.wrapS = THREE.RepeatWrapping;
+        texture.wrapT = THREE.RepeatWrapping;
+        texture.repeat.set(isSBS ? 0.5 : 1, 1);
         texture.offset.set(0, 0);
+
         texture.minFilter       = THREE.LinearFilter;
         texture.magFilter       = THREE.LinearFilter;
         texture.generateMipmaps = false;
@@ -474,6 +551,7 @@
         }
         if (mesh.material) mesh.material.dispose();
         mesh.material = new THREE.MeshBasicMaterial({ map: texture, side: THREE.BackSide });
+        mesh.material.needsUpdate = true;
       }
 
       // ── Abre el visor VR ──

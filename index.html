@@ -253,10 +253,14 @@
     .sc-item { cursor: pointer; }
     .sc-item img,
     .sc-item video {
+      position: absolute; inset: 0;
       width: 100%; height: 100%; object-fit: cover; display: block;
       filter: brightness(.7) saturate(.9);
-      transition: transform .7s cubic-bezier(.25,.46,.45,.94), filter .4s;
+      transition: transform .7s cubic-bezier(.25,.46,.45,.94), filter .4s, opacity .35s;
     }
+    .sc-item img   { z-index: 1; }
+    .sc-item video { z-index: 2; opacity: 0; }
+    .sc-item:hover video { opacity: 1; }
     .sc-item:hover img,
     .sc-item:hover video { transform: scale(1.07); filter: brightness(.85) saturate(1.1); }
 
@@ -1621,20 +1625,20 @@
       {
         id: 'entretenimiento', num: '01', title: 'Entretenimiento',
         videos: [
-          { src: 'videos/Dancing Girl.mp4',   title: 'Danza',      img: 'imagenes/danza.jpg' },
-          { src: 'videos/Indoor Kitchen.mp4', title: 'Cocina',     img: 'imagenes/cocina.jpg' },
+          { src: 'Danza.mp4',  title: 'Danza',  img: 'imagenes/Danza.png'  },
+          { src: 'Cocina.mp4', title: 'Cocina', img: 'imagenes/Cocina.png' },
         ]
       },
       {
         id: 'educacion', num: '02', title: 'Educación',
         videos: [
-          { src: 'videos/Makeup Girl_GRWM.mp4', title: 'Maquillaje', img: 'imagenes/maquillaje.jpg' },
+          { src: 'Maquillaje.mp4', title: 'Maquillaje', img: 'imagenes/Maquillaje.png' },
         ]
       },
       {
         id: 'clientes', num: '03', title: 'Nuestros Clientes', fullWidth: true,
         videos: [
-          { src: 'videos/Outfit of the Day.mp4', title: 'Moda', img: 'imagenes/moda.jpg' },
+          { src: 'Moda.mp4', title: 'Moda', img: 'imagenes/Moda.png' },
         ]
       }
     ];
@@ -1647,7 +1651,7 @@
       const vrError    = document.getElementById('vrError');
       const vrErrorMsg = document.getElementById('vrErrorMsg');
       const closeVrBtn = document.getElementById('closeVrPlayer');
-      // ── Sync showcase tile images from VR_CATEGORIES ──
+      // ── Sync showcase tile images + inject hover-video from VR_CATEGORIES ──
       document.querySelectorAll('#showcaseGrid .sc-item[data-cat]').forEach(function (item) {
         var cat    = parseInt(item.getAttribute('data-cat'));
         var vid    = parseInt(item.getAttribute('data-vid'));
@@ -1657,6 +1661,20 @@
         if (imgEl && vidObj && vidObj.img) {
           imgEl.src = vidObj.img;
           imgEl.alt = vidObj.title;
+        }
+        // Inyectar video oculto que se reproduce en hover
+        if (vidObj && vidObj.src && !item.querySelector('video')) {
+          var v = document.createElement('video');
+          v.src = vidObj.src;
+          v.loop = true;
+          v.muted = true;
+          v.setAttribute('playsinline', '');
+          v.setAttribute('webkit-playsinline', '');
+          v.preload = 'metadata';
+          if (imgEl) imgEl.insertAdjacentElement('afterend', v);
+          else item.appendChild(v);
+          item.addEventListener('mouseenter', function () { v.play().catch(function () {}); });
+          item.addEventListener('mouseleave', function () { v.pause(); v.currentTime = 0; });
         }
       });
 
@@ -1678,6 +1696,7 @@
       });
 
       // ── Crea un MeshBasicMaterial nuevo con VideoTexture ──
+      // Detecta automáticamente si el video es estereoscópico SBS o monoscópico
       function applyVideoTexture(video) {
         var sphere = document.getElementById('vrSphere');
         var mesh   = sphere.getObject3D('mesh');
@@ -1687,10 +1706,16 @@
         }
         var renderer = document.getElementById('vrScene').renderer;
         var texture  = new THREE.VideoTexture(video);
-        texture.wrapS          = THREE.RepeatWrapping;
-        texture.wrapT          = THREE.RepeatWrapping;
-        texture.repeat.set(0.5, 1);  // 180° SBS: mostrar solo ojo izquierdo (0-50%)
+
+        // Si el video es SBS (ancho >= 1.7x el alto), mostrar solo ojo izquierdo
+        var vw = video.videoWidth  || 1;
+        var vh = video.videoHeight || 1;
+        var isSBS = (vw / vh) >= 1.7;
+        texture.wrapS = THREE.RepeatWrapping;
+        texture.wrapT = THREE.RepeatWrapping;
+        texture.repeat.set(isSBS ? 0.5 : 1, 1);
         texture.offset.set(0, 0);
+
         texture.minFilter      = THREE.LinearFilter;
         texture.magFilter      = THREE.LinearFilter;
         texture.generateMipmaps = false;
@@ -1709,6 +1734,7 @@
           map:  texture,
           side: THREE.BackSide
         });
+        mesh.material.needsUpdate = true;
       }
 
       // ── Abre el visor VR con el video seleccionado ──
@@ -1763,7 +1789,7 @@
     </div>
 
     <!-- video fuera de a-assets para no pasar por el sistema de caché de A-Frame -->
-    <video id="vrVideo" style="display:none" loop playsinline webkit-playsinline preload="auto"></video></video>
+    <video id="vrVideo" style="position:absolute; width:1px; height:1px; opacity:0; pointer-events:none; left:-9999px" loop playsinline webkit-playsinline preload="auto"></video></video>
 
     <a-scene
       id="vrScene"
