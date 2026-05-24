@@ -1055,6 +1055,20 @@
       font-family: 'Unbounded', sans-serif; font-size: .68rem;
       color: var(--accent); margin-right: .8rem; opacity: .7;
     }
+    .lang-btn {
+      background: transparent;
+      border: 1px solid rgba(255,255,255,.25);
+      color: rgba(255,255,255,.65);
+      font-family: 'DM Sans', sans-serif;
+      font-size: .72rem;
+      font-weight: 500;
+      letter-spacing: .1em;
+      padding: .28rem .7rem;
+      border-radius: 4px;
+      cursor: pointer;
+      transition: border-color .2s, color .2s;
+    }
+    .lang-btn:hover { border-color: var(--accent); color: var(--accent); }
   </style>
   <!-- A-Frame: visor VR WebXR -->
   <script src="https://aframe.io/releases/1.5.0/aframe.min.js"></script>
@@ -1077,6 +1091,7 @@
       </ul>
       <div class="nav-auth">
         <a href="catalogo.html" class="nav-login">Cat&#xE1;logo</a>
+        <button id="langToggle" class="lang-btn" onclick="setLang(document.documentElement.lang==='es'?'en':'es')">EN</button>
         <a href="#contacto" class="nav-cta">Hablemos →</a>
       </div>
     </div>
@@ -1771,6 +1786,241 @@
   </div>
 
 
+  <script>
+  // ══ I18N ══
+  const TRANSLATIONS = {
+    es: {
+      'nav.work':'Trabajo','nav.services':'Servicios','nav.events':'Eventos',
+      'nav.sub':'Suscripción','nav.process':'Proceso','nav.catalog':'Catálogo','nav.cta':'Hablemos →',
+      'hero.eyebrow':'Video 180° &amp; Realidad Virtual',
+      'hero.h1':'Primera<br />fila.<br />En todas<br />partes.',
+      'hero.sub':'Capturamos conciertos, festivales y experiencias en vivo para que tu audiencia las sienta desde adentro, sin importar dónde esté.',
+      'hero.btn1':'Ver Trabajo <span class="arr">↗</span>','hero.btn2':'Cotiza tu evento','hero.scroll':'Scroll',
+      'sc.h2':'Lo que<br />capturamos.','sc.sub':'Cada producción diseñada para llevar al espectador al centro de la experiencia.',
+      'sc.l0':'Danza','sc.l1':'Cocina','sc.l2':'Maquillaje','sc.l3':'Moda',
+      'st.tag':'Nuestra misión','st.h2':'"No importa dónde estés. <em>La primera fila siempre es tuya.</em>"','st.lnk':'Ver servicios →',
+      'f1.tag':'Grabación Profesional','f1.h3':'Video 180° Estereeoscópico de Alta Resolución',
+      'f1.p':'Cámaras de nivel broadcast con lentes duales capturan cada escenario en hasta 8K por ojo, preservando la profundidad y el detalle que el contenido VR exige.',
+      'f2.tag':'Audio Inmersivo','f2.h3':'Sonido Espacial que Te Rodea',
+      'f2.p':'Audio ambisónico de alto orden captura el campo sonoro completo. Cada fuente de sonido tiene su lugar exacto en el espacio. Cierra los ojos y estás ahí.',
+      'f3.tag':'Distribución Multi-Plataforma','f3.h3':'Listo para Cualquier Visor del Mercado',
+      'f3.p':'Stitching, color grading y masterizado especializado para VR. Entregamos formatos compatibles con Meta Quest, Apple Vision Pro, PlayStation VR2 y YouTube VR.',
+      'ev.tag':'Tipos de Evento','ev.h2':'¿Qué tipo de<br />evento tienes?',
+      'ev.sub':'Trabajamos con todo tipo de espectáculos y experiencias en vivo, cada uno capturado a medida.',
+      'ev.t1':'Conciertos','ev.t2':'Festivales','ev.t3':'Charlas & Conferencias',
+      'ev.t4':'Teatro & Danza','ev.t5':'Deportes & eSports','ev.t6':'Streaming VR en Vivo',
+      'ev1.pill':'Alta Energía','ev1.h4':'Conciertos en Vivo',
+      'ev1.p':'Rock, pop, electrónica, clásica. Capturamos la energía del escenario desde ángulos que ningún espectador pudo ver esa noche.',
+      'ev1.s1':'Por ojo','ev1.s2':'Audio Ambisónico','ev1.s3':'Producciones',
+      'ev2.pill':'Multi-cámara','ev2.h4':'Festivales de Música',
+      'ev2.p':'Multi-escenario, multitud real y atmósfera completa. Cubrimos hasta 3 escenarios en paralelo con flujo sincronizado de video y audio.',
+      'ev2.s1':'Escenarios paralelos','ev2.s2':'Cobertura continua','ev2.s3':'Producciones',
+      'ev3.pill':'Corporativo','ev3.h4':'Charlas & Conferencias',
+      'ev3.p':'Keynotes, TED-style talks y eventos corporativos con presencia como si estuvieras sentado en la primera fila del auditorio.',
+      'ev3.s1':'Presencia real','ev3.s2':'Color grading','ev3.s3':'Producciones',
+      'ev4.pill':'Cultural','ev4.h4':'Teatro & Artes Escénicas',
+      'ev4.p':'Arte en vivo preservado en su dimensión completa. Cada gesto, cada coreografía, cada emoción capturada para generaciones futuras.',
+      'ev4.s1':'Movimiento fluido','ev4.s2':'Permanente','ev4.s3':'Producciones',
+      'ev5.pill':'Acción','ev5.h4':'Deportes & eSports',
+      'ev5.p':'La adrenalina del evento desde los mejores ángulos. Primera persona, cancha, tribunas. Tu audiencia vive cada jugada en directo.',
+      'ev5.s1':'Alta velocidad','ev5.s2':'Primera persona','ev5.s3':'Producciones',
+      'ev6.pill':'Transmisión Global','ev6.h4':'Streaming VR en Vivo',
+      'ev6.p':'Transmisión en tiempo real para audiencias globales, sin límite de aforo. Llega a miles de visores simultáneos alrededor del mundo.',
+      'ev6.s1':'Latencia','ev6.s2':'Aforo global','ev6.s3':'Soporte live',
+      'sub.tag':'Streaming VR','sub.h2':'Accede a todo<br />el catálogo.',
+      'sub.p':'Más que grabar eventos, construimos una biblioteca de experiencias inmersivas bajo demanda. Elige el plan que va contigo.',
+      'p1.tier':'Free','p1.name':'Discover','p1.per':'CLP / mes',
+      'p1.desc':'Prueba la experiencia FrontRow VR sin compromiso.',
+      'p1.f1':'Acceso a trailers y previews','p1.f2':'Contenido destacado semanal',
+      'p1.f3':'Resolución hasta 4K por ojo','p1.f4':'1 dispositivo a la vez',
+      'p1.f5':'Con anuncios','p1.f6':'Sin descarga offline','p1.btn':'Crear Cuenta',
+      'p2.badge':'Más Popular','p2.tier':'Pro','p2.name':'Pro','p2.per':'CLP / mes',
+      'p2.desc':'El catálogo completo a tu disposición, sin interrupciones.',
+      'p2.f1':'Catálogo completo de eventos','p2.f2':'Sin anuncios',
+      'p2.f3':'Resolución hasta 6K por ojo','p2.f4':'Audio espacial ambisónico',
+      'p2.f5':'2 dispositivos simultáneos','p2.f6':'Descarga para offline','p2.btn':'Suscribirme',
+      'p3.tier':'Premium','p3.name':'Pro Max','p3.per':'CLP / mes',
+      'p3.desc':'La experiencia VR más completa que existe.',
+      'p3.f1':'Todo lo de Pro','p3.f2':'Resolución 8K máxima por ojo',
+      'p3.f3':'Estrenos anticipados','p3.f4':'Eventos en vivo exclusivos',
+      'p3.f5':'4 dispositivos simultáneos','p3.f6':'Detrás de cámaras exclusivo','p3.btn':'Ir Pro Max',
+      'st1':'Resolución por ojo','st2':'Campo visual capturado','st3':'Audio ambisónico','st4':'Plataformas VR compatibles',
+      'pr.tag':'Proceso','pr.h2':'De tu evento<br />al visor.',
+      'pr.h1':'Consultoría &amp; Planificación','pr.p1':'Analizamos el venue, el tipo de evento y los objetivos para diseñar el plan de producción perfecto.',
+      'pr.h2b':'Setup &amp; Grabación','pr.p2':'Desplegamos cámaras y sistemas de audio durante el evento con supervisión técnica en tiempo real.',
+      'pr.h3':'Post-Producción VR','pr.p3':'Stitching, color grading y masterizado de audio espacial para la experiencia más fluida posible.',
+      'pr.h4':'Entrega &amp; Distribución','pr.p4':'Formatos listos para todas las plataformas. El contenido llega a tu audiencia en tiempo récord.',
+      'tq':'\u201cFrontRow VR convirtió nuestro festival en una experiencia que 50.000 personas pudieron vivir desde casa como si estuvieran en primera fila. La calidad superó todo lo que esperábamos.\u201d',
+      'tn':'Rodrigo Fuentes','tr':'Director de Producción \u00b7 Festival Sur',
+      'cta.tag':'Trabajemos juntos','cta.h2':'¿Tienes un<br />evento que<br />merece ser vivido?',
+      'cta.p':'Cuéntanos sobre tu proyecto y preparamos una propuesta a medida, sin compromiso.',
+      'fl1':'Trabajo','fl2':'Servicios','fl3':'Eventos','fl4':'Suscripción','fl5':'Proceso','fl6':'Contacto','fl7':'Login',
+      'fc':'\u00a9 2025 FrontRow VR \u00b7 Chile'
+    },
+    en: {
+      'nav.work':'Work','nav.services':'Services','nav.events':'Events',
+      'nav.sub':'Subscription','nav.process':'Process','nav.catalog':'Catalog','nav.cta':"Let's Talk →",
+      'hero.eyebrow':'180\u00b0 Video &amp; Virtual Reality',
+      'hero.h1':'Front<br />row.<br />Everywhere.',
+      'hero.sub':'We capture concerts, festivals and live experiences so your audience feels them from the inside, no matter where they are.',
+      'hero.btn1':'View Work <span class="arr">↗</span>','hero.btn2':'Quote your event','hero.scroll':'Scroll',
+      'sc.h2':'What we<br />capture.','sc.sub':'Every production designed to place the viewer at the heart of the experience.',
+      'sc.l0':'Dance','sc.l1':'Kitchen','sc.l2':'Makeup','sc.l3':'Fashion',
+      'st.tag':'Our mission','st.h2':'"No matter where you are. <em>The front row is always yours.</em>"','st.lnk':'View services →',
+      'f1.tag':'Professional Recording','f1.h3':'High-Resolution Stereoscopic 180\u00b0 Video',
+      'f1.p':'Broadcast-level cameras with dual lenses capture every scene at up to 8K per eye, preserving the depth and detail VR content demands.',
+      'f2.tag':'Immersive Audio','f2.h3':'Spatial Sound That Surrounds You',
+      'f2.p':"Higher-order ambisonics captures the complete sound field. Every sound source has its exact place in space. Close your eyes and you're there.",
+      'f3.tag':'Multi-Platform Distribution','f3.h3':'Ready for Any Headset on the Market',
+      'f3.p':'VR-specialized stitching, color grading and mastering. We deliver formats compatible with Meta Quest, Apple Vision Pro, PlayStation VR2 and YouTube VR.',
+      'ev.tag':'Event Types','ev.h2':'What kind of<br />event do you have?',
+      'ev.sub':'We work with all kinds of shows and live experiences, each one captured to perfection.',
+      'ev.t1':'Concerts','ev.t2':'Festivals','ev.t3':'Talks & Conferences',
+      'ev.t4':'Theater & Dance','ev.t5':'Sports & eSports','ev.t6':'Live VR Streaming',
+      'ev1.pill':'High Energy','ev1.h4':'Live Concerts',
+      'ev1.p':'Rock, pop, electronic, classical. We capture the stage energy from angles no one in the audience could see that night.',
+      'ev1.s1':'Per eye','ev1.s2':'Ambisonics','ev1.s3':'Productions',
+      'ev2.pill':'Multi-camera','ev2.h4':'Music Festivals',
+      'ev2.p':'Multi-stage, real crowd and full atmosphere. We cover up to 3 stages in parallel with synchronized video and audio.',
+      'ev2.s1':'Parallel stages','ev2.s2':'Continuous coverage','ev2.s3':'Productions',
+      'ev3.pill':'Corporate','ev3.h4':'Talks & Conferences',
+      'ev3.p':'Keynotes, TED-style talks and corporate events with the presence of sitting in the front row of the auditorium.',
+      'ev3.s1':'Real presence','ev3.s2':'Color grading','ev3.s3':'Productions',
+      'ev4.pill':'Cultural','ev4.h4':'Theater & Performing Arts',
+      'ev4.p':'Live art preserved in its full dimension. Every gesture, every choreography, every emotion captured for future generations.',
+      'ev4.s1':'Smooth motion','ev4.s2':'Permanent','ev4.s3':'Productions',
+      'ev5.pill':'Action','ev5.h4':'Sports & eSports',
+      'ev5.p':'The adrenaline of the event from the best angles. First person, court, stands. Your audience lives every play live.',
+      'ev5.s1':'High speed','ev5.s2':'First person','ev5.s3':'Productions',
+      'ev6.pill':'Global Broadcast','ev6.h4':'Live VR Streaming',
+      'ev6.p':'Real-time broadcast for global audiences, with no capacity limit. Reach thousands of simultaneous headsets around the world.',
+      'ev6.s1':'Latency','ev6.s2':'Global capacity','ev6.s3':'Live support',
+      'sub.tag':'VR Streaming','sub.h2':'Access the full<br />catalog.',
+      'sub.p':'More than recording events, we build a library of on-demand immersive experiences. Choose the plan that fits you.',
+      'p1.tier':'Free','p1.name':'Discover','p1.per':'USD / month',
+      'p1.desc':'Try the FrontRow VR experience with no commitment.',
+      'p1.f1':'Access to trailers and previews','p1.f2':'Weekly featured content',
+      'p1.f3':'Up to 4K per eye','p1.f4':'1 device at a time',
+      'p1.f5':'With ads','p1.f6':'No offline download','p1.btn':'Create Account',
+      'p2.badge':'Most Popular','p2.tier':'Pro','p2.name':'Pro','p2.per':'USD / month',
+      'p2.desc':'The full catalog at your disposal, without interruptions.',
+      'p2.f1':'Full event catalog','p2.f2':'Ad-free',
+      'p2.f3':'Up to 6K per eye','p2.f4':'Ambisonics spatial audio',
+      'p2.f5':'2 simultaneous devices','p2.f6':'Offline download','p2.btn':'Subscribe',
+      'p3.tier':'Premium','p3.name':'Pro Max','p3.per':'USD / month',
+      'p3.desc':'The most complete VR experience that exists.',
+      'p3.f1':'Everything in Pro','p3.f2':'Maximum 8K per eye',
+      'p3.f3':'Early releases','p3.f4':'Exclusive live events',
+      'p3.f5':'4 simultaneous devices','p3.f6':'Exclusive behind the scenes','p3.btn':'Go Pro Max',
+      'st1':'Resolution per eye','st2':'Visual field captured','st3':'Ambisonics audio','st4':'Compatible VR platforms',
+      'pr.tag':'Process','pr.h2':'From your event<br />to the headset.',
+      'pr.h1':'Consulting &amp; Planning','pr.p1':'We analyze the venue, event type and objectives to design the perfect production plan.',
+      'pr.h2b':'Setup &amp; Recording','pr.p2':'We deploy cameras and audio systems during the event with real-time technical supervision.',
+      'pr.h3':'VR Post-Production','pr.p3':'Stitching, color grading and spatial audio mastering for the smoothest possible experience.',
+      'pr.h4':'Delivery &amp; Distribution','pr.p4':'Formats ready for all platforms. Content reaches your audience in record time.',
+      'tq':'\u201cFrontRow VR turned our festival into an experience that 50,000 people could live from home as if they were in the front row. The quality exceeded everything we expected.\u201d',
+      'tn':'Rodrigo Fuentes','tr':'Production Director \u00b7 Festival Sur',
+      'cta.tag':"Let's work together",'cta.h2':'Do you have an<br />event worth<br />being lived?',
+      'cta.p':"Tell us about your project and we'll prepare a tailored proposal, no commitment.",
+      'fl1':'Work','fl2':'Services','fl3':'Events','fl4':'Subscription','fl5':'Process','fl6':'Contact','fl7':'Login',
+      'fc':'\u00a9 2025 FrontRow VR \u00b7 Chile'
+    }
+  };
+
+  const I18N_MAP = [
+    // NAV
+    {s:'#nav .nav-links li:nth-child(1) a',k:'nav.work'},{s:'#nav .nav-links li:nth-child(2) a',k:'nav.services'},
+    {s:'#nav .nav-links li:nth-child(3) a',k:'nav.events'},{s:'#nav .nav-links li:nth-child(4) a',k:'nav.sub'},
+    {s:'#nav .nav-links li:nth-child(5) a',k:'nav.process'},{s:'.nav-auth .nav-login',k:'nav.catalog'},{s:'.nav-auth .nav-cta',k:'nav.cta'},
+    // HERO
+    {s:'.hero .eyebrow',k:'hero.eyebrow',html:true},{s:'.hero h1',k:'hero.h1',html:true},
+    {s:'.hero-sub',k:'hero.sub'},{s:'.hero-actions .btn-fill',k:'hero.btn1',html:true},
+    {s:'.hero-actions .btn-text',k:'hero.btn2'},{s:'.hero-scroll-hint',k:'hero.scroll'},
+    // SHOWCASE
+    {s:'#trabajo .section-head h2',k:'sc.h2',html:true},{s:'#trabajo .section-head p',k:'sc.sub'},
+    {s:'#showcaseGrid .sc-item:nth-child(1) .sc-label',k:'sc.l0'},{s:'#showcaseGrid .sc-item:nth-child(2) .sc-label',k:'sc.l1'},
+    {s:'#showcaseGrid .sc-item:nth-child(3) .sc-label',k:'sc.l2'},{s:'#showcaseGrid .sc-item:nth-child(4) .sc-label',k:'sc.l3'},
+    // STATEMENT
+    {s:'.statement .tag',k:'st.tag'},{s:'.statement h2',k:'st.h2',html:true},{s:'.statement-link',k:'st.lnk'},
+    // SERVICES
+    {s:'#servicios .feat-row:nth-child(1) .feat-tag',k:'f1.tag'},{s:'#servicios .feat-row:nth-child(1) h3',k:'f1.h3'},{s:'#servicios .feat-row:nth-child(1) .feat-body p',k:'f1.p'},
+    {s:'#servicios .feat-row:nth-child(2) .feat-tag',k:'f2.tag'},{s:'#servicios .feat-row:nth-child(2) h3',k:'f2.h3'},{s:'#servicios .feat-row:nth-child(2) .feat-body p',k:'f2.p'},
+    {s:'#servicios .feat-row:nth-child(3) .feat-tag',k:'f3.tag'},{s:'#servicios .feat-row:nth-child(3) h3',k:'f3.h3'},{s:'#servicios .feat-row:nth-child(3) .feat-body p',k:'f3.p'},
+    // EVENTS
+    {s:'#eventos .ev-head .tag',k:'ev.tag'},{s:'#eventos .ev-head h2',k:'ev.h2',html:true},{s:'#eventos .ev-head p',k:'ev.sub'},
+    {s:'#evMenu .ev-tab:nth-child(1) .ev-tab-name',k:'ev.t1'},{s:'#evMenu .ev-tab:nth-child(2) .ev-tab-name',k:'ev.t2'},
+    {s:'#evMenu .ev-tab:nth-child(3) .ev-tab-name',k:'ev.t3'},{s:'#evMenu .ev-tab:nth-child(4) .ev-tab-name',k:'ev.t4'},
+    {s:'#evMenu .ev-tab:nth-child(5) .ev-tab-name',k:'ev.t5'},{s:'#evMenu .ev-tab:nth-child(6) .ev-tab-name',k:'ev.t6'},
+    {s:'#ev-concerts .ev-slide-pill',k:'ev1.pill'},{s:'#ev-concerts h4',k:'ev1.h4'},{s:'#ev-concerts .ev-slide-meta > p',k:'ev1.p'},
+    {s:'#ev-concerts .ev-slide-stat:nth-child(1) .lab',k:'ev1.s1'},{s:'#ev-concerts .ev-slide-stat:nth-child(2) .lab',k:'ev1.s2'},{s:'#ev-concerts .ev-slide-stat:nth-child(3) .lab',k:'ev1.s3'},
+    {s:'#ev-festivals .ev-slide-pill',k:'ev2.pill'},{s:'#ev-festivals h4',k:'ev2.h4'},{s:'#ev-festivals .ev-slide-meta > p',k:'ev2.p'},
+    {s:'#ev-festivals .ev-slide-stat:nth-child(1) .lab',k:'ev2.s1'},{s:'#ev-festivals .ev-slide-stat:nth-child(2) .lab',k:'ev2.s2'},{s:'#ev-festivals .ev-slide-stat:nth-child(3) .lab',k:'ev2.s3'},
+    {s:'#ev-talks .ev-slide-pill',k:'ev3.pill'},{s:'#ev-talks h4',k:'ev3.h4'},{s:'#ev-talks .ev-slide-meta > p',k:'ev3.p'},
+    {s:'#ev-talks .ev-slide-stat:nth-child(1) .lab',k:'ev3.s1'},{s:'#ev-talks .ev-slide-stat:nth-child(2) .lab',k:'ev3.s2'},{s:'#ev-talks .ev-slide-stat:nth-child(3) .lab',k:'ev3.s3'},
+    {s:'#ev-theater .ev-slide-pill',k:'ev4.pill'},{s:'#ev-theater h4',k:'ev4.h4'},{s:'#ev-theater .ev-slide-meta > p',k:'ev4.p'},
+    {s:'#ev-theater .ev-slide-stat:nth-child(1) .lab',k:'ev4.s1'},{s:'#ev-theater .ev-slide-stat:nth-child(2) .lab',k:'ev4.s2'},{s:'#ev-theater .ev-slide-stat:nth-child(3) .lab',k:'ev4.s3'},
+    {s:'#ev-sports .ev-slide-pill',k:'ev5.pill'},{s:'#ev-sports h4',k:'ev5.h4'},{s:'#ev-sports .ev-slide-meta > p',k:'ev5.p'},
+    {s:'#ev-sports .ev-slide-stat:nth-child(1) .lab',k:'ev5.s1'},{s:'#ev-sports .ev-slide-stat:nth-child(2) .lab',k:'ev5.s2'},{s:'#ev-sports .ev-slide-stat:nth-child(3) .lab',k:'ev5.s3'},
+    {s:'#ev-live .ev-slide-pill',k:'ev6.pill'},{s:'#ev-live h4',k:'ev6.h4'},{s:'#ev-live .ev-slide-meta > p',k:'ev6.p'},
+    {s:'#ev-live .ev-slide-stat:nth-child(1) .lab',k:'ev6.s1'},{s:'#ev-live .ev-slide-stat:nth-child(2) .lab',k:'ev6.s2'},{s:'#ev-live .ev-slide-stat:nth-child(3) .lab',k:'ev6.s3'},
+    // SUBSCRIPTION
+    {s:'#suscripcion .sub-head .tag',k:'sub.tag'},{s:'#suscripcion .sub-head h2',k:'sub.h2',html:true},{s:'#suscripcion .sub-head p',k:'sub.p'},
+    {s:'.plans-grid .plan:nth-child(1) .plan-tier',k:'p1.tier'},{s:'.plans-grid .plan:nth-child(1) .plan-name',k:'p1.name'},{s:'.plans-grid .plan:nth-child(1) .plan-price .period',k:'p1.per'},
+    {s:'.plans-grid .plan:nth-child(1) .plan-desc',k:'p1.desc'},
+    {s:'.plans-grid .plan:nth-child(1) .plan-feats li:nth-child(1)',k:'p1.f1'},{s:'.plans-grid .plan:nth-child(1) .plan-feats li:nth-child(2)',k:'p1.f2'},
+    {s:'.plans-grid .plan:nth-child(1) .plan-feats li:nth-child(3)',k:'p1.f3'},{s:'.plans-grid .plan:nth-child(1) .plan-feats li:nth-child(4)',k:'p1.f4'},
+    {s:'.plans-grid .plan:nth-child(1) .plan-feats li:nth-child(5)',k:'p1.f5'},{s:'.plans-grid .plan:nth-child(1) .plan-feats li:nth-child(6)',k:'p1.f6'},
+    {s:'.plans-grid .plan:nth-child(1) .plan-btn',k:'p1.btn'},
+    {s:'.plans-grid .plan:nth-child(2) .plan-badge',k:'p2.badge'},{s:'.plans-grid .plan:nth-child(2) .plan-tier',k:'p2.tier'},{s:'.plans-grid .plan:nth-child(2) .plan-name',k:'p2.name'},{s:'.plans-grid .plan:nth-child(2) .plan-price .period',k:'p2.per'},
+    {s:'.plans-grid .plan:nth-child(2) .plan-desc',k:'p2.desc'},
+    {s:'.plans-grid .plan:nth-child(2) .plan-feats li:nth-child(1)',k:'p2.f1'},{s:'.plans-grid .plan:nth-child(2) .plan-feats li:nth-child(2)',k:'p2.f2'},
+    {s:'.plans-grid .plan:nth-child(2) .plan-feats li:nth-child(3)',k:'p2.f3'},{s:'.plans-grid .plan:nth-child(2) .plan-feats li:nth-child(4)',k:'p2.f4'},
+    {s:'.plans-grid .plan:nth-child(2) .plan-feats li:nth-child(5)',k:'p2.f5'},{s:'.plans-grid .plan:nth-child(2) .plan-feats li:nth-child(6)',k:'p2.f6'},
+    {s:'.plans-grid .plan:nth-child(2) .plan-btn',k:'p2.btn'},
+    {s:'.plans-grid .plan:nth-child(3) .plan-tier',k:'p3.tier'},{s:'.plans-grid .plan:nth-child(3) .plan-name',k:'p3.name'},{s:'.plans-grid .plan:nth-child(3) .plan-price .period',k:'p3.per'},
+    {s:'.plans-grid .plan:nth-child(3) .plan-desc',k:'p3.desc'},
+    {s:'.plans-grid .plan:nth-child(3) .plan-feats li:nth-child(1)',k:'p3.f1'},{s:'.plans-grid .plan:nth-child(3) .plan-feats li:nth-child(2)',k:'p3.f2'},
+    {s:'.plans-grid .plan:nth-child(3) .plan-feats li:nth-child(3)',k:'p3.f3'},{s:'.plans-grid .plan:nth-child(3) .plan-feats li:nth-child(4)',k:'p3.f4'},
+    {s:'.plans-grid .plan:nth-child(3) .plan-feats li:nth-child(5)',k:'p3.f5'},{s:'.plans-grid .plan:nth-child(3) .plan-feats li:nth-child(6)',k:'p3.f6'},
+    {s:'.plans-grid .plan:nth-child(3) .plan-btn',k:'p3.btn'},
+    // STATS
+    {s:'.stats-grid .stat-cell:nth-child(1) .stat-lbl',k:'st1'},{s:'.stats-grid .stat-cell:nth-child(2) .stat-lbl',k:'st2'},
+    {s:'.stats-grid .stat-cell:nth-child(3) .stat-lbl',k:'st3'},{s:'.stats-grid .stat-cell:nth-child(4) .stat-lbl',k:'st4'},
+    // PROCESO
+    {s:'#proceso .proc-head .tag',k:'pr.tag'},{s:'#proceso .proc-head h2',k:'pr.h2',html:true},
+    {s:'#proceso .proc-step:nth-child(1) h4',k:'pr.h1',html:true},{s:'#proceso .proc-step:nth-child(1) p',k:'pr.p1'},
+    {s:'#proceso .proc-step:nth-child(2) h4',k:'pr.h2b',html:true},{s:'#proceso .proc-step:nth-child(2) p',k:'pr.p2'},
+    {s:'#proceso .proc-step:nth-child(3) h4',k:'pr.h3'},{s:'#proceso .proc-step:nth-child(3) p',k:'pr.p3'},
+    {s:'#proceso .proc-step:nth-child(4) h4',k:'pr.h4',html:true},{s:'#proceso .proc-step:nth-child(4) p',k:'pr.p4'},
+    // TESTIMONIAL
+    {s:'.t-quote',k:'tq'},{s:'.t-name',k:'tn'},{s:'.t-role',k:'tr'},
+    // CTA
+    {s:'#contacto .tag',k:'cta.tag'},{s:'#contacto h2',k:'cta.h2',html:true},{s:'#contacto .cta-body p',k:'cta.p'},
+    // FOOTER
+    {s:'.f-links a:nth-child(1)',k:'fl1'},{s:'.f-links a:nth-child(2)',k:'fl2'},{s:'.f-links a:nth-child(3)',k:'fl3'},
+    {s:'.f-links a:nth-child(4)',k:'fl4'},{s:'.f-links a:nth-child(5)',k:'fl5'},{s:'.f-links a:nth-child(6)',k:'fl6'},
+    {s:'.f-links a:nth-child(7)',k:'fl7'},{s:'.f-copy',k:'fc'}
+  ];
+
+  function setLang(lang) {
+    var t = TRANSLATIONS[lang];
+    if (!t) return;
+    document.documentElement.lang = lang;
+    localStorage.setItem('lang', lang);
+    I18N_MAP.forEach(function(item) {
+      var el = document.querySelector(item.s);
+      if (!el || t[item.k] === undefined) return;
+      if (item.html) el.innerHTML = t[item.k];
+      else el.textContent = t[item.k];
+    });
+    var btn = document.getElementById('langToggle');
+    if (btn) btn.textContent = lang === 'es' ? 'EN' : 'ES';
+  }
+
+  document.addEventListener('DOMContentLoaded', function () {
+    setLang(localStorage.getItem('lang') || 'es');
+  });
+  </script>
 
 </body>
 </html>
