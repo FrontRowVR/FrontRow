@@ -1,0 +1,776 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Servicios &amp; Proceso · FrontRow VR</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Unbounded:wght@400;600;700;800;900&family=DM+Sans:ital,wght@0,300;0,400;0,500;1,300&display=swap" rel="stylesheet" />
+
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --black:      #050507;
+      --surface:    #0a0a10;
+      --white:      #ffffff;
+      --offwhite:   #e8e8f2;
+      --muted:      #7a7a8c;
+      --faint:      rgba(255,255,255,0.06);
+      --border:     rgba(255,255,255,0.08);
+      --accent:     #00e5ff;
+      --accent-dim: rgba(0,229,255,0.12);
+    }
+
+    html { scroll-behavior: smooth; }
+
+    body {
+      background: var(--black);
+      color: var(--white);
+      font-family: 'DM Sans', sans-serif;
+      font-weight: 400;
+      line-height: 1.6;
+      overflow-x: hidden;
+      min-height: 100vh;
+      cursor: none;
+    }
+
+    /* ── SCROLLBAR ── */
+    ::-webkit-scrollbar { width: 4px; }
+    ::-webkit-scrollbar-track { background: var(--black); }
+    ::-webkit-scrollbar-thumb { background: var(--accent); border-radius: 2px; }
+
+    /* ── CUSTOM CURSOR ── */
+    .cursor {
+      position: fixed; width: 8px; height: 8px;
+      background: var(--accent); border-radius: 50%;
+      pointer-events: none; z-index: 9999;
+      transform: translate(-50%,-50%);
+      transition: width .15s, height .15s;
+    }
+    .cursor-ring {
+      position: fixed; width: 36px; height: 36px;
+      border: 1px solid rgba(0,229,255,.35); border-radius: 50%;
+      pointer-events: none; z-index: 9998;
+      transform: translate(-50%,-50%);
+      transition: width .25s, height .25s, border-color .25s;
+    }
+    body:hover .cursor { opacity: 1; }
+
+    /* ── NAV ── */
+    #nav {
+      position: fixed; top: 0; left: 0; right: 0; z-index: 100;
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 1.6rem 4%;
+      transition: background .3s, border-bottom-color .3s;
+      border-bottom: 1px solid transparent;
+    }
+    #nav.scrolled {
+      background: rgba(5,5,7,.88);
+      backdrop-filter: blur(20px);
+      border-bottom-color: var(--border);
+    }
+    .logo { text-decoration: none; display: flex; align-items: center; }
+    .logo-img { height: 52px; width: auto; display: block; }
+    .logo em { color: var(--accent); font-style: normal; }
+    .nav-right { display: flex; align-items: center; gap: 2.8rem; }
+    .nav-links { list-style: none; display: flex; gap: 2.5rem; }
+    .nav-links a {
+      color: rgba(255,255,255,.5); text-decoration: none;
+      font-size: .82rem; letter-spacing: .08em; text-transform: uppercase;
+      transition: color .2s;
+    }
+    .nav-links a:hover { color: var(--white); }
+    .nav-auth { display: flex; align-items: center; gap: 1.6rem; }
+    .nav-login {
+      font-size: .82rem; letter-spacing: .08em; text-transform: uppercase;
+      color: rgba(255,255,255,.7); text-decoration: none; font-weight: 500;
+      transition: color .2s;
+    }
+    .nav-login:hover { color: var(--white); }
+    .nav-cta {
+      font-size: .8rem; letter-spacing: .08em; text-transform: uppercase;
+      color: var(--black); background: var(--accent);
+      text-decoration: none; font-weight: 700;
+      padding: .55rem 1.1rem;
+      transition: background .2s, transform .2s;
+    }
+    .nav-cta:hover { background: #33ecff; transform: translateY(-1px); }
+
+    /* ── PAGE INTRO ── */
+    .page-intro {
+      padding: 9rem 4% 0;
+    }
+    .page-intro-label {
+      font-family: 'Unbounded', sans-serif;
+      font-size: .7rem; font-weight: 700; letter-spacing: .16em;
+      text-transform: uppercase; color: var(--accent); margin-bottom: 1.1rem;
+      display: flex; align-items: center; gap: .7rem;
+    }
+    .page-intro-label::before { content: ''; width: 26px; height: 1px; background: var(--accent); }
+
+    .page-intro h1 {
+      font-family: 'Unbounded', sans-serif;
+      font-size: clamp(2.4rem, 5vw, 4.8rem);
+      font-weight: 800; letter-spacing: -.035em; line-height: 1.0;
+      margin-bottom: .9rem;
+    }
+    .page-intro p {
+      color: var(--muted); font-size: .95rem; max-width: 520px; line-height: 1.75;
+      margin-bottom: 4rem;
+    }
+
+    /* ── SECTION LABEL ── */
+    .tag {
+      display: inline-block; font-size: .72rem; letter-spacing: .17em;
+      text-transform: uppercase; color: var(--accent); font-weight: 500;
+      margin-bottom: 1.5rem;
+    }
+
+    /* ── FEATURE ROWS ── */
+    .feat-section-head {
+      padding: 5rem 4% 0;
+      margin-bottom: 0;
+    }
+    .feat-section-head h2 {
+      font-family: 'Unbounded', sans-serif;
+      font-size: clamp(2rem, 4vw, 3.5rem);
+      font-weight: 800; letter-spacing: -.025em; line-height: 1.1;
+    }
+    .feat-section-head p {
+      color: var(--muted); font-size: .95rem; max-width: 480px;
+      line-height: 1.72; margin-top: 1rem; margin-bottom: 3rem;
+    }
+
+    .feat-row {
+      display: grid; grid-template-columns: 1fr 1fr;
+      border-top: 1px solid var(--border);
+    }
+    .feat-row:nth-child(even) .feat-img { order: -1; }
+
+    .feat-img {
+      position: relative; overflow: hidden; min-height: 480px;
+      background: #111118;
+    }
+    .feat-img img {
+      width: 100%; height: 100%; object-fit: cover; display: block;
+      filter: brightness(.65) saturate(.8);
+      transition: transform .9s cubic-bezier(.25,.46,.45,.94), filter .5s;
+    }
+    .feat-row:hover .feat-img img { transform: scale(1.04); filter: brightness(.75) saturate(1); }
+
+    .feat-body {
+      padding: 5rem 6%;
+      display: flex; flex-direction: column; justify-content: center;
+      background: var(--surface);
+      border-left: 1px solid var(--border);
+    }
+    .feat-row:nth-child(even) .feat-body { border-left: none; border-right: 1px solid var(--border); }
+
+    .feat-num {
+      font-family: 'Unbounded', sans-serif; font-size: 4.5rem; font-weight: 800;
+      line-height: 1; letter-spacing: -.05em;
+      color: rgba(255,255,255,.04); margin-bottom: .8rem;
+      user-select: none;
+    }
+    .feat-tag { margin-bottom: .9rem; }
+
+    .feat-body h3 {
+      font-family: 'Unbounded', sans-serif;
+      font-size: clamp(1.6rem, 2.4vw, 2.3rem);
+      font-weight: 800; line-height: 1.15; letter-spacing: -.02em;
+      margin-bottom: 1.1rem;
+    }
+    .feat-body p {
+      color: var(--muted); font-size: .95rem; line-height: 1.78;
+      max-width: 370px;
+    }
+
+    /* ── PROCESS ── */
+    .proc-section {
+      padding: 7rem 4%;
+      border-top: 1px solid var(--border);
+    }
+
+    .proc-head { margin-bottom: 4.5rem; }
+    .proc-head h2 {
+      font-family: 'Unbounded', sans-serif;
+      font-size: clamp(2rem, 4vw, 3.5rem);
+      font-weight: 800; letter-spacing: -.025em;
+    }
+    .proc-head p {
+      color: var(--muted); font-size: .95rem; max-width: 480px;
+      line-height: 1.72; margin-top: 1rem;
+    }
+
+    .proc-grid {
+      display: grid; grid-template-columns: repeat(4,1fr);
+      gap: 0; border-top: 1px solid var(--border);
+    }
+    .proc-step {
+      padding: 2.5rem 2rem 2.5rem 0;
+      border-right: 1px solid var(--border);
+    }
+    .proc-step:last-child { border-right: none; padding-right: 0; }
+    .proc-step:not(:first-child) { padding-left: 2rem; }
+
+    .proc-n {
+      font-family: 'Unbounded', sans-serif; font-size: .73rem; font-weight: 700;
+      letter-spacing: .12em; color: var(--accent); margin-bottom: 1.6rem;
+      display: flex; align-items: center; gap: .5rem;
+    }
+    .proc-n::after { content: ''; flex: 1; height: 1px; background: rgba(0,229,255,.2); }
+
+    .proc-step h4 {
+      font-family: 'Unbounded', sans-serif; font-weight: 800; font-size: 1rem;
+      margin-bottom: .7rem; letter-spacing: -.005em;
+    }
+    .proc-step p { font-size: .86rem; color: var(--muted); line-height: 1.72; }
+
+    /* ── CTA STRIP ── */
+    .cta-strip {
+      padding: 6rem 4%;
+      border-top: 1px solid var(--border);
+      background:
+        radial-gradient(ellipse 70% 60% at 50% 0%, rgba(0,229,255,.06) 0%, transparent 65%),
+        var(--black);
+      text-align: center;
+    }
+    .cta-strip h2 {
+      font-family: 'Unbounded', sans-serif;
+      font-size: clamp(2rem, 4.5vw, 4rem);
+      font-weight: 800; letter-spacing: -.025em; line-height: 1.1;
+      margin-bottom: 1.2rem;
+    }
+    .cta-strip p {
+      color: var(--muted); font-size: .95rem; max-width: 400px;
+      line-height: 1.75; margin: 0 auto 2.5rem;
+    }
+    .cta-strip a {
+      font-family: 'Unbounded', sans-serif;
+      font-size: clamp(1rem, 2vw, 1.5rem);
+      font-weight: 800; letter-spacing: -.01em;
+      color: var(--white); text-decoration: none;
+      border-bottom: 2px solid var(--accent); padding-bottom: 4px;
+      transition: color .2s;
+    }
+    .cta-strip a:hover { color: var(--accent); }
+
+    /* ── FOOTER ── */
+    footer {
+      background: var(--black);
+      border-top: 1px solid var(--border);
+      padding: 2.5rem 4%;
+      display: flex; justify-content: space-between; align-items: center;
+      flex-wrap: wrap; gap: 1.2rem;
+    }
+    .f-logo {
+      text-decoration: none; display: flex; align-items: center;
+    }
+    .f-logo em { color: var(--accent); font-style: normal; }
+
+    .f-links { display: flex; gap: 2rem; flex-wrap: wrap; }
+    .f-links a {
+      font-size: .8rem; color: var(--muted); text-decoration: none;
+      letter-spacing: .04em; transition: color .2s;
+    }
+    .f-links a:hover { color: var(--white); }
+
+    .f-copy { font-size: .75rem; color: rgba(255,255,255,.18); }
+
+    /* ── EVENTS SWITCHER ── */
+    #eventos {
+      padding: 7rem 4%;
+      border-top: 1px solid var(--border);
+    }
+    .ev-head {
+      display: flex; justify-content: space-between; align-items: flex-end;
+      margin-bottom: 4rem; gap: 2rem;
+    }
+    .ev-head h2 {
+      font-family: 'Unbounded', sans-serif;
+      font-size: clamp(2rem, 4vw, 3.5rem);
+      font-weight: 800; letter-spacing: -.025em; line-height: 1.1;
+      margin-top: .8rem;
+    }
+    .ev-head p { color: var(--muted); font-size: .92rem; max-width: 320px; text-align: right; }
+    .ev-switcher {
+      display: grid;
+      grid-template-columns: 1fr 1.25fr;
+      gap: 3rem;
+      min-height: 600px;
+    }
+    .ev-menu {
+      display: flex; flex-direction: column;
+      border-top: 1px solid var(--border);
+    }
+    .ev-tab {
+      display: grid;
+      grid-template-columns: 48px 1fr 24px;
+      align-items: center; gap: 1.5rem;
+      padding: 1.6rem 0;
+      border-bottom: 1px solid var(--border);
+      cursor: pointer;
+      position: relative;
+      transition: padding-left .4s cubic-bezier(.25,.46,.45,.94);
+    }
+    .ev-tab::before {
+      content: '';
+      position: absolute; left: -1rem; top: 50%;
+      width: 4px; height: 0;
+      background: var(--accent);
+      transform: translateY(-50%);
+      transition: height .4s cubic-bezier(.25,.46,.45,.94);
+    }
+    .ev-tab:hover, .ev-tab.active { padding-left: 1.2rem; border-bottom-color: rgba(0,229,255,.3); }
+    .ev-tab.active::before { height: 60%; }
+    .ev-tab-num {
+      font-family: 'Unbounded', sans-serif;
+      font-size: .78rem; font-weight: 700;
+      letter-spacing: .12em; color: var(--muted);
+      transition: color .3s;
+    }
+    .ev-tab:hover .ev-tab-num, .ev-tab.active .ev-tab-num { color: var(--accent); }
+    .ev-tab-name {
+      font-family: 'Unbounded', sans-serif;
+      font-size: clamp(1.15rem, 1.8vw, 1.7rem);
+      font-weight: 800; letter-spacing: -.015em; line-height: 1.15;
+      color: rgba(255,255,255,.45);
+      transition: color .3s;
+    }
+    .ev-tab:hover .ev-tab-name, .ev-tab.active .ev-tab-name { color: var(--white); }
+    .ev-tab-arrow {
+      color: var(--accent); font-size: 1.1rem;
+      opacity: 0; transform: translateX(-12px);
+      transition: opacity .3s, transform .3s;
+    }
+    .ev-tab:hover .ev-tab-arrow, .ev-tab.active .ev-tab-arrow { opacity: 1; transform: translateX(0); }
+    .ev-stage {
+      position: relative; overflow: hidden;
+      background: #0c0c14;
+      min-height: 580px;
+    }
+    .ev-slide {
+      position: absolute; inset: 0;
+      opacity: 0; visibility: hidden;
+      transition: opacity .7s cubic-bezier(.25,.46,.45,.94), visibility 0s linear .7s;
+    }
+    .ev-slide.active {
+      opacity: 1; visibility: visible;
+      transition: opacity .7s cubic-bezier(.25,.46,.45,.94), visibility 0s linear 0s;
+    }
+    .ev-slide img {
+      width: 100%; height: 100%;
+      object-fit: cover; display: block;
+      filter: brightness(.7) saturate(.9);
+      transform: scale(1.05);
+      transition: transform 6s linear;
+    }
+    .ev-slide.active img { transform: scale(1); }
+    .ev-slide::after {
+      content: '';
+      position: absolute; inset: 0;
+      background:
+        linear-gradient(to top, rgba(5,5,7,.95) 0%, rgba(5,5,7,.3) 45%, rgba(5,5,7,.1) 100%),
+        linear-gradient(to right, rgba(5,5,7,.3) 0%, transparent 50%);
+      pointer-events: none;
+    }
+    .ev-slide-meta {
+      position: absolute; bottom: 2.4rem; left: 2.4rem; right: 2.4rem;
+      z-index: 2;
+    }
+    .ev-slide-pill {
+      display: inline-block;
+      font-family: 'Unbounded', sans-serif;
+      font-size: .67rem; font-weight: 600;
+      letter-spacing: .14em; text-transform: uppercase;
+      padding: .4rem .9rem;
+      border: 1px solid rgba(0,229,255,.35);
+      background: rgba(0,229,255,.1);
+      color: var(--accent);
+      border-radius: 100px;
+      margin-bottom: 1.2rem;
+    }
+    .ev-slide-meta h4 {
+      font-family: 'Unbounded', sans-serif;
+      font-size: clamp(1.6rem, 2.8vw, 2.6rem);
+      font-weight: 800; letter-spacing: -.02em; line-height: 1.05;
+      margin-bottom: .9rem;
+      color: var(--white);
+    }
+    .ev-slide-meta p {
+      color: rgba(255,255,255,.7);
+      font-size: .95rem; line-height: 1.7;
+      max-width: 480px; margin-bottom: 1.6rem;
+    }
+    .ev-slide-stats {
+      display: flex; gap: 2rem; flex-wrap: wrap;
+      padding-top: 1.3rem;
+      border-top: 1px solid rgba(255,255,255,.12);
+    }
+    .ev-slide-stat .num {
+      font-family: 'Unbounded', sans-serif;
+      font-size: 1.2rem; font-weight: 800;
+      color: var(--accent); letter-spacing: -.01em;
+      line-height: 1; display: block;
+    }
+    .ev-slide-stat .lab {
+      font-size: .72rem; letter-spacing: .08em;
+      text-transform: uppercase; color: rgba(255,255,255,.4);
+      margin-top: .35rem;
+    }
+    .ev-slide-index {
+      position: absolute; top: 1.8rem; right: 1.8rem;
+      z-index: 2;
+      font-family: 'Unbounded', sans-serif;
+      font-size: 5rem; font-weight: 800;
+      line-height: 1; letter-spacing: -.04em;
+      color: rgba(255,255,255,.08);
+      user-select: none;
+    }
+
+    /* ── RESPONSIVE ── */
+    @media (max-width: 960px) {
+      .feat-row { grid-template-columns: 1fr; }
+      .feat-row:nth-child(even) .feat-img { order: 0; }
+      .feat-img { min-height: 300px; }
+      .feat-body { padding: 3rem 5%; border-left: none !important; border-right: none !important; border-top: 1px solid var(--border); }
+      .proc-grid { grid-template-columns: 1fr 1fr; }
+      .proc-step { border-right: none; border-bottom: 1px solid var(--border); padding: 2rem 0; }
+      .proc-step:not(:first-child) { padding-left: 0; }
+      .proc-section { padding: 5rem 4%; }
+      .ev-head { flex-direction: column; align-items: flex-start; margin-bottom: 2.5rem; }
+      .ev-head p { text-align: left; }
+      .ev-switcher { grid-template-columns: 1fr; gap: 1.5rem; min-height: auto; }
+      .ev-stage { min-height: 440px; order: -1; }
+      .ev-slide-meta { bottom: 1.5rem; left: 1.5rem; right: 1.5rem; }
+      .ev-slide-index { font-size: 3.2rem; top: 1rem; right: 1.2rem; }
+      #eventos { padding: 5rem 4%; }
+    }
+    @media (max-width: 600px) {
+      .page-intro { padding: 3.5rem 4% 0; }
+      .feat-section-head { padding: 3.5rem 4% 0; }
+      .feat-img { min-height: 220px; }
+      .feat-body { padding: 2rem 4%; }
+      .proc-grid { grid-template-columns: 1fr; }
+      .proc-section { padding: 3.5rem 4%; }
+      footer { flex-direction: column; align-items: flex-start; }
+      .ev-slide-index { display: none; }
+      .ev-stage { min-height: 340px; }
+      .ev-slide-meta { bottom: 1.2rem; left: 1.2rem; right: 1.2rem; }
+      .ev-slide-stats { gap: 1.2rem; }
+      #eventos { padding: 3rem 4%; }
+    }
+  </style>
+</head>
+<body>
+
+  <div class="cursor" id="cursor"></div>
+  <div class="cursor-ring" id="cursorRing"></div>
+
+  <!-- ══ NAV ══ -->
+  <nav id="nav">
+    <a href="index.html" class="logo"><img src="FrontRow.png" alt="FrontRow VR" class="logo-img" /></a>
+    <div class="nav-right">
+      <ul class="nav-links">
+        <li><a href="index.html#trabajo">Trabajo</a></li>
+        <li><a href="index.html#proximos-eventos">Eventos</a></li>
+        <li><a href="index.html#suscripcion">Suscripción</a></li>
+        <li><a href="servicios.html">Servicios</a></li>
+      </ul>
+      <div class="nav-auth">
+        <a href="catalogo.html" class="nav-login">Catálogo</a>
+        <a href="index.html#contacto" class="nav-cta">Hablemos →</a>
+      </div>
+    </div>
+  </nav>
+
+  <!-- ══ PAGE INTRO ══ -->
+  <div class="page-intro">
+    <div class="page-intro-label">Cómo trabajamos</div>
+    <h1>De la idea<br />al visor.</h1>
+    <p>Producción inmersiva de principio a fin. Conoce los servicios que ofrecemos y el proceso que seguimos para llevar tu evento al mundo VR.</p>
+  </div>
+
+  <!-- ══ SERVICIOS ══ -->
+  <div class="feat-section-head" style="padding: 0 4% 0; margin-top: 0;">
+    <div style="border-bottom: 1px solid var(--border); padding-bottom: 2rem; margin-bottom: 0;">
+      <span class="tag">Nuestros Servicios</span>
+      <h2>Lo que<br />hacemos.</h2>
+      <p>Cada servicio diseñado para llevar la experiencia en vivo a cualquier visor del mundo.</p>
+    </div>
+  </div>
+
+  <div id="servicios">
+
+    <div class="feat-row">
+      <div class="feat-body">
+        <div class="feat-num">01</div>
+        <span class="tag feat-tag">Grabación Profesional</span>
+        <h3>Video 180° Estereoscópico de Alta Resolución</h3>
+        <p>Cámaras de nivel broadcast con lentes duales capturan cada escenario en hasta 8K por ojo, preservando la profundidad y el detalle que el contenido VR exige.</p>
+      </div>
+      <div class="feat-img">
+        <img src="https://images.unsplash.com/photo-1556340346-5e30da977c4d?auto=format&fit=crop&w=700&q=80" alt="Grabación VR" loading="lazy" />
+      </div>
+    </div>
+
+    <div class="feat-row">
+      <div class="feat-body">
+        <div class="feat-num">02</div>
+        <span class="tag feat-tag">Audio Inmersivo</span>
+        <h3>Sonido Espacial que Te Rodea</h3>
+        <p>Audio ambisónico de alto orden captura el campo sonoro completo. Cada fuente de sonido tiene su lugar exacto en el espacio. Cierra los ojos y estás ahí.</p>
+      </div>
+      <div class="feat-img">
+        <img src="https://images.unsplash.com/photo-1551034261-3bd672e0a970?auto=format&fit=crop&w=700&q=80" alt="Audio espacial inmersivo" loading="lazy" />
+      </div>
+    </div>
+
+    <div class="feat-row">
+      <div class="feat-body">
+        <div class="feat-num">03</div>
+        <span class="tag feat-tag">Distribución Multi-Plataforma</span>
+        <h3>Listo para Cualquier Visor del Mercado</h3>
+        <p>Stitching, color grading y masterizado especializado para VR. Entregamos formatos compatibles con Meta Quest, Apple Vision Pro, PlayStation VR2 y YouTube VR.</p>
+      </div>
+      <div class="feat-img">
+        <img src="https://images.unsplash.com/photo-1558008258-3256797b43f3?auto=format&fit=crop&w=700&q=80" alt="Distribución VR multi-plataforma" loading="lazy" />
+      </div>
+    </div>
+
+  </div>
+
+  <!-- ══ EVENTOS ══ -->
+  <section id="eventos">
+    <div class="ev-head">
+      <div>
+        <span class="tag">Tipos de Evento</span>
+        <h2>¿Qué tipo de<br />evento tienes?</h2>
+      </div>
+      <p>Trabajamos con todo tipo de espectáculos y experiencias en vivo, cada uno capturado a medida.</p>
+    </div>
+
+    <div class="ev-switcher">
+      <div class="ev-menu" id="evMenu">
+        <div class="ev-tab active" data-target="ev-concerts">
+          <span class="ev-tab-num">01</span>
+          <span class="ev-tab-name">Conciertos</span>
+          <span class="ev-tab-arrow">→</span>
+        </div>
+        <div class="ev-tab" data-target="ev-festivals">
+          <span class="ev-tab-num">02</span>
+          <span class="ev-tab-name">Festivales</span>
+          <span class="ev-tab-arrow">→</span>
+        </div>
+        <div class="ev-tab" data-target="ev-talks">
+          <span class="ev-tab-num">03</span>
+          <span class="ev-tab-name">Charlas &amp; Conferencias</span>
+          <span class="ev-tab-arrow">→</span>
+        </div>
+        <div class="ev-tab" data-target="ev-theater">
+          <span class="ev-tab-num">04</span>
+          <span class="ev-tab-name">Teatro &amp; Danza</span>
+          <span class="ev-tab-arrow">→</span>
+        </div>
+        <div class="ev-tab" data-target="ev-sports">
+          <span class="ev-tab-num">05</span>
+          <span class="ev-tab-name">Deportes &amp; eSports</span>
+          <span class="ev-tab-arrow">→</span>
+        </div>
+        <div class="ev-tab" data-target="ev-live">
+          <span class="ev-tab-num">06</span>
+          <span class="ev-tab-name">Streaming VR en Vivo</span>
+          <span class="ev-tab-arrow">→</span>
+        </div>
+      </div>
+
+      <div class="ev-stage">
+        <div class="ev-slide active" id="ev-concerts">
+          <img src="https://images.unsplash.com/photo-1524368535928-5b5e00ddc76b?auto=format&fit=crop&w=1000&q=80" alt="Conciertos" loading="lazy" />
+          <span class="ev-slide-index">01</span>
+          <div class="ev-slide-meta">
+            <span class="ev-slide-pill">Alta Energía</span>
+            <h4>Conciertos en Vivo</h4>
+            <p>Rock, pop, electrónica, clásica. Capturamos la energía del escenario desde ángulos que ningún espectador pudo ver esa noche.</p>
+            <div class="ev-slide-stats">
+              <div class="ev-slide-stat"><span class="num">8K</span><span class="lab">Por ojo</span></div>
+              <div class="ev-slide-stat"><span class="num">7.1</span><span class="lab">Audio Ambisónico</span></div>
+              <div class="ev-slide-stat"><span class="num">12+</span><span class="lab">Producciones</span></div>
+            </div>
+          </div>
+        </div>
+
+        <div class="ev-slide" id="ev-festivals">
+          <img src="https://images.unsplash.com/photo-1619229725920-ac8b63b0631a?auto=format&fit=crop&w=1000&q=80" alt="Festivales" loading="lazy" />
+          <span class="ev-slide-index">02</span>
+          <div class="ev-slide-meta">
+            <span class="ev-slide-pill">Multi-cámara</span>
+            <h4>Festivales de Música</h4>
+            <p>Multi-escenario, multitud real y atmósfera completa. Cubrimos hasta 3 escenarios en paralelo con flujo sincronizado de video y audio.</p>
+            <div class="ev-slide-stats">
+              <div class="ev-slide-stat"><span class="num">3</span><span class="lab">Escenarios paralelos</span></div>
+              <div class="ev-slide-stat"><span class="num">48h</span><span class="lab">Cobertura continua</span></div>
+              <div class="ev-slide-stat"><span class="num">6+</span><span class="lab">Producciones</span></div>
+            </div>
+          </div>
+        </div>
+
+        <div class="ev-slide" id="ev-talks">
+          <img src="https://images.unsplash.com/photo-1544531586-fde5298cdd40?auto=format&fit=crop&w=1000&q=80" alt="Conferencias" loading="lazy" />
+          <span class="ev-slide-index">03</span>
+          <div class="ev-slide-meta">
+            <span class="ev-slide-pill">Corporativo</span>
+            <h4>Charlas &amp; Conferencias</h4>
+            <p>Keynotes, TED-style talks y eventos corporativos con presencia como si estuvieras sentado en la primera fila del auditorio.</p>
+            <div class="ev-slide-stats">
+              <div class="ev-slide-stat"><span class="num">1:1</span><span class="lab">Presencia real</span></div>
+              <div class="ev-slide-stat"><span class="num">HDR</span><span class="lab">Color grading</span></div>
+              <div class="ev-slide-stat"><span class="num">20+</span><span class="lab">Producciones</span></div>
+            </div>
+          </div>
+        </div>
+
+        <div class="ev-slide" id="ev-theater">
+          <img src="https://images.unsplash.com/photo-1741671323163-5da1c3dcb4b2?auto=format&fit=crop&w=1000&q=80" alt="Teatro" loading="lazy" />
+          <span class="ev-slide-index">04</span>
+          <div class="ev-slide-meta">
+            <span class="ev-slide-pill">Cultural</span>
+            <h4>Teatro &amp; Artes Escénicas</h4>
+            <p>Arte en vivo preservado en su dimensión completa. Cada gesto, cada coreografía, cada emoción capturada para generaciones futuras.</p>
+            <div class="ev-slide-stats">
+              <div class="ev-slide-stat"><span class="num">60fps</span><span class="lab">Movimiento fluido</span></div>
+              <div class="ev-slide-stat"><span class="num">Archivo</span><span class="lab">Permanente</span></div>
+              <div class="ev-slide-stat"><span class="num">8+</span><span class="lab">Producciones</span></div>
+            </div>
+          </div>
+        </div>
+
+        <div class="ev-slide" id="ev-sports">
+          <img src="https://images.unsplash.com/photo-1590674680695-8b9efe9b764d?auto=format&fit=crop&w=1000&q=80" alt="Deportes" loading="lazy" />
+          <span class="ev-slide-index">05</span>
+          <div class="ev-slide-meta">
+            <span class="ev-slide-pill">Acción</span>
+            <h4>Deportes &amp; eSports</h4>
+            <p>La adrenalina del evento desde los mejores ángulos. Primera persona, cancha, tribunas. Tu audiencia vive cada jugada en directo.</p>
+            <div class="ev-slide-stats">
+              <div class="ev-slide-stat"><span class="num">120fps</span><span class="lab">Alta velocidad</span></div>
+              <div class="ev-slide-stat"><span class="num">POV</span><span class="lab">Primera persona</span></div>
+              <div class="ev-slide-stat"><span class="num">4+</span><span class="lab">Producciones</span></div>
+            </div>
+          </div>
+        </div>
+
+        <div class="ev-slide" id="ev-live">
+          <img src="https://images.unsplash.com/photo-1626125345510-4603468eedfb?auto=format&fit=crop&w=1000&q=80" alt="Live Streaming" loading="lazy" />
+          <span class="ev-slide-index">06</span>
+          <div class="ev-slide-meta">
+            <span class="ev-slide-pill">Transmisión Global</span>
+            <h4>Streaming VR en Vivo</h4>
+            <p>Transmisión en tiempo real para audiencias globales, sin límite de aforo. Llega a miles de visores simultáneos alrededor del mundo.</p>
+            <div class="ev-slide-stats">
+              <div class="ev-slide-stat"><span class="num">&lt;500ms</span><span class="lab">Latencia</span></div>
+              <div class="ev-slide-stat"><span class="num">∞</span><span class="lab">Aforo global</span></div>
+              <div class="ev-slide-stat"><span class="num">24/7</span><span class="lab">Soporte live</span></div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ══ PROCESO ══ -->
+  <section class="proc-section">
+    <div class="proc-head">
+      <span class="tag">Proceso</span>
+      <h2>De tu evento<br />al visor.</h2>
+      <p>Un flujo de trabajo claro y probado para asegurar la mejor calidad en cada etapa de producción.</p>
+    </div>
+    <div class="proc-grid">
+      <div class="proc-step">
+        <div class="proc-n">01</div>
+        <h4>Consultoría &amp; Planificación</h4>
+        <p>Analizamos el venue, el tipo de evento y los objetivos para diseñar el plan de producción perfecto.</p>
+      </div>
+      <div class="proc-step">
+        <div class="proc-n">02</div>
+        <h4>Setup &amp; Grabación</h4>
+        <p>Desplegamos cámaras y sistemas de audio durante el evento con supervisión técnica en tiempo real.</p>
+      </div>
+      <div class="proc-step">
+        <div class="proc-n">03</div>
+        <h4>Post-Producción VR</h4>
+        <p>Stitching, color grading y masterizado de audio espacial para la experiencia más fluida posible.</p>
+      </div>
+      <div class="proc-step">
+        <div class="proc-n">04</div>
+        <h4>Entrega &amp; Distribución</h4>
+        <p>Formatos listos para todas las plataformas. El contenido llega a tu audiencia en tiempo récord.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- ══ CTA ══ -->
+  <div class="cta-strip">
+    <span class="tag">Trabajemos juntos</span>
+    <h2>¿Tienes un evento<br />que merece ser vivido?</h2>
+    <p>Cuéntanos sobre tu proyecto y preparamos una propuesta a medida, sin compromiso.</p>
+    <a href="mailto:hola@frontrowvr.cl">hola@frontrowvr.cl</a>
+  </div>
+
+  <!-- ══ FOOTER ══ -->
+  <footer>
+    <a href="index.html" class="f-logo"><img src="FrontRow.png" alt="FrontRow VR" class="logo-img" /></a>
+    <nav class="f-links" aria-label="Footer">
+      <a href="index.html">Inicio</a>
+      <a href="catalogo.html">Catálogo</a>
+      <a href="servicios.html">Servicios</a>
+      <a href="index.html#contacto">Contacto</a>
+    </nav>
+    <span class="f-copy">© 2026 FrontRow VR. Todos los derechos reservados.</span>
+  </footer>
+
+  <script>
+    // ── CURSOR ──
+    var nav = document.getElementById('nav');
+    window.addEventListener('scroll', function () { nav.classList.toggle('scrolled', window.scrollY > 30); });
+
+    var cursor     = document.getElementById('cursor');
+    var cursorRing = document.getElementById('cursorRing');
+    document.addEventListener('mousemove', function (e) {
+      cursor.style.left     = e.clientX + 'px';
+      cursor.style.top      = e.clientY + 'px';
+      cursorRing.style.left = e.clientX + 'px';
+      cursorRing.style.top  = e.clientY + 'px';
+    });
+    document.querySelectorAll('a, button').forEach(function (el) {
+      el.addEventListener('mouseenter', function () {
+        cursor.style.width      = '16px';
+        cursor.style.height     = '16px';
+        cursorRing.style.width  = '56px';
+        cursorRing.style.height = '56px';
+        cursorRing.style.borderColor = 'rgba(0,229,255,.65)';
+      });
+      el.addEventListener('mouseleave', function () {
+        cursor.style.width      = '8px';
+        cursor.style.height     = '8px';
+        cursorRing.style.width  = '36px';
+        cursorRing.style.height = '36px';
+        cursorRing.style.borderColor = 'rgba(0,229,255,.35)';
+      });
+    });
+    // Event switcher
+    var evTabs = document.querySelectorAll('.ev-tab');
+    var evSlides = document.querySelectorAll('.ev-slide');
+    function activateEvent(target) {
+      evTabs.forEach(function(t) { t.classList.toggle('active', t.dataset.target === target); });
+      evSlides.forEach(function(s) { s.classList.toggle('active', s.id === target); });
+    }
+    evTabs.forEach(function(tab) {
+      tab.addEventListener('mouseenter', function() { activateEvent(tab.dataset.target); });
+      tab.addEventListener('click', function() { activateEvent(tab.dataset.target); });
+    });
+  </script>
+</body>
+</html>

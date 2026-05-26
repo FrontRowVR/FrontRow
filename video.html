@@ -1,0 +1,786 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title id="pageTitle">Video · FrontRow VR</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Unbounded:wght@700;800&family=DM+Sans:ital,wght@0,300;0,400;0,500;1,300&display=swap" rel="stylesheet" />
+  <script src="https://aframe.io/releases/1.5.0/aframe.min.js"></script>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --black:      #050507;
+      --surface:    #0a0a10;
+      --white:      #f4f4f6;
+      --offwhite:   #c8c8d4;
+      --muted:      #7a7a8c;
+      --faint:      rgba(255,255,255,.04);
+      --border:     rgba(255,255,255,.08);
+      --accent:     #00e5ff;
+      --accent-dim: rgba(0,229,255,.15);
+    }
+
+    html { scroll-behavior: smooth; }
+    body {
+      background: var(--black); color: var(--offwhite);
+      font-family: 'DM Sans', sans-serif; font-weight: 400;
+      line-height: 1.6; overflow-x: hidden;
+      cursor: none;
+    }
+    h1, h2, h3, h4 { font-family: 'Unbounded', sans-serif; color: var(--white); }
+
+    /* ── CURSOR ── */
+    .cursor {
+      position: fixed; width: 8px; height: 8px;
+      background: var(--accent); border-radius: 50%;
+      pointer-events: none; z-index: 9999;
+      transform: translate(-50%,-50%); opacity: 0;
+      transition: width .15s, height .15s;
+    }
+    .cursor-ring {
+      position: fixed; width: 36px; height: 36px;
+      border: 1.5px solid rgba(0,229,255,.35); border-radius: 50%;
+      pointer-events: none; z-index: 9998;
+      transform: translate(-50%,-50%);
+      transition: width .25s, height .25s, border-color .25s;
+    }
+    body:hover .cursor { opacity: 1; }
+
+    /* ── NAV ── */
+    #nav {
+      position: fixed; top: 0; left: 0; right: 0; z-index: 100;
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 1.6rem 4%;
+      transition: background .3s, border-bottom-color .3s;
+      border-bottom: 1px solid transparent;
+    }
+    #nav.scrolled {
+      background: rgba(5,5,7,.88);
+      backdrop-filter: blur(20px);
+      border-bottom-color: var(--border);
+    }
+    .logo { text-decoration: none; display: flex; align-items: center; }
+    .logo-img { height: 52px; width: auto; display: block; }
+    .nav-right { display: flex; align-items: center; gap: 2.8rem; }
+    .nav-links { list-style: none; display: flex; gap: 2.5rem; }
+    .nav-links a {
+      color: rgba(255,255,255,.5); text-decoration: none;
+      font-size: .82rem; letter-spacing: .08em; text-transform: uppercase;
+      transition: color .2s;
+    }
+    .nav-links a:hover { color: var(--white); }
+    .nav-auth { display: flex; align-items: center; gap: 1.6rem; }
+    .nav-login {
+      font-size: .82rem; letter-spacing: .08em; text-transform: uppercase;
+      color: rgba(255,255,255,.7); text-decoration: none; font-weight: 500;
+      transition: color .2s;
+    }
+    .nav-login:hover { color: var(--white); }
+    .nav-cta {
+      font-size: .8rem; letter-spacing: .08em; text-transform: uppercase;
+      color: var(--black); background: var(--accent);
+      text-decoration: none; font-weight: 700;
+      padding: .55rem 1.1rem;
+      transition: background .2s, transform .2s;
+    }
+    .nav-cta:hover { background: #33ecff; transform: translateY(-1px); }
+
+    /* ── NOT FOUND ── */
+    .not-found {
+      min-height: 100vh; display: flex; flex-direction: column;
+      align-items: center; justify-content: center; gap: 1.2rem;
+      text-align: center; padding: 2rem;
+    }
+    .not-found h1 { font-size: 2rem; }
+    .not-found p { color: var(--muted); }
+    .not-found a {
+      display: inline-block; margin-top: .8rem;
+      color: var(--accent); text-decoration: none;
+      font-size: .85rem; letter-spacing: .06em; text-transform: uppercase;
+    }
+
+    /* ── HERO ── */
+    .vh-hero {
+      min-height: 90vh;
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+    }
+
+    .vh-poster-wrap {
+      position: relative; overflow: hidden;
+      background: var(--surface);
+    }
+    .vh-poster-wrap::after {
+      content: '';
+      position: absolute; inset: 0;
+      background: linear-gradient(to right, transparent 55%, var(--black) 100%),
+                  linear-gradient(to top, var(--black) 0%, transparent 30%);
+    }
+    .vh-poster {
+      width: 100%; height: 100%;
+      object-fit: cover; display: block;
+    }
+    .vh-vr-badge {
+      position: absolute; bottom: 2rem; left: 2rem; z-index: 2;
+      background: var(--accent); color: var(--black);
+      font-size: .7rem; font-weight: 800; letter-spacing: .12em;
+      text-transform: uppercase; padding: .35rem .85rem;
+    }
+
+    .vh-info {
+      display: flex; flex-direction: column; justify-content: center;
+      padding: 7rem 6% 5rem 4%;
+      background: var(--black);
+    }
+    .vh-cat {
+      font-size: .72rem; letter-spacing: .14em; text-transform: uppercase;
+      color: var(--accent); margin-bottom: 1rem;
+      display: flex; align-items: center; gap: .7rem;
+    }
+    .vh-cat::before { content: ''; width: 26px; height: 1px; background: var(--accent); }
+    .vh-title {
+      font-size: clamp(2.4rem, 4vw, 4rem);
+      font-weight: 800; line-height: 1.05;
+      margin-bottom: 1.4rem;
+    }
+    .vh-desc {
+      font-size: 1rem; line-height: 1.75;
+      color: var(--muted); max-width: 480px;
+      margin-bottom: 2.4rem;
+    }
+    .vh-meta {
+      display: flex; gap: 2rem; flex-wrap: wrap;
+      margin-bottom: 2.8rem;
+      padding-bottom: 2.4rem;
+      border-bottom: 1px solid var(--border);
+    }
+    .vh-meta-item { display: flex; flex-direction: column; gap: .25rem; }
+    .vh-meta-label {
+      font-size: .68rem; letter-spacing: .1em; text-transform: uppercase;
+      color: var(--muted);
+    }
+    .vh-meta-value {
+      font-size: .9rem; font-weight: 500; color: var(--white);
+    }
+
+    /* ── ACTIONS ── */
+    .vh-actions { display: flex; flex-direction: column; gap: 1rem; }
+    .vh-action-row { display: flex; gap: .9rem; flex-wrap: wrap; }
+    .btn-buy {
+      display: inline-flex; align-items: center; gap: .6rem;
+      background: var(--accent); color: var(--black);
+      font-family: 'DM Sans', sans-serif; font-weight: 700;
+      font-size: .9rem; letter-spacing: .04em;
+      padding: .9rem 2rem; text-decoration: none;
+      transition: background .2s, transform .15s;
+      flex: 1; justify-content: center;
+    }
+    .btn-buy:hover { background: #33ecff; transform: translateY(-2px); }
+    .btn-rent {
+      display: inline-flex; align-items: center; gap: .6rem;
+      background: transparent; color: var(--white);
+      font-family: 'DM Sans', sans-serif; font-weight: 600;
+      font-size: .9rem; letter-spacing: .04em;
+      padding: .9rem 2rem; text-decoration: none;
+      border: 1px solid rgba(255,255,255,.25);
+      transition: border-color .2s, background .2s, transform .15s;
+      flex: 1; justify-content: center;
+    }
+    .btn-rent:hover {
+      border-color: rgba(255,255,255,.6);
+      background: rgba(255,255,255,.05);
+      transform: translateY(-2px);
+    }
+    .btn-vr {
+      display: inline-flex; align-items: center; justify-content: center; gap: .7rem;
+      background: var(--faint); color: var(--accent);
+      font-family: 'DM Sans', sans-serif; font-weight: 600;
+      font-size: .85rem; letter-spacing: .06em; text-transform: uppercase;
+      padding: .75rem 2rem; text-decoration: none;
+      border: 1px solid var(--accent-dim);
+      transition: background .2s, border-color .2s, transform .15s;
+      cursor: pointer;
+    }
+    .btn-vr:hover { background: var(--accent-dim); border-color: var(--accent); transform: translateY(-2px); }
+    .btn-vr svg { width: 18px; height: 18px; flex-shrink: 0; }
+
+    /* ── GALLERY ── */
+    .vh-gallery {
+      padding: 5rem 4%;
+      border-top: 1px solid var(--border);
+    }
+    .vh-gallery-head {
+      display: flex; align-items: baseline; gap: 1.5rem;
+      margin-bottom: 2.4rem;
+    }
+    .vh-gallery-head h2 {
+      font-size: clamp(1.4rem, 2.5vw, 2rem);
+    }
+    .vh-gallery-head span {
+      font-size: .75rem; color: var(--muted); letter-spacing: .06em; text-transform: uppercase;
+    }
+    .vh-gallery-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+      gap: 1.2rem;
+    }
+    .vh-gallery-img {
+      width: 100%; aspect-ratio: 16/9;
+      object-fit: cover; display: block;
+      background: var(--surface);
+      transition: opacity .2s;
+    }
+    .vh-gallery-img:hover { opacity: .85; }
+
+    /* ── VR MODAL ── */
+    .vr-modal {
+      position: fixed; inset: 0; z-index: 2000;
+      background: #000;
+      visibility: hidden; opacity: 0; pointer-events: none;
+      transition: opacity .25s;
+    }
+    .vr-modal.open { visibility: visible; opacity: 1; pointer-events: auto; }
+    .vr-modal-bar {
+      position: absolute; top: 0; left: 0; right: 0; z-index: 10;
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 1rem 1.5rem;
+      background: linear-gradient(to bottom, rgba(0,0,0,.75) 0%, transparent 100%);
+    }
+    .vr-modal-logo { display: flex; align-items: center; }
+    .vr-modal-logo .logo-img { height: 36px; }
+    .vr-modal-close {
+      background: rgba(255,255,255,.1); border: 1px solid rgba(255,255,255,.2);
+      color: var(--white); width: 40px; height: 40px;
+      border-radius: 50%; font-size: 1rem; cursor: pointer;
+      display: flex; align-items: center; justify-content: center;
+      transition: background .2s;
+    }
+    .vr-modal-close:hover { background: rgba(255,255,255,.22); }
+    .vr-modal a-scene { width: 100%; height: 100vh; display: block; }
+    .vr-modal-hint {
+      position: absolute; bottom: 1.8rem; left: 50%; transform: translateX(-50%);
+      z-index: 10; background: rgba(0,0,0,.55);
+      border: 1px solid var(--border); backdrop-filter: blur(8px);
+      padding: .5rem 1.4rem; border-radius: 999px;
+      font-size: .76rem; color: rgba(255,255,255,.6);
+      letter-spacing: .04em; white-space: nowrap; pointer-events: none;
+      animation: hintFade 5s ease forwards 3s;
+    }
+    .vr-loading {
+      position: absolute; inset: 0; z-index: 7;
+      display: none; flex-direction: column;
+      align-items: center; justify-content: center; gap: 1.2rem;
+      background: #050507;
+    }
+    .vr-loading.show { display: flex; }
+    .vr-spinner {
+      width: 52px; height: 52px;
+      border: 2px solid rgba(0,229,255,.15); border-top-color: var(--accent);
+      border-radius: 50%; animation: spin .85s linear infinite;
+    }
+    .vr-loading p { font-size: .8rem; color: rgba(255,255,255,.4); letter-spacing: .06em; }
+    .vr-error {
+      position: absolute; inset: 0; z-index: 8;
+      display: none; flex-direction: column;
+      align-items: center; justify-content: center; gap: 1rem;
+      background: #050507;
+    }
+    .vr-error.show { display: flex; }
+    .vr-error p { font-size: .85rem; color: rgba(255,100,100,.75); max-width: 360px; text-align: center; line-height: 1.75; }
+
+    /* ── VR CONTROLS BAR ── */
+    .vr-controls {
+      position: absolute; bottom: 0; left: 0; right: 0; z-index: 10;
+      display: flex; align-items: center; gap: 1rem;
+      padding: 1rem 1.5rem 1.8rem;
+      background: linear-gradient(to top, rgba(0,0,0,.9) 0%, transparent 100%);
+      transition: opacity .4s, visibility .4s;
+    }
+    .vr-controls.hidden { opacity: 0; visibility: hidden; pointer-events: none; }
+
+    .vr-ctrl-btn {
+      background: none; border: none; cursor: pointer;
+      color: var(--white); padding: .35rem;
+      display: flex; align-items: center; justify-content: center;
+      opacity: .85; transition: opacity .15s, transform .15s; flex-shrink: 0;
+    }
+    .vr-ctrl-btn:hover { opacity: 1; transform: scale(1.12); }
+    .vr-ctrl-btn svg { width: 22px; height: 22px; }
+
+    .vr-progress-wrap {
+      flex: 1; display: flex; flex-direction: column; gap: .45rem; min-width: 0;
+    }
+    .vr-seekbar {
+      -webkit-appearance: none; appearance: none;
+      width: 100%; height: 3px; outline: none; cursor: pointer;
+      border-radius: 999px; background: rgba(255,255,255,.2);
+      background-image: linear-gradient(var(--accent), var(--accent));
+      background-size: 0% 100%; background-repeat: no-repeat;
+    }
+    .vr-seekbar::-webkit-slider-thumb {
+      -webkit-appearance: none; width: 14px; height: 14px;
+      border-radius: 50%; background: var(--white); cursor: pointer;
+      box-shadow: 0 0 6px rgba(0,229,255,.55);
+    }
+    .vr-seekbar::-moz-range-thumb {
+      width: 14px; height: 14px; border: none;
+      border-radius: 50%; background: var(--white); cursor: pointer;
+    }
+    .vr-time {
+      font-size: .72rem; color: rgba(255,255,255,.5);
+      letter-spacing: .04em; white-space: nowrap; font-family: 'DM Sans', sans-serif;
+    }
+
+    .vr-volume-wrap {
+      display: flex; align-items: center; gap: .5rem; flex-shrink: 0;
+    }
+    .vr-volbar {
+      -webkit-appearance: none; appearance: none;
+      width: 72px; height: 3px; outline: none; cursor: pointer;
+      border-radius: 999px; background: rgba(255,255,255,.2);
+      background-image: linear-gradient(rgba(255,255,255,.65), rgba(255,255,255,.65));
+      background-size: 100% 100%; background-repeat: no-repeat;
+    }
+    .vr-volbar::-webkit-slider-thumb {
+      -webkit-appearance: none; width: 12px; height: 12px;
+      border-radius: 50%; background: var(--white); cursor: pointer;
+    }
+    .vr-volbar::-moz-range-thumb {
+      width: 12px; height: 12px; border: none;
+      border-radius: 50%; background: var(--white); cursor: pointer;
+    }
+
+    /* ── FOOTER ── */
+    footer {
+      background: var(--surface);
+      border-top: 1px solid var(--border);
+      padding: 3rem 4%;
+      display: flex; align-items: center; justify-content: space-between;
+      flex-wrap: wrap; gap: 1.4rem;
+    }
+    .f-logo { text-decoration: none; display: flex; align-items: center; }
+    .f-links { display: flex; gap: 2rem; flex-wrap: wrap; }
+    .f-links a {
+      font-size: .8rem; color: var(--muted); text-decoration: none;
+      letter-spacing: .04em; transition: color .2s;
+    }
+    .f-links a:hover { color: var(--white); }
+    .f-copy { font-size: .75rem; color: rgba(255,255,255,.25); letter-spacing: .03em; }
+
+    /* ── RESPONSIVE ── */
+    @media (max-width: 900px) {
+      .vh-hero { grid-template-columns: 1fr; min-height: auto; }
+      .vh-poster-wrap { aspect-ratio: 16/9; }
+      .vh-poster-wrap::after { background: linear-gradient(to top, var(--black) 0%, transparent 40%); }
+      .vh-info { padding: 3rem 5%; }
+      .vh-meta { gap: 1.4rem; }
+    }
+    @media (max-width: 600px) {
+      .btn-buy, .btn-rent { flex: 1 1 100%; }
+      .vh-gallery-grid { grid-template-columns: 1fr; }
+      .nav-links { display: none; }
+    }
+
+    @keyframes hintFade { to { opacity: 0; } }
+    @keyframes spin { to { transform: rotate(360deg); } }
+  </style>
+</head>
+<body>
+
+  <div class="cursor" id="cur"></div>
+  <div class="cursor-ring" id="curRing"></div>
+
+  <!-- ══ NAV ══ -->
+  <nav id="nav">
+    <a href="index.html" class="logo"><img src="FrontRow.png" alt="FrontRow VR" class="logo-img" /></a>
+    <div class="nav-right">
+      <ul class="nav-links">
+        <li><a href="index.html#trabajo">Trabajo</a></li>
+        <li><a href="index.html#proximos-eventos">Eventos</a></li>
+        <li><a href="index.html#suscripcion">Suscripción</a></li>
+        <li><a href="servicios.html">Servicios</a></li>
+      </ul>
+      <div class="nav-auth">
+        <a href="catalogo.html" class="nav-login">Catálogo</a>
+        <a href="index.html#contacto" class="nav-cta">Hablemos →</a>
+      </div>
+    </div>
+  </nav>
+
+  <!-- ══ PAGE CONTENT ══ -->
+  <div id="pageContent"></div>
+
+  <!-- ══ VR PLAYER MODAL ══ -->
+  <div id="vrModal" class="vr-modal">
+    <div class="vr-modal-bar">
+      <span class="vr-modal-logo"><img src="FrontRow.png" alt="FrontRow VR" class="logo-img" /></span>
+      <button class="vr-modal-close" id="closeVrPlayer" aria-label="Cerrar visor">✕</button>
+    </div>
+    <div class="vr-loading" id="vrLoading">
+      <div class="vr-spinner"></div>
+      <p>Cargando experiencia VR&hellip;</p>
+    </div>
+    <div class="vr-error" id="vrError">
+      <p id="vrErrorMsg">Error al cargar el video.</p>
+    </div>
+    <video id="vrVideo" style="position:absolute;width:1px;height:1px;opacity:0;pointer-events:none;left:-9999px" loop playsinline webkit-playsinline preload="auto"></video>
+    <a-scene id="vrScene" embedded vr-mode-ui="enabled: true"
+      loading-screen="dotsColor: #00e5ff; backgroundColor: #050507"
+      renderer="antialias: true; colorManagement: true">
+      <a-sky color="#050507"></a-sky>
+      <a-entity id="vrSphere"
+        geometry="primitive: sphere; radius: 100; segmentsWidth: 64; segmentsHeight: 64; phiStart: 0; phiLength: 180; thetaStart: 0; thetaLength: 180"
+        material="shader: flat; side: back; color: #050507"
+        rotation="0 90 0">
+      </a-entity>
+      <a-camera look-controls="reverseMouseDrag: false" wasd-controls="enabled: false"></a-camera>
+    </a-scene>
+    <!-- Controls bar -->
+    <div id="vrControls" class="vr-controls">
+      <button id="vrPlayPause" class="vr-ctrl-btn" aria-label="Reproducir / Pausar">
+        <svg id="iconPlay" viewBox="0 0 24 24" fill="currentColor"><polygon points="5,3 19,12 5,21"/></svg>
+        <svg id="iconPause" viewBox="0 0 24 24" fill="currentColor" style="display:none"><rect x="6" y="4" width="4" height="16"/><rect x="14" y="4" width="4" height="16"/></svg>
+      </button>
+      <div class="vr-progress-wrap">
+        <input type="range" id="vrSeekBar" class="vr-seekbar" min="0" max="100" value="0" step="0.1" />
+        <span id="vrTime" class="vr-time">0:00 / 0:00</span>
+      </div>
+      <div class="vr-volume-wrap">
+        <button id="vrMuteBtn" class="vr-ctrl-btn" aria-label="Silenciar / Activar sonido">
+          <svg id="iconVol" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <polygon points="11,5 6,9 2,9 2,15 6,15 11,19"/>
+            <path d="M19.07 4.93a10 10 0 010 14.14M15.54 8.46a5 5 0 010 7.07"/>
+          </svg>
+          <svg id="iconMute" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display:none">
+            <polygon points="11,5 6,9 2,9 2,15 6,15 11,19"/>
+            <line x1="23" y1="9" x2="17" y2="15"/><line x1="17" y1="9" x2="23" y2="15"/>
+          </svg>
+        </button>
+        <input type="range" id="vrVolBar" class="vr-volbar" min="0" max="1" value="1" step="0.05" />
+      </div>
+    </div>
+    <p class="vr-modal-hint">Arrastra para girar la vista · En visor VR presiona ⊙ para entrar</p>
+  </div>
+
+  <!-- ══ FOOTER ══ -->
+  <footer id="siteFooter" style="display:none">
+    <a href="index.html" class="f-logo"><img src="FrontRow.png" alt="FrontRow VR" class="logo-img" /></a>
+    <div class="f-links">
+      <a href="index.html#trabajo">Trabajo</a>
+      <a href="index.html#proximos-eventos">Eventos</a>
+      <a href="catalogo.html">Catálogo</a>
+      <a href="servicios.html">Servicios</a>
+      <a href="index.html#contacto">Contacto</a>
+    </div>
+    <span class="f-copy">&copy; 2025 FrontRow VR &middot; Chile</span>
+  </footer>
+
+  <script>
+    // ── Video catalog data ──
+    const VIDEO_CATALOG = [
+      { id: 'danza',      src: 'videos/Dancing Girl.mp4',    title: 'Danza',
+        cat: 'Entretenimiento', duration: '~12 min', res: '4K por ojo',
+        img: 'imagenes/Danza.png',
+        desc: 'Una experiencia inmersiva de danza contemporánea captada en VR 180° estereoscópico. Vive cada movimiento desde el mejor ángulo, sintiéndote en primera fila y rodeado por la energía de la actuación.',
+        price: { buy: 9.99, rent: 2.99 } },
+      { id: 'cocina',     src: 'videos/Indoor Kitchen.mp4',  title: 'Cocina',
+        cat: 'Entretenimiento', duration: '~8 min',  res: '4K por ojo',
+        img: 'imagenes/Cocina.png',
+        desc: 'Sumérgete en una experiencia culinaria íntima filmada en 180° estereoscópico. La cocina nunca estuvo tan cerca: cada ingrediente, cada técnica, desde primera fila.',
+        price: { buy: 7.99, rent: 1.99 } },
+      { id: 'maquillaje', src: 'videos/Makeup Girl_GRWM.mp4',title: 'Maquillaje',
+        cat: 'Educación',       duration: '~15 min', res: '4K por ojo',
+        img: 'imagenes/Maquillaje.png',
+        desc: 'Aprende técnicas de maquillaje desde una perspectiva completamente inmersiva. Un tutorial en primera persona filmado en VR 180° que te pone cara a cara con cada detalle.',
+        price: { buy: 6.99, rent: 1.49 } },
+      { id: 'moda',       src: 'videos/Outfit of the Day.mp4',title: 'Moda',
+        cat: 'Clientes',        duration: '~10 min', res: '4K por ojo',
+        img: 'imagenes/Moda.png',
+        desc: 'Una experiencia de moda inmersiva que te sumerge en el mundo del styling y la expresión personal. Filmada en VR 180° estereoscópico para una perspectiva única e íntima.',
+        price: { buy: 8.99, rent: 2.49 } },
+    ];
+
+    // ── Cursor ──
+    (function () {
+      var cur  = document.getElementById('cur');
+      var ring = document.getElementById('curRing');
+      var mx = 0, my = 0, rx = 0, ry = 0;
+      document.addEventListener('mousemove', function (e) {
+        mx = e.clientX; my = e.clientY;
+        cur.style.left = mx + 'px'; cur.style.top = my + 'px';
+      });
+      (function loopRing() {
+        rx += (mx - rx) * 0.11; ry += (my - ry) * 0.11;
+        ring.style.left = rx + 'px'; ring.style.top = ry + 'px';
+        requestAnimationFrame(loopRing);
+      })();
+      document.addEventListener('mouseover', function (e) {
+        var el = e.target.closest('a, button, .btn-buy, .btn-rent, .btn-vr');
+        if (el) {
+          cur.style.width = '14px'; cur.style.height = '14px';
+          ring.style.width = '56px'; ring.style.height = '56px';
+          ring.style.borderColor = 'rgba(0,229,255,.65)';
+        } else {
+          cur.style.width = '8px'; cur.style.height = '8px';
+          ring.style.width = '36px'; ring.style.height = '36px';
+          ring.style.borderColor = 'rgba(0,229,255,.35)';
+        }
+      });
+    })();
+
+    // ── Nav scroll ──
+    var nav = document.getElementById('nav');
+    window.addEventListener('scroll', function () { nav.classList.toggle('scrolled', window.scrollY > 30); });
+
+    // ── VR Player ──
+    var vrModal      = document.getElementById('vrModal');
+    var vrVideo      = document.getElementById('vrVideo');
+    var vrLoading    = document.getElementById('vrLoading');
+    var vrError      = document.getElementById('vrError');
+    var closeBtn     = document.getElementById('closeVrPlayer');
+    var vrControls   = document.getElementById('vrControls');
+    var vrPlayPause  = document.getElementById('vrPlayPause');
+    var iconPlay     = document.getElementById('iconPlay');
+    var iconPause    = document.getElementById('iconPause');
+    var vrSeekBar    = document.getElementById('vrSeekBar');
+    var vrTime       = document.getElementById('vrTime');
+    var vrMuteBtn    = document.getElementById('vrMuteBtn');
+    var iconVol      = document.getElementById('iconVol');
+    var iconMute     = document.getElementById('iconMute');
+    var vrVolBar     = document.getElementById('vrVolBar');
+    var hideCtrlTimer;
+
+    function fmtTime(s) {
+      if (isNaN(s)) return '0:00';
+      var m = Math.floor(s / 60);
+      var ss = Math.floor(s % 60);
+      return m + ':' + (ss < 10 ? '0' : '') + ss;
+    }
+
+    function showControls() {
+      vrControls.classList.remove('hidden');
+      clearTimeout(hideCtrlTimer);
+      hideCtrlTimer = setTimeout(function () {
+        if (!vrVideo.paused) vrControls.classList.add('hidden');
+      }, 3000);
+    }
+
+    function applyVideoTexture(video) {
+      var sphere = document.getElementById('vrSphere');
+      var mesh   = sphere.getObject3D('mesh');
+      if (!mesh) { setTimeout(function () { applyVideoTexture(video); }, 200); return; }
+      var renderer = document.getElementById('vrScene').renderer;
+      var texture  = new THREE.VideoTexture(video);
+      var vw = video.videoWidth || 1; var vh = video.videoHeight || 1;
+      var isSBS = (vw / vh) >= 1.7;
+      texture.wrapS = THREE.RepeatWrapping; texture.wrapT = THREE.RepeatWrapping;
+      texture.repeat.set(isSBS ? 0.5 : 1, 1); texture.offset.set(0, 0);
+      texture.minFilter = THREE.LinearFilter; texture.magFilter = THREE.LinearFilter;
+      texture.generateMipmaps = false;
+      if (renderer && renderer.capabilities) texture.anisotropy = renderer.capabilities.getMaxAnisotropy();
+      if (THREE.SRGBColorSpace !== undefined) texture.colorSpace = THREE.SRGBColorSpace;
+      else if (THREE.sRGBEncoding !== undefined) texture.encoding = THREE.sRGBEncoding;
+      if (mesh.material) mesh.material.dispose();
+      mesh.material = new THREE.MeshBasicMaterial({ map: texture, side: THREE.BackSide });
+      mesh.material.needsUpdate = true;
+    }
+
+    function openVr(vid) {
+      vrModal.classList.add('open');
+      document.body.style.overflow = 'hidden';
+      vrError.classList.remove('show');
+      vrLoading.classList.add('show');
+      vrControls.classList.remove('hidden');
+      // Reset controls
+      vrSeekBar.value = 0;
+      vrSeekBar.style.backgroundSize = '0% 100%';
+      vrTime.textContent = '0:00 / 0:00';
+      iconPlay.style.display = 'none';
+      iconPause.style.display = '';
+      iconVol.style.display = '';
+      iconMute.style.display = 'none';
+      vrVolBar.value = 1;
+      vrVolBar.style.backgroundSize = '100% 100%';
+      vrVideo.muted = false;
+      vrVideo.volume = 1;
+      vrVideo.src = vid.src;
+      vrVideo.load();
+      vrVideo.play().then(function () {
+        vrLoading.classList.remove('show');
+        applyVideoTexture(vrVideo);
+        showControls();
+      }).catch(function (err) {
+        vrLoading.classList.remove('show');
+        vrError.classList.add('show');
+        document.getElementById('vrErrorMsg').textContent = 'No se pudo reproducir: ' + err.message;
+      });
+    }
+
+    closeBtn.addEventListener('click', function () {
+      vrModal.classList.remove('open');
+      document.body.style.overflow = '';
+      clearTimeout(hideCtrlTimer);
+      vrVideo.pause(); vrVideo.src = '';
+      var sphere = document.getElementById('vrSphere');
+      if (sphere.getObject3D('mesh') && sphere.getObject3D('mesh').material) {
+        sphere.getObject3D('mesh').material.dispose();
+      }
+    });
+
+    // ── Controls wiring ──
+    vrModal.addEventListener('mousemove', showControls);
+    vrModal.addEventListener('touchstart', showControls, { passive: true });
+
+    vrPlayPause.addEventListener('click', function () {
+      if (vrVideo.paused) vrVideo.play(); else vrVideo.pause();
+    });
+    vrVideo.addEventListener('play', function () {
+      iconPlay.style.display = 'none'; iconPause.style.display = '';
+    });
+    vrVideo.addEventListener('pause', function () {
+      iconPlay.style.display = ''; iconPause.style.display = 'none';
+      vrControls.classList.remove('hidden'); clearTimeout(hideCtrlTimer);
+    });
+
+    vrVideo.addEventListener('timeupdate', function () {
+      if (!vrVideo.duration) return;
+      var pct = (vrVideo.currentTime / vrVideo.duration) * 100;
+      vrSeekBar.value = pct;
+      vrSeekBar.style.backgroundSize = pct + '% 100%';
+      vrTime.textContent = fmtTime(vrVideo.currentTime) + ' / ' + fmtTime(vrVideo.duration);
+    });
+    vrSeekBar.addEventListener('input', function () {
+      if (!vrVideo.duration) return;
+      vrVideo.currentTime = (vrSeekBar.value / 100) * vrVideo.duration;
+      showControls();
+    });
+
+    vrVolBar.addEventListener('input', function () {
+      vrVideo.volume = parseFloat(vrVolBar.value);
+      vrVideo.muted = vrVideo.volume === 0;
+      updateMuteIcon(); showControls();
+    });
+    vrMuteBtn.addEventListener('click', function () {
+      vrVideo.muted = !vrVideo.muted;
+      if (!vrVideo.muted && vrVideo.volume === 0) { vrVideo.volume = 0.5; vrVolBar.value = 0.5; }
+      updateMuteIcon();
+    });
+    function updateMuteIcon() {
+      var muted = vrVideo.muted || vrVideo.volume === 0;
+      iconVol.style.display  = muted ? 'none' : '';
+      iconMute.style.display = muted ? '' : 'none';
+      vrVolBar.style.backgroundSize = (muted ? 0 : vrVideo.volume * 100) + '% 100%';
+    }
+
+    // Keyboard shortcuts (Space = play/pause, M = mute, ← / → = seek ±10s)
+    document.addEventListener('keydown', function (e) {
+      if (!vrModal.classList.contains('open')) return;
+      if (e.key === ' ' || e.key === 'k') { e.preventDefault(); vrPlayPause.click(); showControls(); }
+      if (e.key === 'm') { vrMuteBtn.click(); showControls(); }
+      if (e.key === 'ArrowRight') { vrVideo.currentTime = Math.min(vrVideo.duration || 0, vrVideo.currentTime + 10); showControls(); }
+      if (e.key === 'ArrowLeft')  { vrVideo.currentTime = Math.max(0, vrVideo.currentTime - 10); showControls(); }
+    });
+
+    // ── Render page from URL param ──
+    document.addEventListener('DOMContentLoaded', function () {
+      var id  = new URLSearchParams(window.location.search).get('id');
+      var vid = VIDEO_CATALOG.find(function (v) { return v.id === id; });
+      var content = document.getElementById('pageContent');
+      var footer  = document.getElementById('siteFooter');
+
+      if (!vid) {
+        content.innerHTML = '<div class="not-found"><h1>Video no encontrado</h1><p>El video que buscas no existe o fue eliminado.</p><a href="catalogo.html">← Volver al catálogo</a></div>';
+        footer.style.display = '';
+        return;
+      }
+
+      // Update page title
+      document.title = vid.title + ' · FrontRow VR';
+
+      // ── Hero ──
+      var hero = document.createElement('section');
+      hero.className = 'vh-hero';
+
+      var posterWrap = document.createElement('div');
+      posterWrap.className = 'vh-poster-wrap';
+      var vrBadge = document.createElement('span');
+      vrBadge.className = 'vh-vr-badge'; vrBadge.textContent = 'VR 180°';
+      var poster = document.createElement('img');
+      poster.className = 'vh-poster'; poster.src = vid.img; poster.alt = vid.title;
+      posterWrap.appendChild(vrBadge);
+      posterWrap.appendChild(poster);
+
+      var info = document.createElement('div');
+      info.className = 'vh-info';
+
+      var catEl = document.createElement('div');
+      catEl.className = 'vh-cat'; catEl.textContent = vid.cat;
+
+      var titleEl = document.createElement('h1');
+      titleEl.className = 'vh-title'; titleEl.textContent = vid.title;
+
+      var descEl = document.createElement('p');
+      descEl.className = 'vh-desc'; descEl.textContent = vid.desc;
+
+      // Meta
+      var metaEl = document.createElement('div'); metaEl.className = 'vh-meta';
+      [
+        { label: 'Duración', value: vid.duration },
+        { label: 'Resolución', value: vid.res },
+        { label: 'Formato', value: 'Estereoscópico' },
+      ].forEach(function (m) {
+        var item = document.createElement('div'); item.className = 'vh-meta-item';
+        var lbl = document.createElement('span'); lbl.className = 'vh-meta-label'; lbl.textContent = m.label;
+        var val = document.createElement('span'); val.className = 'vh-meta-value'; val.textContent = m.value;
+        item.appendChild(lbl); item.appendChild(val); metaEl.appendChild(item);
+      });
+
+      // Actions
+      var actions = document.createElement('div'); actions.className = 'vh-actions';
+      var row1 = document.createElement('div'); row1.className = 'vh-action-row';
+
+      var buyBtn = document.createElement('a');
+      buyBtn.className = 'btn-buy'; buyBtn.href = 'index.html#contacto';
+      buyBtn.innerHTML = '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 2L3 6v14a2 2 0 002 2h14a2 2 0 002-2V6l-3-4z"/><line x1="3" y1="6" x2="21" y2="6"/><path d="M16 10a4 4 0 01-8 0"/></svg>Comprar — $' + vid.price.buy.toFixed(2);
+
+      var rentBtn = document.createElement('a');
+      rentBtn.className = 'btn-rent'; rentBtn.href = 'index.html#contacto';
+      rentBtn.innerHTML = '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>Alquilar — $' + vid.price.rent.toFixed(2);
+
+      row1.appendChild(buyBtn); row1.appendChild(rentBtn);
+
+      var vrBtn = document.createElement('button');
+      vrBtn.className = 'btn-vr';
+      vrBtn.innerHTML = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M2 12s3-7 10-7 10 7 10 7-3 7-10 7-10-7-10-7z"/><circle cx="12" cy="12" r="3"/></svg>Abrir en visor VR 180°';
+      vrBtn.addEventListener('click', function () { openVr(vid); });
+
+      actions.appendChild(row1);
+      actions.appendChild(vrBtn);
+
+      info.appendChild(catEl); info.appendChild(titleEl); info.appendChild(descEl);
+      info.appendChild(metaEl); info.appendChild(actions);
+      hero.appendChild(posterWrap); hero.appendChild(info);
+      content.appendChild(hero);
+
+      // ── Gallery ──
+      var gallery = document.createElement('section');
+      gallery.className = 'vh-gallery';
+      var gHead = document.createElement('div'); gHead.className = 'vh-gallery-head';
+      var gTitle = document.createElement('h2'); gTitle.textContent = 'Capturas';
+      var gCount = document.createElement('span'); gCount.textContent = '1 imagen';
+      gHead.appendChild(gTitle); gHead.appendChild(gCount);
+      var gGrid = document.createElement('div'); gGrid.className = 'vh-gallery-grid';
+      var gImg = document.createElement('img');
+      gImg.className = 'vh-gallery-img'; gImg.src = vid.img; gImg.alt = vid.title;
+      gGrid.appendChild(gImg);
+      gallery.appendChild(gHead); gallery.appendChild(gGrid);
+      content.appendChild(gallery);
+
+      footer.style.display = '';
+    });
+  </script>
+</body>
+</html>

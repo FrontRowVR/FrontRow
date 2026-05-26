@@ -67,55 +67,51 @@
     .vr-modal, .vr-modal * { cursor: auto; }
     .vr-modal a-scene, .vr-modal a-scene * { cursor: grab; }
 
-    /* ─────────────────────────────────────────────
-       PAGE HEADER
-    ───────────────────────────────────────────── */
-    .page-header {
-      position: sticky; top: 0; z-index: 100;
-      display: flex; align-items: center; gap: 1.2rem;
-      padding: 1.2rem 4%;
-      background: rgba(5,5,7,.96); backdrop-filter: blur(20px);
-      border-bottom: 1px solid var(--border);
+    /* ── NAV ── */
+    nav {
+      position: fixed; top: 0; left: 0; right: 0; z-index: 100;
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 1.6rem 4%;
+      transition: background .3s, border-bottom-color .3s;
+      border-bottom: 1px solid transparent;
     }
-
-    .back-btn {
-      display: flex; align-items: center; gap: .55rem;
-      background: rgba(255,255,255,.07);
-      border: 1px solid var(--border);
-      color: var(--muted); font-size: .8rem; letter-spacing: .04em;
-      padding: .55rem 1rem; cursor: pointer;
-      text-decoration: none;
-      transition: background .2s, color .2s, border-color .2s;
+    nav.scrolled {
+      background: rgba(5,5,7,.88);
+      backdrop-filter: blur(20px);
+      border-bottom-color: var(--border);
     }
-    .back-btn:hover { background: rgba(255,255,255,.13); color: var(--white); border-color: rgba(255,255,255,.2); }
-    .back-btn svg { width: 13px; height: 13px; flex-shrink: 0; }
-
-    .header-divider { width: 1px; height: 20px; background: var(--border); }
-
-    .header-logo {
-      font-family: 'Unbounded', sans-serif;
-      font-weight: 800; font-size: 1rem; letter-spacing: .02em;
-      color: var(--white); text-decoration: none;
+    .logo { text-decoration: none; display: flex; align-items: center; }
+    .logo-img { height: 52px; width: auto; display: block; }
+    .logo em { color: var(--accent); font-style: normal; }
+    .nav-right { display: flex; align-items: center; gap: 2.8rem; }
+    .nav-links { list-style: none; display: flex; gap: 2.5rem; }
+    .nav-links a {
+      color: rgba(255,255,255,.5); text-decoration: none;
+      font-size: .82rem; letter-spacing: .08em; text-transform: uppercase;
+      transition: color .2s;
     }
-    .header-logo em { color: var(--accent); font-style: normal; }
-
-    .header-title {
-      font-family: 'Unbounded', sans-serif;
-      font-size: .7rem; font-weight: 700; letter-spacing: .16em;
-      text-transform: uppercase; color: var(--muted);
+    .nav-links a:hover { color: var(--white); }
+    .nav-auth { display: flex; align-items: center; gap: 1.6rem; }
+    .nav-login {
+      font-size: .82rem; letter-spacing: .08em; text-transform: uppercase;
+      color: rgba(255,255,255,.7); text-decoration: none; font-weight: 500;
+      transition: color .2s;
     }
-
-    .header-count {
-      margin-left: auto;
-      font-size: .75rem; color: var(--muted); letter-spacing: .05em;
+    .nav-login:hover { color: var(--white); }
+    .nav-cta {
+      font-size: .8rem; letter-spacing: .08em; text-transform: uppercase;
+      color: var(--black); background: var(--accent);
+      text-decoration: none; font-weight: 700;
+      padding: .55rem 1.1rem;
+      transition: background .2s, transform .2s;
     }
-    .header-count strong { color: var(--accent); font-weight: 700; }
+    .nav-cta:hover { background: #33ecff; transform: translateY(-1px); }
 
     /* ─────────────────────────────────────────────
        PAGE BODY
     ───────────────────────────────────────────── */
     .lib-body {
-      padding: 5rem 4% 8rem;
+      padding: 9rem 4% 8rem;
     }
 
     /* ── Intro ── */
@@ -309,10 +305,8 @@
       padding: 1rem 1.5rem;
       background: linear-gradient(to bottom, rgba(0,0,0,.75) 0%, transparent 100%);
     }
-    .vr-modal-logo {
-      font-family: 'Unbounded', sans-serif;
-      font-size: .9rem; font-weight: 800; letter-spacing: .02em; color: var(--white);
-    }
+    .vr-modal-logo { display: flex; align-items: center; }
+    .vr-modal-logo .logo-img { height: 36px; }
     .vr-modal-logo em { color: var(--accent); font-style: normal; }
 
     .vr-modal-close {
@@ -373,20 +367,22 @@
   <div class="cursor" id="cur"></div>
   <div class="cursor-ring" id="curRing"></div>
 
-  <!-- ══ HEADER ══ -->
-  <header class="page-header">
-    <a href="index.html" class="back-btn" aria-label="Volver al inicio">
-      <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
-        <path d="M10 3L5 8l5 5"/>
-      </svg>
-      Volver
-    </a>
-    <div class="header-divider"></div>
-    <a href="index.html" class="header-logo">FrontRow<em>VR</em></a>
-    <div class="header-divider"></div>
-    <span class="header-title">Catálogo</span>
-    <span class="header-count" id="headerCount"></span>
-  </header>
+  <!-- ══ NAV ══ -->
+  <nav id="nav">
+    <a href="index.html" class="logo"><img src="FrontRow.png" alt="FrontRow VR" class="logo-img" /></a>
+    <div class="nav-right">
+      <ul class="nav-links">
+        <li><a href="index.html#trabajo">Trabajo</a></li>
+        <li><a href="index.html#proximos-eventos">Eventos</a></li>
+        <li><a href="index.html#suscripcion">Suscripción</a></li>
+        <li><a href="servicios.html">Servicios</a></li>
+      </ul>
+      <div class="nav-auth">
+        <a href="catalogo.html" class="nav-login">Catálogo</a>
+        <a href="index.html#contacto" class="nav-cta">Hablemos →</a>
+      </div>
+    </div>
+  </nav>
 
   <!-- ══ CONTENIDO PRINCIPAL ══ -->
   <main class="lib-body">
@@ -402,7 +398,7 @@
   <!-- ══ VR PLAYER MODAL ══ -->
   <div id="vrModal" class="vr-modal">
     <div class="vr-modal-bar">
-      <span class="vr-modal-logo">FrontRow<em>VR</em></span>
+      <span class="vr-modal-logo"><img src="FrontRow.png" alt="FrontRow VR" class="logo-img" /></span>
       <button class="vr-modal-close" id="closeVrPlayer" aria-label="Cerrar visor">✕</button>
     </div>
 
@@ -481,36 +477,51 @@
       setTimeout(bindHoverTargets, 500);
     })();
 
-    // ── Catálogo de videos (mantener sincronizado con index.html) ──
+    // ── Catálogo de videos ──
     const VR_CATEGORIES = [
       {
         id: 'entretenimiento', num: '01', title: 'Entretenimiento',
         videos: [
-          { src: 'Danza.mp4',  title: 'Danza',  img: 'imagenes/Danza.png'  },
-          { src: 'Cocina.mp4', title: 'Cocina', img: 'imagenes/Cocina.png' },
+          { id: 'danza',    src: 'videos/Dancing Girl.mp4',   title: 'Danza',  img: 'imagenes/Danza.png',
+            cat: 'Entretenimiento', duration: '~12 min', res: '4K por ojo',
+            desc: 'Una experiencia inmersiva de danza contemporánea captada en VR 180° estereoscópico. Vive cada movimiento desde el mejor ángulo, sintiéndote en primera fila.',
+            price: { buy: 9.99, rent: 2.99 } },
+          { id: 'cocina',   src: 'videos/Indoor Kitchen.mp4', title: 'Cocina', img: 'imagenes/Cocina.png',
+            cat: 'Entretenimiento', duration: '~8 min',  res: '4K por ojo',
+            desc: 'Sumérgete en una experiencia culinaria íntima filmada en 180° estereoscópico. La cocina nunca estuvo tan cerca.',
+            price: { buy: 7.99, rent: 1.99 } },
         ]
       },
       {
         id: 'educacion', num: '02', title: 'Educación',
         videos: [
-          { src: 'Maquillaje.mp4', title: 'Maquillaje', img: 'imagenes/Maquillaje.png' },
+          { id: 'maquillaje', src: 'videos/Makeup Girl_GRWM.mp4', title: 'Maquillaje', img: 'imagenes/Maquillaje.png',
+            cat: 'Educación', duration: '~15 min', res: '4K por ojo',
+            desc: 'Aprende técnicas de maquillaje desde una perspectiva completamente inmersiva. Un tutorial en primera persona filmado en VR 180°.',
+            price: { buy: 6.99, rent: 1.49 } },
         ]
       },
       {
         id: 'clientes', num: '03', title: 'Nuestros Clientes',
         videos: [
-          { src: 'Moda.mp4', title: 'Moda', img: 'imagenes/Moda.png' },
+          { id: 'moda', src: 'videos/Outfit of the Day.mp4', title: 'Moda', img: 'imagenes/Moda.png',
+            cat: 'Clientes', duration: '~10 min', res: '4K por ojo',
+            desc: 'Una experiencia de moda inmersiva que te sumerge en el mundo del styling y la expresión personal. Filmada en VR 180°.',
+            price: { buy: 8.99, rent: 2.49 } },
         ]
       },
       // ── SECCIÓN SUSCRIPCIÓN — agrega aquí los videos exclusivos ──
       { id: 'suscripcion', num: '04', title: 'Suscripción', subscribed: true,
         videos: [
-          // { src: 'videos/TuVideo.mp4', title: 'Título' },
+          // { id: 'tu-video', src: 'videos/TuVideo.mp4', title: 'Título', img: '...', desc: '...', price: { buy: 0, rent: 0 } },
         ]
       }
     ];
 
     document.addEventListener('DOMContentLoaded', function () {
+      var nav = document.getElementById('nav');
+      window.addEventListener('scroll', function () { nav.classList.toggle('scrolled', window.scrollY > 30); });
+
       var vrModal    = document.getElementById('vrModal');
       var vrVideo    = document.getElementById('vrVideo');
       var vrLoading  = document.getElementById('vrLoading');
@@ -651,9 +662,11 @@
 
         card.addEventListener('mouseenter', function () { video.play().catch(function () {}); });
         card.addEventListener('mouseleave', function () { video.pause(); video.currentTime = 0; });
-        card.addEventListener('click', function () { openVr(vid); });
+        card.addEventListener('click', function () {
+          window.location.href = 'video.html?id=' + encodeURIComponent(vid.id);
+        });
         card.addEventListener('keydown', function (e) {
-          if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); openVr(vid); }
+          if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); window.location.href = 'video.html?id=' + encodeURIComponent(vid.id); }
         });
 
         return card;
@@ -661,7 +674,7 @@
 
       // ── Construye toda la biblioteca ──
       var total = VR_CATEGORIES.reduce(function (acc, c) { return acc + c.videos.length; }, 0);
-      headerCount.innerHTML = '<strong>' + total + '</strong> video' + (total !== 1 ? 's' : '') + ' disponibles';
+      if (headerCount) { headerCount.innerHTML = '<strong>' + total + '</strong> video' + (total !== 1 ? 's' : '') + ' disponibles'; }
 
       VR_CATEGORIES.forEach(function (cat) {
         var section = document.createElement('div');
