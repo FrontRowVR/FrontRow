@@ -768,6 +768,7 @@
 
     function buildCard(ev) {
       var s = EVNT_STR[document.documentElement.lang || 'es'];
+      var card = document.createElement('article');
       card.className = 'ev-card' + (ev.vr ? ' vr' : '');
       card.setAttribute('data-cat', ev.cat);
       card.setAttribute('data-vr', ev.vr ? '1' : '0');
