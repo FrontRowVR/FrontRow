@@ -1,0 +1,833 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Eventos en Santiago · FrontRow VR</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Unbounded:wght@400;600;700;800;900&family=DM+Sans:ital,wght@0,300;0,400;0,500;1,300&display=swap" rel="stylesheet" />
+
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --black:      #050507;
+      --surface:    #0a0a10;
+      --surface-2:  #10101a;
+      --white:      #ffffff;
+      --offwhite:   #e8e8f2;
+      --muted:      #7a7a8c;
+      --faint:      rgba(255,255,255,0.06);
+      --border:     rgba(255,255,255,0.08);
+      --accent:     #00e5ff;
+      --accent-dim: rgba(0,229,255,0.12);
+      --gold:       #ffb938;
+    }
+
+    html { scroll-behavior: smooth; }
+    body {
+      background: var(--black);
+      color: var(--white);
+      font-family: 'DM Sans', sans-serif;
+      font-weight: 400;
+      line-height: 1.6;
+      overflow-x: hidden;
+      cursor: none;
+    }
+
+    ::-webkit-scrollbar { width: 4px; }
+    ::-webkit-scrollbar-track { background: var(--black); }
+    ::-webkit-scrollbar-thumb { background: var(--accent); border-radius: 2px; }
+
+    /* ── CURSOR ── */
+    .cursor {
+      position: fixed; width: 8px; height: 8px;
+      background: var(--accent); border-radius: 50%;
+      pointer-events: none; z-index: 9999;
+      transform: translate(-50%,-50%);
+      transition: width .15s, height .15s;
+    }
+    .cursor-ring {
+      position: fixed; width: 36px; height: 36px;
+      border: 1px solid rgba(0,229,255,.35); border-radius: 50%;
+      pointer-events: none; z-index: 9998;
+      transform: translate(-50%,-50%);
+      transition: width .25s, height .25s, border-color .25s;
+    }
+    body:hover .cursor { opacity: 1; }
+
+    /* ── NAV ── */
+    nav {
+      position: fixed; top: 0; left: 0; right: 0; z-index: 100;
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 1.6rem 4%;
+      transition: background .3s, border-bottom-color .3s;
+      border-bottom: 1px solid transparent;
+    }
+    nav.scrolled {
+      background: rgba(5,5,7,.88);
+      backdrop-filter: blur(20px);
+      border-bottom-color: var(--border);
+    }
+    .logo { text-decoration: none; display: flex; align-items: center; }
+    .logo-img { height: 52px; width: auto; display: block; }
+    .nav-right { display: flex; align-items: center; gap: 2.8rem; }
+    .nav-links { list-style: none; display: flex; gap: 2.5rem; }
+    .nav-links a {
+      color: rgba(255,255,255,.5); text-decoration: none;
+      font-size: .82rem; letter-spacing: .08em; text-transform: uppercase;
+      transition: color .2s;
+    }
+    .nav-links a:hover { color: var(--white); }
+    .nav-links a.active { color: var(--accent); }
+    .nav-auth { display: flex; align-items: center; gap: 1.6rem; }
+    .nav-login {
+      font-size: .82rem; letter-spacing: .08em; text-transform: uppercase;
+      color: rgba(255,255,255,.7); text-decoration: none; font-weight: 500;
+      transition: color .2s;
+    }
+    .nav-login:hover { color: var(--white); }
+    .nav-cta {
+      font-size: .8rem; letter-spacing: .08em; text-transform: uppercase;
+      color: var(--black); background: var(--accent);
+      text-decoration: none; font-weight: 700;
+      padding: .55rem 1.1rem;
+      transition: background .2s, transform .2s;
+    }
+    .nav-cta:hover { background: #33ecff; transform: translateY(-1px); }
+
+    /* ── INTRO ── */
+    .ev-intro {
+      padding: 9rem 4% 3rem;
+      max-width: 1300px; margin: 0 auto;
+    }
+    .ev-intro-label {
+      display: inline-flex; align-items: center; gap: .7rem;
+      font-family: 'Unbounded', sans-serif;
+      font-size: .7rem; font-weight: 700; letter-spacing: .16em;
+      text-transform: uppercase; color: var(--accent); margin-bottom: 1.1rem;
+    }
+    .ev-intro-label::before { content: ''; width: 26px; height: 1px; background: var(--accent); }
+    .ev-intro h1 {
+      font-family: 'Unbounded', sans-serif;
+      font-size: clamp(2.4rem, 5vw, 4.5rem);
+      font-weight: 800; letter-spacing: -.035em; line-height: 1;
+      margin-bottom: 1rem;
+    }
+    .ev-intro h1 em {
+      color: var(--accent); font-style: normal;
+    }
+    .ev-intro p {
+      color: var(--muted); font-size: .95rem;
+      max-width: 600px; line-height: 1.75;
+      margin-bottom: 2.4rem;
+    }
+
+    /* ── SCRAPER STATUS ── */
+    .scraper-bar {
+      display: flex; align-items: center; gap: 1.2rem;
+      padding: .85rem 1.2rem;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      max-width: 720px;
+      margin-bottom: 2.5rem;
+      font-size: .82rem;
+      flex-wrap: wrap;
+    }
+    .scraper-led {
+      width: 8px; height: 8px; border-radius: 50%;
+      background: #2ce67c;
+      box-shadow: 0 0 0 4px rgba(44,230,124,.18);
+      animation: pulse 1.8s ease-in-out infinite;
+      flex-shrink: 0;
+    }
+    @keyframes pulse {
+      0%, 100% { box-shadow: 0 0 0 4px rgba(44,230,124,.18); }
+      50%      { box-shadow: 0 0 0 7px rgba(44,230,124,.08); }
+    }
+    .scraper-text {
+      color: var(--offwhite);
+    }
+    .scraper-text strong { color: var(--white); font-weight: 700; }
+    .scraper-meta {
+      margin-left: auto;
+      font-family: 'Unbounded', sans-serif;
+      font-size: .68rem; font-weight: 700; letter-spacing: .1em;
+      color: var(--muted);
+    }
+
+    /* ── FILTERS ── */
+    .ev-filters {
+      display: flex; gap: .6rem; flex-wrap: wrap;
+      margin-bottom: 3rem;
+    }
+    .ev-chip {
+      background: transparent;
+      border: 1px solid var(--border);
+      color: rgba(255,255,255,.65);
+      font-family: 'DM Sans', sans-serif;
+      font-size: .78rem;
+      padding: .55rem 1.1rem;
+      cursor: pointer;
+      letter-spacing: .03em;
+      transition: border-color .2s, color .2s, background .2s;
+    }
+    .ev-chip:hover { color: var(--white); border-color: rgba(255,255,255,.25); }
+    .ev-chip.active {
+      background: var(--accent);
+      border-color: var(--accent);
+      color: var(--black);
+      font-weight: 600;
+    }
+
+    /* ── EVENT GRID ── */
+    .ev-section {
+      padding: 0 4% 7rem;
+      max-width: 1300px; margin: 0 auto;
+    }
+    .ev-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(310px, 1fr));
+      gap: 1.6rem;
+    }
+
+    .ev-card {
+      position: relative;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      display: flex; flex-direction: column;
+      overflow: hidden;
+      transition: transform .3s, border-color .3s, box-shadow .3s;
+    }
+    .ev-card:hover {
+      transform: translateY(-5px);
+      border-color: rgba(0,229,255,.3);
+      box-shadow: 0 20px 50px rgba(0,0,0,.4);
+    }
+    .ev-card.vr {
+      border-color: rgba(0,229,255,.4);
+    }
+    .ev-card.vr::before {
+      content: '';
+      position: absolute; top: 0; left: 0; right: 0; height: 3px;
+      background: linear-gradient(90deg, var(--accent), #b54aff);
+      z-index: 2;
+    }
+
+    .ev-thumb {
+      position: relative; overflow: hidden;
+      aspect-ratio: 4 / 3;
+    }
+    .ev-thumb img {
+      width: 100%; height: 100%; object-fit: cover; display: block;
+      filter: brightness(.65) saturate(.85);
+      transition: transform .7s cubic-bezier(.25,.46,.45,.94), filter .4s;
+    }
+    .ev-card:hover .ev-thumb img {
+      transform: scale(1.06);
+      filter: brightness(.85) saturate(1.05);
+    }
+
+    .ev-date {
+      position: absolute; top: 1rem; left: 1rem;
+      background: rgba(5,5,7,.85);
+      backdrop-filter: blur(10px);
+      border: 1px solid rgba(255,255,255,.12);
+      padding: .45rem .8rem;
+      text-align: center; min-width: 56px;
+    }
+    .ev-date .day {
+      display: block;
+      font-family: 'Unbounded', sans-serif;
+      font-size: 1.4rem; font-weight: 800; line-height: 1;
+      color: var(--accent);
+    }
+    .ev-date .mon {
+      display: block;
+      font-size: .62rem; letter-spacing: .14em; text-transform: uppercase;
+      color: rgba(255,255,255,.55); margin-top: .15rem;
+    }
+
+    .ev-vr-flag {
+      position: absolute; top: 1rem; right: 1rem;
+      font-family: 'Unbounded', sans-serif;
+      font-size: .58rem; font-weight: 700; letter-spacing: .12em;
+      text-transform: uppercase;
+      padding: .35rem .65rem;
+      background: rgba(0,229,255,.18);
+      border: 1px solid rgba(0,229,255,.45);
+      color: var(--accent);
+      backdrop-filter: blur(8px);
+      display: flex; align-items: center; gap: .35rem;
+    }
+    .ev-vr-flag::before {
+      content: '';
+      width: 5px; height: 5px; border-radius: 50%;
+      background: var(--accent);
+      animation: pulse 1.6s ease infinite;
+    }
+
+    .ev-body {
+      padding: 1.3rem 1.4rem 1.5rem;
+      display: flex; flex-direction: column;
+      gap: .6rem; flex: 1;
+    }
+    .ev-cat {
+      font-size: .65rem; letter-spacing: .14em; text-transform: uppercase;
+      color: var(--accent); font-weight: 700;
+    }
+    .ev-title {
+      font-family: 'Unbounded', sans-serif;
+      font-size: 1.08rem; font-weight: 800;
+      letter-spacing: -.005em; line-height: 1.25;
+      color: var(--white);
+    }
+    .ev-venue {
+      display: flex; align-items: center; gap: .4rem;
+      font-size: .8rem; color: var(--muted);
+    }
+    .ev-venue svg { width: 12px; height: 12px; flex-shrink: 0; opacity: .7; }
+
+    .ev-desc {
+      font-size: .82rem; line-height: 1.6;
+      color: rgba(255,255,255,.55);
+      margin-top: .15rem;
+    }
+
+    .ev-meta-row {
+      display: flex; gap: .8rem; flex-wrap: wrap;
+      margin-top: auto; padding-top: .8rem;
+      border-top: 1px solid var(--border);
+      font-size: .72rem; color: var(--muted);
+      letter-spacing: .03em;
+    }
+    .ev-meta-row span { display: inline-flex; align-items: center; gap: .35rem; }
+    .ev-meta-row .dot { color: rgba(255,255,255,.18); }
+
+    /* ── VR ACTIONS (only when vr) ── */
+    .ev-vr-actions {
+      margin-top: .8rem;
+      padding-top: 1rem;
+      border-top: 1px solid var(--border);
+      display: flex; flex-direction: column; gap: .55rem;
+    }
+    .ev-vr-note {
+      font-size: .72rem;
+      color: var(--accent);
+      letter-spacing: .04em;
+      margin-bottom: .15rem;
+      font-weight: 600;
+    }
+    .ev-vr-buttons {
+      display: flex; gap: .55rem;
+    }
+    .ev-btn {
+      flex: 1;
+      display: inline-flex; align-items: center; justify-content: center;
+      gap: .35rem;
+      font-family: 'DM Sans', sans-serif;
+      font-size: .8rem; font-weight: 700;
+      padding: .7rem .9rem;
+      text-decoration: none;
+      transition: background .2s, transform .15s, border-color .2s, color .2s;
+      cursor: pointer; border: 1px solid transparent;
+    }
+    .ev-btn-buy {
+      background: var(--accent); color: var(--black);
+    }
+    .ev-btn-buy:hover { background: #33ecff; transform: translateY(-1px); }
+    .ev-btn-rent {
+      background: transparent; color: var(--white);
+      border-color: rgba(255,255,255,.2);
+    }
+    .ev-btn-rent:hover {
+      border-color: var(--accent); color: var(--accent);
+      background: rgba(0,229,255,.05);
+    }
+    .ev-btn .price {
+      font-weight: 800; letter-spacing: -.005em;
+    }
+
+    /* ── BUY EXTERNAL (no-VR) ── */
+    .ev-ext-link {
+      margin-top: .8rem; padding-top: 1rem;
+      border-top: 1px solid var(--border);
+      display: inline-flex; align-items: center; gap: .5rem;
+      font-size: .78rem; color: rgba(255,255,255,.45);
+      text-decoration: none;
+      transition: color .2s;
+    }
+    .ev-ext-link:hover { color: var(--accent); }
+    .ev-ext-link svg { width: 11px; height: 11px; }
+
+    /* ── INFO BLOCK ── */
+    .ev-info {
+      padding: 5rem 4%;
+      border-top: 1px solid var(--border);
+      background: var(--surface);
+    }
+    .ev-info-inner {
+      max-width: 1100px; margin: 0 auto;
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 2.5rem;
+    }
+    .ev-info-card h4 {
+      font-family: 'Unbounded', sans-serif;
+      font-size: 1rem; font-weight: 800;
+      margin-bottom: .8rem;
+      display: flex; align-items: center; gap: .6rem;
+    }
+    .ev-info-card h4 .num {
+      font-family: 'Unbounded', sans-serif;
+      font-size: .62rem; color: var(--accent);
+      background: var(--accent-dim);
+      padding: .2rem .55rem;
+      letter-spacing: .08em;
+    }
+    .ev-info-card p {
+      color: var(--muted); font-size: .88rem;
+      line-height: 1.7;
+    }
+
+    /* ── EMPTY ── */
+    .ev-empty {
+      padding: 4rem 1rem; text-align: center;
+      color: var(--muted); grid-column: 1 / -1;
+    }
+    .ev-empty h3 {
+      font-family: 'Unbounded', sans-serif;
+      font-size: 1.1rem; color: var(--white);
+      margin-bottom: .5rem;
+    }
+
+    /* ── FOOTER ── */
+    footer {
+      background: var(--black);
+      border-top: 1px solid var(--border);
+      padding: 2.5rem 4%;
+      display: flex; justify-content: space-between; align-items: center;
+      flex-wrap: wrap; gap: 1.2rem;
+    }
+    .f-logo { text-decoration: none; display: flex; align-items: center; }
+    .f-links { display: flex; gap: 2rem; flex-wrap: wrap; }
+    .f-links a {
+      font-size: .8rem; color: var(--muted); text-decoration: none;
+      letter-spacing: .04em; transition: color .2s;
+    }
+    .f-links a:hover { color: var(--white); }
+    .f-copy { font-size: .75rem; color: rgba(255,255,255,.18); }
+
+    /* ── RESPONSIVE ── */
+    @media (max-width: 960px) {
+      .nav-links { display: none; }
+      .nav-login { display: none; }
+      .ev-info-inner { grid-template-columns: 1fr; gap: 2rem; }
+    }
+    @media (max-width: 600px) {
+      .ev-intro h1 { font-size: 2.2rem; }
+      .ev-grid { grid-template-columns: 1fr; }
+      footer { flex-direction: column; align-items: flex-start; }
+      .scraper-meta { margin-left: 0; flex-basis: 100%; }
+    }
+  </style>
+</head>
+<body>
+
+  <div class="cursor" id="cur"></div>
+  <div class="cursor-ring" id="curRing"></div>
+
+  <!-- ══ NAV ══ -->
+  <nav id="nav">
+    <a href="index.html" class="logo"><img src="FrontRow.png" alt="FrontRow VR" class="logo-img" /></a>
+    <div class="nav-right">
+      <ul class="nav-links">
+        <li><a href="index.html#trabajo">Trabajo</a></li>
+        <li><a href="eventos.html" class="active">Eventos</a></li>
+        <li><a href="suscripciones.html">Suscripción</a></li>
+        <li><a href="servicios.html">Servicios</a></li>
+      </ul>
+      <div class="nav-auth">
+        <a href="catalogo.html" class="nav-login">Catálogo</a>
+        <a href="login.html" class="nav-login">Login</a>
+        <a href="index.html#contacto" class="nav-cta">Hablemos →</a>
+      </div>
+    </div>
+  </nav>
+
+  <!-- ══ INTRO ══ -->
+  <section class="ev-intro">
+    <div class="ev-intro-label">Eventos · Región Metropolitana</div>
+    <h1>La cartelera de Santiago,<br /><em>también en VR.</em></h1>
+    <p>
+      Rastreamos teatros y salas de eventos de Santiago en tiempo real. Algunos los
+      grabaremos en VR 180° estereoscópico: podrás comprarlos o rentarlos en
+      primera fila desde donde estés.
+    </p>
+
+    <div class="scraper-bar">
+      <span class="scraper-led" aria-hidden="true"></span>
+      <span class="scraper-text">
+        <strong id="scrCount">—</strong> eventos detectados · <strong id="scrVrCount">—</strong> se grabarán en VR
+      </span>
+      <span class="scraper-meta" id="scrTime">Actualizado hace 12 min</span>
+    </div>
+
+    <div class="ev-filters" id="evFilters">
+      <button class="ev-chip active" data-filter="all">Todos</button>
+      <button class="ev-chip" data-filter="vr">Grabamos en VR</button>
+      <button class="ev-chip" data-filter="Teatro">Teatro</button>
+      <button class="ev-chip" data-filter="Música">Música</button>
+      <button class="ev-chip" data-filter="Danza">Danza &amp; Ballet</button>
+      <button class="ev-chip" data-filter="Ópera">Ópera</button>
+      <button class="ev-chip" data-filter="Stand-up">Stand-up</button>
+      <button class="ev-chip" data-filter="Infantil">Infantil</button>
+    </div>
+  </section>
+
+  <!-- ══ EVENT GRID ══ -->
+  <section class="ev-section">
+    <div class="ev-grid" id="evGrid"></div>
+  </section>
+
+  <!-- ══ INFO ══ -->
+  <section class="ev-info">
+    <div class="ev-info-inner">
+      <div class="ev-info-card">
+        <h4><span class="num">01</span>¿Cómo lo hacemos?</h4>
+        <p>
+          Un crawler revisa diariamente las carteleras de los principales teatros y
+          salas de Santiago RM: Nescafé, Municipal, UC, Caupolicán, Movistar Arena,
+          GAM, Mori, entre otros. Los datos se actualizan cada 12 horas.
+        </p>
+      </div>
+      <div class="ev-info-card">
+        <h4><span class="num">02</span>¿Qué eventos grabamos?</h4>
+        <p>
+          Seleccionamos los que tienen acuerdo con el venue y el artista. Verás el
+          badge <strong style="color:var(--accent)">VR 180°</strong> en los que sí se grabarán.
+          Una vez grabado, podrás comprar la experiencia ($7.990) o rentarla por 48
+          hrs ($2.990).
+        </p>
+      </div>
+      <div class="ev-info-card">
+        <h4><span class="num">03</span>¿Y si no es VR?</h4>
+        <p>
+          Los eventos sin badge VR son sólo referencia de cartelera. Te enlazamos
+          al venue para comprar la entrada presencial. Sigue al evento y te avisamos
+          si confirmamos grabación inmersiva más adelante.
+        </p>
+      </div>
+    </div>
+  </section>
+
+  <!-- ══ FOOTER ══ -->
+  <footer>
+    <a href="index.html" class="f-logo"><img src="FrontRow.png" alt="FrontRow VR" class="logo-img" /></a>
+    <div class="f-links">
+      <a href="index.html#trabajo">Trabajo</a>
+      <a href="eventos.html">Eventos</a>
+      <a href="suscripciones.html">Suscripción</a>
+      <a href="catalogo.html">Catálogo</a>
+      <a href="servicios.html">Servicios</a>
+      <a href="login.html">Login</a>
+      <a href="index.html#contacto">Contacto</a>
+    </div>
+    <span class="f-copy">© 2025 FrontRow VR · Chile</span>
+  </footer>
+
+  <script>
+    // Nav scroll
+    var nav = document.getElementById('nav');
+    window.addEventListener('scroll', function () {
+      nav.classList.toggle('scrolled', window.scrollY > 30);
+    }, { passive: true });
+
+    // Cursor
+    (function () {
+      var cur = document.getElementById('cur');
+      var ring = document.getElementById('curRing');
+      var mx = 0, my = 0, rx = 0, ry = 0;
+      document.addEventListener('mousemove', function (e) {
+        mx = e.clientX; my = e.clientY;
+        cur.style.left = mx + 'px';
+        cur.style.top  = my + 'px';
+      });
+      (function loop() {
+        rx += (mx - rx) * 0.11;
+        ry += (my - ry) * 0.11;
+        ring.style.left = rx + 'px';
+        ring.style.top  = ry + 'px';
+        requestAnimationFrame(loop);
+      })();
+      document.addEventListener('mouseover', function (e) {
+        var el = e.target.closest('a, button, .ev-card');
+        if (el) {
+          cur.style.width  = '14px'; cur.style.height = '14px';
+          ring.style.width = '56px'; ring.style.height = '56px';
+          ring.style.borderColor = 'rgba(0,229,255,.65)';
+        } else {
+          cur.style.width  = '8px'; cur.style.height = '8px';
+          ring.style.width = '36px'; ring.style.height = '36px';
+          ring.style.borderColor = 'rgba(0,229,255,.35)';
+        }
+      });
+    })();
+
+    // ══════════════════════════════════════════════════════════
+    //   EVENTOS · cartelera mock de teatros de Santiago RM
+    //   (en producción esto vendría del crawler real)
+    // ══════════════════════════════════════════════════════════
+    var EVENTS = [
+      {
+        title: 'Sinfónica Nacional · Beethoven 9',
+        cat: 'Música', venue: 'Teatro Nescafé de las Artes', commune: 'Providencia',
+        day: 3, mon: 'Jun', time: '20:00', price: '$18.000 – $48.000',
+        img: 'https://images.unsplash.com/photo-1465847899084-d164df4dedc6?auto=format&fit=crop&w=900&q=80',
+        desc: 'La Novena Sinfonía de Beethoven con coro completo y solistas internacionales. Más de 200 músicos en escena.'
+      },
+      {
+        title: 'El Lago de los Cisnes',
+        cat: 'Danza', venue: 'Teatro Municipal', commune: 'Santiago Centro',
+        day: 8, mon: 'Jun', time: '19:30', price: '$22.000 – $85.000',
+        img: 'https://images.unsplash.com/photo-1547153760-18fc86324498?auto=format&fit=crop&w=900&q=80',
+        desc: 'Ballet clásico de Tchaikovsky interpretado por el Ballet de Santiago. Producción restaurada para esta temporada.'
+      },
+      {
+        title: 'La Bohème',
+        cat: 'Ópera', venue: 'Teatro Municipal', commune: 'Santiago Centro',
+        day: 12, mon: 'Jun', time: '20:00', price: '$28.000 – $120.000',
+        img: 'https://images.unsplash.com/photo-1503095396549-807759245b35?auto=format&fit=crop&w=900&q=80',
+        desc: 'La inolvidable ópera de Puccini en una nueva puesta en escena. Cuatro funciones únicas en junio.'
+      },
+      {
+        title: 'Pedro Pascal en vivo · Charla',
+        cat: 'Teatro', venue: 'Teatro Caupolicán', commune: 'Santiago Centro',
+        day: 14, mon: 'Jun', time: '21:00', price: '$32.000 – $95.000',
+        img: 'https://images.unsplash.com/photo-1507676184212-d03ab07a01bf?auto=format&fit=crop&w=900&q=80',
+        desc: 'Conversación íntima con el actor chileno sobre su carrera, Hollywood y el oficio actoral. Una noche irrepetible.'
+      },
+      {
+        title: 'Festival de Jazz Internacional',
+        cat: 'Música', venue: 'Teatro Nescafé de las Artes', commune: 'Providencia',
+        day: 16, mon: 'Jun', time: '20:30', price: '$25.000 – $58.000',
+        img: 'https://images.unsplash.com/photo-1511192336575-5a79af67a629?auto=format&fit=crop&w=900&q=80',
+        desc: 'Tres noches con leyendas del jazz mundial. Quintetos, big bands y jam sessions hasta la madrugada.'
+      },
+      {
+        title: 'Hamlet · Versión Contemporánea',
+        cat: 'Teatro', venue: 'Teatro UC', commune: 'Providencia',
+        day: 20, mon: 'Jun', time: '20:00', price: '$12.000 – $24.000',
+        img: 'https://images.unsplash.com/photo-1503095396549-807759245b35?auto=format&fit=crop&w=900&q=80',
+        desc: 'Shakespeare reinterpretado en clave moderna por la compañía de teatro de la UC. Una mirada urgente al clásico.'
+      },
+      {
+        title: 'Stand-up · Felipe Avello',
+        cat: 'Stand-up', venue: 'Teatro Coliseo', commune: 'Recoleta',
+        day: 22, mon: 'Jun', time: '21:30', price: '$18.000 – $32.000',
+        img: 'https://images.unsplash.com/photo-1527224538127-2104bb71c51b?auto=format&fit=crop&w=900&q=80',
+        desc: 'El humorista chileno presenta su nuevo show. Observación social, anécdotas y absurdo en formato íntimo.'
+      },
+      {
+        title: 'Mon Laferte · Sinfónico',
+        cat: 'Música', venue: 'Movistar Arena', commune: 'Ñuñoa',
+        day: 25, mon: 'Jun', time: '21:00', price: '$38.000 – $145.000',
+        img: 'https://images.unsplash.com/photo-1470225620780-dba8ba36b745?auto=format&fit=crop&w=900&q=80',
+        desc: 'La artista chilena revisita sus hits acompañada por una orquesta sinfónica completa. Concierto único.'
+      },
+      {
+        title: 'El Rey León · Musical',
+        cat: 'Teatro', venue: 'Teatro Nescafé de las Artes', commune: 'Providencia',
+        day: 28, mon: 'Jun', time: '19:00', price: '$28.000 – $78.000',
+        img: 'https://images.unsplash.com/photo-1514320291840-2e0a9bf2a9ae?auto=format&fit=crop&w=900&q=80',
+        desc: 'Versión chilena del icónico musical de Disney. 25 actores, máscaras gigantes y la música original de Hans Zimmer.'
+      },
+      {
+        title: 'Romeo y Julieta · Ballet',
+        cat: 'Danza', venue: 'Teatro Municipal', commune: 'Santiago Centro',
+        day: 2, mon: 'Jul', time: '20:00', price: '$22.000 – $90.000',
+        img: 'https://images.unsplash.com/photo-1518611012118-696072aa579a?auto=format&fit=crop&w=900&q=80',
+        desc: 'La obra de Prokofiev en su versión completa. Tres actos de pasión y tragedia bajo dirección invitada.'
+      },
+      {
+        title: 'Carmen · Ópera de Bizet',
+        cat: 'Ópera', venue: 'Teatro Municipal', commune: 'Santiago Centro',
+        day: 5, mon: 'Jul', time: '20:00', price: '$26.000 – $110.000',
+        img: 'https://images.unsplash.com/photo-1508700115892-45ecd05ae2ad?auto=format&fit=crop&w=900&q=80',
+        desc: 'La ópera más popular de la historia regresa a Santiago en una producción con escenografía monumental.'
+      },
+      {
+        title: 'Chico Trujillo · Despedida',
+        cat: 'Música', venue: 'Teatro Caupolicán', commune: 'Santiago Centro',
+        day: 7, mon: 'Jul', time: '22:00', price: '$22.000 – $42.000',
+        img: 'https://images.unsplash.com/photo-1501386761578-eac5c94b800a?auto=format&fit=crop&w=900&q=80',
+        desc: 'La banda de cumbia chilena cierra una era con tres noches consecutivas. Setlist con sus mayores éxitos.'
+      },
+      {
+        title: 'Pinocho · Teatro Familiar',
+        cat: 'Infantil', venue: 'Teatro Mori Parque Arauco', commune: 'Las Condes',
+        day: 9, mon: 'Jul', time: '16:00', price: '$8.500 – $14.000',
+        img: 'https://images.unsplash.com/photo-1503095396549-807759245b35?auto=format&fit=crop&w=900&q=80',
+        desc: 'Adaptación para toda la familia del clásico de Collodi. Marionetas a escala real y música en vivo.'
+      },
+      {
+        title: 'Stand-up · Pedro Ruminot',
+        cat: 'Stand-up', venue: 'Teatro Oriente', commune: 'Providencia',
+        day: 11, mon: 'Jul', time: '21:00', price: '$15.000 – $28.000',
+        img: 'https://images.unsplash.com/photo-1585699324551-f6c309eedeca?auto=format&fit=crop&w=900&q=80',
+        desc: 'El comediante en una rutina renovada que repasa la chilenidad, la vida adulta y el caos cotidiano.'
+      },
+      {
+        title: 'La Casa de Bernarda Alba',
+        cat: 'Teatro', venue: 'Centro GAM', commune: 'Santiago Centro',
+        day: 14, mon: 'Jul', time: '20:00', price: '$10.000 – $18.000',
+        img: 'https://images.unsplash.com/photo-1542736667-069246bdbc6d?auto=format&fit=crop&w=900&q=80',
+        desc: 'Federico García Lorca por una compañía joven. Tres semanas de funciones en la Sala A1 del GAM.'
+      },
+      {
+        title: 'Festival Womad Chile',
+        cat: 'Música', venue: "Parque O'Higgins", commune: 'Santiago Centro',
+        day: 18, mon: 'Jul', time: '14:00', price: '$28.000 – $68.000',
+        img: 'https://images.unsplash.com/photo-1492684223066-81342ee5ff30?auto=format&fit=crop&w=900&q=80',
+        desc: 'Festival mundial de música y artes. Tres días, cinco escenarios y artistas de todos los continentes.'
+      },
+      {
+        title: 'Cascanueces · Ballet Familiar',
+        cat: 'Danza', venue: 'Teatro Municipal', commune: 'Santiago Centro',
+        day: 21, mon: 'Jul', time: '17:00', price: '$18.000 – $72.000',
+        img: 'https://images.unsplash.com/photo-1518834107812-67b0b7c58434?auto=format&fit=crop&w=900&q=80',
+        desc: 'El clásico ballet navideño en versión de matiné. Adaptación familiar con narración en vivo.'
+      },
+      {
+        title: 'Frozen · Show Infantil',
+        cat: 'Infantil', venue: 'Teatro Caupolicán', commune: 'Santiago Centro',
+        day: 24, mon: 'Jul', time: '15:30', price: '$12.000 – $32.000',
+        img: 'https://images.unsplash.com/photo-1551244072-5d12893278ab?auto=format&fit=crop&w=900&q=80',
+        desc: 'Espectáculo musical inspirado en Frozen con efectos de hielo en vivo y elenco internacional.'
+      }
+    ];
+
+    // ── Selección aleatoria determinística de eventos VR ──
+    // Aprox 35-45% serán "grabaremos en VR"
+    function seededRand(seed) {
+      var x = Math.sin(seed) * 10000;
+      return x - Math.floor(x);
+    }
+    EVENTS.forEach(function (ev, i) {
+      ev.vr = seededRand(i + 7) < 0.42;
+      ev.id = i;
+    });
+
+    // ── Render ──
+    var grid = document.getElementById('evGrid');
+    var filters = document.getElementById('evFilters');
+    var activeFilter = 'all';
+
+    function svgPin() {
+      return '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">'
+           + '<path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5'
+           + 'c-1.38 0-2.5-1.12-2.5-2.5s1.12-2.5 2.5-2.5 2.5 1.12 2.5 2.5-1.12 2.5-2.5 2.5z"/></svg>';
+    }
+    function svgExt() {
+      return '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">'
+           + '<path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/>'
+           + '<polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>';
+    }
+
+    function buildCard(ev) {
+      var card = document.createElement('article');
+      card.className = 'ev-card' + (ev.vr ? ' vr' : '');
+      card.setAttribute('data-cat', ev.cat);
+      card.setAttribute('data-vr', ev.vr ? '1' : '0');
+
+      var vrFlag = ev.vr
+        ? '<span class="ev-vr-flag">Grabamos en VR</span>'
+        : '';
+
+      var actions = ev.vr
+        ? '<div class="ev-vr-actions">'
+        +   '<span class="ev-vr-note">▶ Disponible en VR 180° tras la función</span>'
+        +   '<div class="ev-vr-buttons">'
+        +     '<button class="ev-btn ev-btn-buy" data-action="buy" data-id="' + ev.id + '">Comprar <span class="price">$7.990</span></button>'
+        +     '<button class="ev-btn ev-btn-rent" data-action="rent" data-id="' + ev.id + '">Rentar <span class="price">$2.990</span></button>'
+        +   '</div>'
+        + '</div>'
+        : '<a class="ev-ext-link" href="#" onclick="return false">Ver entrada presencial ' + svgExt() + '</a>';
+
+      card.innerHTML =
+        '<div class="ev-thumb">'
+      +   '<img src="' + ev.img + '" alt="' + ev.title + '" loading="lazy" />'
+      +   '<div class="ev-date"><span class="day">' + String(ev.day).padStart(2, '0') + '</span><span class="mon">' + ev.mon + '</span></div>'
+      +   vrFlag
+      + '</div>'
+      + '<div class="ev-body">'
+      +   '<span class="ev-cat">' + ev.cat + '</span>'
+      +   '<h3 class="ev-title">' + ev.title + '</h3>'
+      +   '<div class="ev-venue">' + svgPin() + ev.venue + ' · ' + ev.commune + '</div>'
+      +   '<p class="ev-desc">' + ev.desc + '</p>'
+      +   '<div class="ev-meta-row">'
+      +     '<span>' + ev.time + ' hrs</span><span class="dot">·</span>'
+      +     '<span>Entrada ' + ev.price + '</span>'
+      +   '</div>'
+      +   actions
+      + '</div>';
+
+      return card;
+    }
+
+    function render() {
+      grid.innerHTML = '';
+      var shown = EVENTS.filter(function (ev) {
+        if (activeFilter === 'all') return true;
+        if (activeFilter === 'vr')  return ev.vr;
+        return ev.cat === activeFilter;
+      });
+      if (!shown.length) {
+        grid.innerHTML = '<div class="ev-empty"><h3>Sin eventos</h3><p>No hay funciones que coincidan con este filtro por ahora.</p></div>';
+        return;
+      }
+      shown.forEach(function (ev) { grid.appendChild(buildCard(ev)); });
+      bindActions();
+    }
+
+    function bindActions() {
+      document.querySelectorAll('[data-action]').forEach(function (btn) {
+        btn.addEventListener('click', function () {
+          var id = parseInt(btn.getAttribute('data-id'));
+          var ev = EVENTS[id];
+          var action = btn.getAttribute('data-action');
+          var msg = action === 'buy'
+            ? '✓ ' + ev.title + ' añadido a tu biblioteca permanente por $7.990.\n\n(Demo · sin BBDD aún)'
+            : '✓ Renta de ' + ev.title + ' activada por 48 hrs por $2.990.\n\n(Demo · sin BBDD aún)';
+          alert(msg);
+        });
+      });
+    }
+
+    filters.querySelectorAll('.ev-chip').forEach(function (chip) {
+      chip.addEventListener('click', function () {
+        filters.querySelectorAll('.ev-chip').forEach(function (c) { c.classList.remove('active'); });
+        chip.classList.add('active');
+        activeFilter = chip.getAttribute('data-filter');
+        render();
+      });
+    });
+
+    // Stats inicial
+    document.getElementById('scrCount').textContent = EVENTS.length;
+    document.getElementById('scrVrCount').textContent = EVENTS.filter(function (e) { return e.vr; }).length;
+
+    // Pequeño contador de "actualizado hace X min" para simular live feed
+    var minutesAgo = 12;
+    var scrTime = document.getElementById('scrTime');
+    setInterval(function () {
+      minutesAgo += 1;
+      scrTime.textContent = 'Actualizado hace ' + minutesAgo + ' min';
+    }, 60000);
+
+    render();
+  </script>
+
+</body>
+</html>

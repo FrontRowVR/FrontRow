@@ -1,0 +1,952 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Suscripción · FrontRow VR</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Unbounded:wght@400;600;700;800;900&family=DM+Sans:ital,wght@0,300;0,400;0,500;1,300&display=swap" rel="stylesheet" />
+
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --black:      #050507;
+      --surface:    #0a0a10;
+      --surface-2:  #10101a;
+      --white:      #ffffff;
+      --offwhite:   #e8e8f2;
+      --muted:      #7a7a8c;
+      --faint:      rgba(255,255,255,0.06);
+      --border:     rgba(255,255,255,0.08);
+      --accent:     #00e5ff;
+      --accent-dim: rgba(0,229,255,0.12);
+    }
+
+    html { scroll-behavior: smooth; }
+    body {
+      background: var(--black);
+      color: var(--white);
+      font-family: 'DM Sans', sans-serif;
+      font-weight: 400;
+      line-height: 1.6;
+      overflow-x: hidden;
+      cursor: none;
+    }
+
+    ::-webkit-scrollbar { width: 4px; }
+    ::-webkit-scrollbar-track { background: var(--black); }
+    ::-webkit-scrollbar-thumb { background: var(--accent); border-radius: 2px; }
+
+    /* ── CURSOR ── */
+    .cursor {
+      position: fixed; width: 8px; height: 8px;
+      background: var(--accent); border-radius: 50%;
+      pointer-events: none; z-index: 9999;
+      transform: translate(-50%,-50%);
+      transition: width .15s, height .15s;
+    }
+    .cursor-ring {
+      position: fixed; width: 36px; height: 36px;
+      border: 1px solid rgba(0,229,255,.35); border-radius: 50%;
+      pointer-events: none; z-index: 9998;
+      transform: translate(-50%,-50%);
+      transition: width .25s, height .25s, border-color .25s;
+    }
+    body:hover .cursor { opacity: 1; }
+
+    /* ── NAV ── */
+    nav {
+      position: fixed; top: 0; left: 0; right: 0; z-index: 100;
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 1.6rem 4%;
+      transition: background .3s, border-bottom-color .3s;
+      border-bottom: 1px solid transparent;
+    }
+    nav.scrolled {
+      background: rgba(5,5,7,.88);
+      backdrop-filter: blur(20px);
+      border-bottom-color: var(--border);
+    }
+    .logo { text-decoration: none; display: flex; align-items: center; }
+    .logo-img { height: 52px; width: auto; display: block; }
+    .nav-right { display: flex; align-items: center; gap: 2.8rem; }
+    .nav-links { list-style: none; display: flex; gap: 2.5rem; }
+    .nav-links a {
+      color: rgba(255,255,255,.5); text-decoration: none;
+      font-size: .82rem; letter-spacing: .08em; text-transform: uppercase;
+      transition: color .2s;
+    }
+    .nav-links a:hover, .nav-links a.active { color: var(--white); }
+    .nav-links a.active { color: var(--accent); }
+    .nav-auth { display: flex; align-items: center; gap: 1.6rem; }
+    .nav-login {
+      font-size: .82rem; letter-spacing: .08em; text-transform: uppercase;
+      color: rgba(255,255,255,.7); text-decoration: none; font-weight: 500;
+      transition: color .2s;
+    }
+    .nav-login:hover { color: var(--white); }
+    .nav-cta {
+      font-size: .8rem; letter-spacing: .08em; text-transform: uppercase;
+      color: var(--black); background: var(--accent);
+      text-decoration: none; font-weight: 700;
+      padding: .55rem 1.1rem;
+      transition: background .2s, transform .2s;
+    }
+    .nav-cta:hover { background: #33ecff; transform: translateY(-1px); }
+
+    /* ── HERO ── */
+    .sub-hero {
+      padding: 10rem 4% 4rem;
+      position: relative;
+      background:
+        radial-gradient(ellipse 70% 50% at 50% 0%, rgba(0,229,255,.08) 0%, transparent 70%),
+        var(--black);
+      text-align: center;
+    }
+    .sub-hero-label {
+      display: inline-flex; align-items: center; gap: .7rem;
+      font-family: 'Unbounded', sans-serif;
+      font-size: .72rem; font-weight: 700; letter-spacing: .16em;
+      text-transform: uppercase; color: var(--accent);
+      margin-bottom: 1.6rem;
+    }
+    .sub-hero-label::before,
+    .sub-hero-label::after {
+      content: ''; width: 30px; height: 1px; background: var(--accent);
+    }
+    .sub-hero h1 {
+      font-family: 'Unbounded', sans-serif;
+      font-size: clamp(2.6rem, 6vw, 5.5rem);
+      font-weight: 800; line-height: 1; letter-spacing: -.035em;
+      margin-bottom: 1.5rem;
+    }
+    .sub-hero h1 em {
+      color: var(--accent); font-style: normal;
+    }
+    .sub-hero-sub {
+      color: var(--muted); font-size: 1rem;
+      max-width: 580px; margin: 0 auto 3rem;
+      line-height: 1.75;
+    }
+
+    /* ── BILLING TOGGLE ── */
+    .billing-toggle {
+      display: inline-flex; align-items: center; gap: .5rem;
+      padding: .35rem;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 999px;
+      margin-bottom: 4rem;
+    }
+    .bt-opt {
+      font-family: 'Unbounded', sans-serif;
+      background: transparent; border: none;
+      color: rgba(255,255,255,.55); cursor: pointer;
+      font-size: .72rem; font-weight: 700; letter-spacing: .12em;
+      text-transform: uppercase;
+      padding: .65rem 1.4rem; border-radius: 999px;
+      transition: background .25s, color .25s;
+    }
+    .bt-opt.active { background: var(--accent); color: var(--black); }
+    .bt-save {
+      font-size: .58rem; margin-left: .4rem; padding: .15rem .45rem;
+      background: rgba(0,229,255,.15); color: var(--accent);
+      border-radius: 4px; letter-spacing: .08em;
+    }
+    .bt-opt.active .bt-save { background: rgba(0,0,0,.25); color: var(--black); }
+
+    /* ── PLANS GRID ── */
+    .plans-section { padding: 0 4% 5rem; }
+    .plans-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 1.5rem;
+      max-width: 1240px; margin: 0 auto;
+    }
+    .plan {
+      position: relative;
+      padding: 2.8rem 2.4rem 3rem;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      display: flex; flex-direction: column;
+      transition: transform .3s, border-color .3s;
+    }
+    .plan:hover { transform: translateY(-4px); border-color: rgba(0,229,255,.25); }
+    .plan.featured {
+      background: linear-gradient(180deg, rgba(0,229,255,.08) 0%, var(--surface) 60%);
+      border-color: rgba(0,229,255,.4);
+      transform: translateY(-8px);
+      box-shadow: 0 30px 80px rgba(0,229,255,.06);
+    }
+    .plan.featured:hover { transform: translateY(-12px); }
+    .plan-badge {
+      position: absolute; top: -10px; right: 1.8rem;
+      background: var(--accent); color: var(--black);
+      font-family: 'Unbounded', sans-serif;
+      font-size: .65rem; font-weight: 700; letter-spacing: .12em;
+      text-transform: uppercase;
+      padding: .35rem .8rem;
+    }
+    .plan-tier {
+      font-size: .72rem; letter-spacing: .18em;
+      text-transform: uppercase; font-weight: 600;
+      color: var(--muted); margin-bottom: 1rem;
+    }
+    .plan.featured .plan-tier { color: var(--accent); }
+    .plan-name {
+      font-family: 'Unbounded', sans-serif;
+      font-size: 2rem; font-weight: 800;
+      letter-spacing: -.02em; line-height: 1;
+      margin-bottom: 1.2rem;
+    }
+    .plan-price-wrap { margin-bottom: .5rem; min-height: 56px; display: flex; flex-direction: column; }
+    .plan-price {
+      display: flex; align-items: baseline; gap: .4rem;
+    }
+    .plan-price .amount {
+      font-family: 'Unbounded', sans-serif;
+      font-size: 2.6rem; font-weight: 800;
+      letter-spacing: -.03em; color: var(--white);
+    }
+    .plan.featured .plan-price .amount { color: var(--accent); }
+    .plan-price .period {
+      font-size: .82rem; color: var(--muted); font-weight: 400;
+    }
+    .plan-billed {
+      font-size: .72rem; color: rgba(255,255,255,.4);
+      margin-top: .35rem; min-height: 1em;
+    }
+    .plan-desc {
+      font-size: .9rem; color: var(--muted);
+      margin: 1rem 0 1.8rem; line-height: 1.6;
+    }
+    .plan hr {
+      border: none; height: 1px; background: var(--border);
+      margin-bottom: 1.8rem;
+    }
+    .plan-feats {
+      list-style: none; margin-bottom: 2.5rem;
+      display: flex; flex-direction: column; gap: .85rem;
+      flex: 1;
+    }
+    .plan-feats li {
+      display: flex; align-items: flex-start; gap: .7rem;
+      font-size: .88rem; color: var(--offwhite); line-height: 1.5;
+    }
+    .plan-feats li::before {
+      content: '✓'; color: var(--accent); font-weight: 700;
+      flex-shrink: 0; font-size: .85rem; margin-top: 2px;
+    }
+    .plan-feats li.muted { color: var(--muted); }
+    .plan-feats li.muted::before { content: '·'; color: var(--muted); font-size: 1.4rem; line-height: 1; margin-top: -2px; }
+    .plan-btn {
+      display: block; text-align: center;
+      padding: .95rem 1.5rem;
+      font-family: 'Unbounded', sans-serif;
+      font-size: .8rem; font-weight: 700;
+      letter-spacing: .1em; text-transform: uppercase;
+      text-decoration: none;
+      border: 1px solid rgba(255,255,255,.15);
+      color: var(--white);
+      transition: background .2s, border-color .2s, color .2s;
+    }
+    .plan-btn:hover { border-color: var(--accent); color: var(--accent); }
+    .plan-btn.primary {
+      background: var(--accent); color: var(--black);
+      border-color: var(--accent);
+    }
+    .plan-btn.primary:hover { background: #33ecff; color: var(--black); }
+
+    /* ── COMPARISON TABLE ── */
+    .compare-section {
+      padding: 7rem 4%;
+      border-top: 1px solid var(--border);
+      background: var(--surface);
+    }
+    .compare-head {
+      max-width: 1200px; margin: 0 auto 3.5rem;
+      text-align: center;
+    }
+    .compare-tag {
+      display: inline-block;
+      font-family: 'Unbounded', sans-serif;
+      font-size: .68rem; font-weight: 700; letter-spacing: .16em;
+      text-transform: uppercase; color: var(--accent);
+      margin-bottom: 1.2rem;
+    }
+    .compare-head h2 {
+      font-family: 'Unbounded', sans-serif;
+      font-size: clamp(2rem, 4vw, 3.5rem);
+      font-weight: 800; line-height: 1.1; letter-spacing: -.025em;
+      margin-bottom: 1rem;
+    }
+    .compare-head p {
+      color: var(--muted); max-width: 540px; margin: 0 auto;
+      font-size: .95rem; line-height: 1.7;
+    }
+    .compare-wrap {
+      max-width: 1200px; margin: 0 auto;
+      border: 1px solid var(--border);
+      background: var(--black);
+      overflow-x: auto;
+    }
+    .compare-table {
+      width: 100%; min-width: 760px;
+      border-collapse: collapse;
+      font-size: .88rem;
+    }
+    .compare-table th, .compare-table td {
+      padding: 1.1rem 1.4rem;
+      text-align: center;
+      border-bottom: 1px solid var(--border);
+      vertical-align: middle;
+    }
+    .compare-table th {
+      font-family: 'Unbounded', sans-serif;
+      font-size: .72rem; font-weight: 700;
+      letter-spacing: .12em; text-transform: uppercase;
+      color: var(--muted);
+      background: rgba(255,255,255,.02);
+      position: sticky; top: 0; z-index: 2;
+    }
+    .compare-table th.col-feat,
+    .compare-table td.col-feat {
+      text-align: left;
+      color: var(--white);
+      font-family: 'DM Sans', sans-serif;
+      font-weight: 500; font-size: .9rem;
+      text-transform: none; letter-spacing: 0;
+    }
+    .compare-table th.col-plan {
+      color: var(--white);
+      font-size: .9rem;
+      font-family: 'Unbounded', sans-serif;
+      font-weight: 800;
+      letter-spacing: -.005em;
+      text-transform: none;
+    }
+    .compare-table th.col-plan small {
+      display: block;
+      font-family: 'DM Sans', sans-serif;
+      font-size: .68rem; font-weight: 500;
+      color: var(--muted); letter-spacing: .05em;
+      margin-top: .2rem;
+    }
+    .compare-table th.col-plan.featured {
+      color: var(--accent);
+      background: rgba(0,229,255,.04);
+    }
+    .compare-table td.col-plan.featured {
+      background: rgba(0,229,255,.04);
+    }
+    .compare-table tbody tr:hover td:not(.feat-group) {
+      background: rgba(255,255,255,.015);
+    }
+    .compare-table tbody tr:hover td.col-plan.featured {
+      background: rgba(0,229,255,.07);
+    }
+    .compare-table tr.feat-group td {
+      background: rgba(255,255,255,.03);
+      font-family: 'Unbounded', sans-serif;
+      font-size: .65rem; font-weight: 700;
+      letter-spacing: .14em; text-transform: uppercase;
+      color: var(--accent);
+      text-align: left; padding-top: 1.4rem; padding-bottom: .85rem;
+    }
+    .check {
+      display: inline-flex; align-items: center; justify-content: center;
+      width: 22px; height: 22px; border-radius: 50%;
+      background: rgba(0,229,255,.12);
+      color: var(--accent);
+      font-size: .82rem; font-weight: 700;
+    }
+    .dash {
+      display: inline-block;
+      width: 14px; height: 1px;
+      background: rgba(255,255,255,.18);
+      vertical-align: middle;
+    }
+    .compare-table td.col-plan.value {
+      font-family: 'Unbounded', sans-serif;
+      font-weight: 700; color: var(--white);
+      font-size: .82rem; letter-spacing: -.005em;
+    }
+    .compare-table td.col-plan.featured.value { color: var(--accent); }
+    .compare-table tbody tr:last-child td { border-bottom: none; }
+
+    /* ── FAQ ── */
+    .faq-section {
+      padding: 7rem 4%;
+      border-top: 1px solid var(--border);
+    }
+    .faq-head {
+      max-width: 800px; margin: 0 auto 3.5rem;
+      text-align: center;
+    }
+    .faq-head h2 {
+      font-family: 'Unbounded', sans-serif;
+      font-size: clamp(2rem, 4vw, 3.2rem);
+      font-weight: 800; letter-spacing: -.025em; line-height: 1.1;
+      margin-bottom: 1rem;
+    }
+    .faq-head p { color: var(--muted); font-size: .95rem; }
+
+    .faq-list {
+      max-width: 800px; margin: 0 auto;
+      display: flex; flex-direction: column; gap: .8rem;
+    }
+    .faq-item {
+      border: 1px solid var(--border);
+      background: var(--surface);
+      overflow: hidden;
+      transition: border-color .25s;
+    }
+    .faq-item:hover { border-color: rgba(0,229,255,.25); }
+    .faq-item summary {
+      cursor: pointer;
+      padding: 1.4rem 1.8rem;
+      display: flex; align-items: center; justify-content: space-between;
+      gap: 1rem;
+      font-family: 'Unbounded', sans-serif;
+      font-size: .92rem; font-weight: 700;
+      letter-spacing: -.005em;
+      list-style: none;
+    }
+    .faq-item summary::-webkit-details-marker { display: none; }
+    .faq-item .faq-icon {
+      flex-shrink: 0;
+      width: 28px; height: 28px;
+      display: flex; align-items: center; justify-content: center;
+      border: 1px solid var(--border);
+      color: var(--accent);
+      font-size: 1rem;
+      transition: transform .3s, background .25s, border-color .25s;
+    }
+    .faq-item[open] .faq-icon {
+      transform: rotate(45deg);
+      background: var(--accent-dim);
+      border-color: var(--accent);
+    }
+    .faq-content {
+      padding: 0 1.8rem 1.6rem;
+      color: var(--muted); font-size: .9rem;
+      line-height: 1.75;
+    }
+    .faq-content a { color: var(--accent); text-decoration: none; }
+    .faq-content a:hover { text-decoration: underline; }
+
+    /* ── CTA ── */
+    .sub-cta {
+      padding: 7rem 4%;
+      border-top: 1px solid var(--border);
+      text-align: center;
+      background:
+        radial-gradient(ellipse 60% 60% at 50% 50%, rgba(0,229,255,.06) 0%, transparent 70%),
+        var(--black);
+    }
+    .sub-cta h2 {
+      font-family: 'Unbounded', sans-serif;
+      font-size: clamp(2rem, 4.5vw, 4rem);
+      font-weight: 800; letter-spacing: -.03em; line-height: 1;
+      margin-bottom: 1.2rem;
+    }
+    .sub-cta p {
+      color: var(--muted); font-size: 1rem;
+      max-width: 480px; margin: 0 auto 2.6rem;
+    }
+    .sub-cta-btn {
+      display: inline-flex; align-items: center; gap: .7rem;
+      padding: 1rem 2.4rem;
+      background: var(--accent); color: var(--black);
+      font-family: 'Unbounded', sans-serif;
+      font-weight: 700; font-size: .85rem; letter-spacing: .1em;
+      text-transform: uppercase; text-decoration: none;
+      transition: background .2s, transform .2s;
+    }
+    .sub-cta-btn:hover { background: #33ecff; transform: translateY(-2px); }
+
+    /* ── FOOTER ── */
+    footer {
+      background: var(--black);
+      border-top: 1px solid var(--border);
+      padding: 2.5rem 4%;
+      display: flex; justify-content: space-between; align-items: center;
+      flex-wrap: wrap; gap: 1.2rem;
+    }
+    .f-logo { text-decoration: none; display: flex; align-items: center; }
+    .f-links { display: flex; gap: 2rem; flex-wrap: wrap; }
+    .f-links a {
+      font-size: .8rem; color: var(--muted); text-decoration: none;
+      letter-spacing: .04em; transition: color .2s;
+    }
+    .f-links a:hover { color: var(--white); }
+    .f-copy { font-size: .75rem; color: rgba(255,255,255,.18); }
+
+    /* ── RESPONSIVE ── */
+    @media (max-width: 960px) {
+      .nav-links { display: none; }
+      .nav-login { display: none; }
+      .plans-grid { grid-template-columns: 1fr; max-width: 480px; }
+      .plan.featured { transform: none; }
+      .plan.featured:hover { transform: translateY(-4px); }
+      .sub-hero { padding: 8rem 4% 3rem; }
+      .compare-section, .faq-section, .sub-cta { padding: 4.5rem 4%; }
+    }
+    @media (max-width: 600px) {
+      .sub-hero h1 { font-size: 2.4rem; }
+      .compare-wrap { border-left: none; border-right: none; }
+      footer { flex-direction: column; align-items: flex-start; }
+      .billing-toggle { margin-bottom: 2.5rem; }
+      .bt-opt { padding: .55rem 1rem; font-size: .68rem; }
+    }
+  </style>
+</head>
+<body>
+
+  <div class="cursor" id="cur"></div>
+  <div class="cursor-ring" id="curRing"></div>
+
+  <!-- ══ NAV ══ -->
+  <nav id="nav">
+    <a href="index.html" class="logo"><img src="FrontRow.png" alt="FrontRow VR" class="logo-img" /></a>
+    <div class="nav-right">
+      <ul class="nav-links">
+        <li><a href="index.html#trabajo">Trabajo</a></li>
+        <li><a href="eventos.html">Eventos</a></li>
+        <li><a href="suscripciones.html" class="active">Suscripción</a></li>
+        <li><a href="servicios.html">Servicios</a></li>
+      </ul>
+      <div class="nav-auth">
+        <a href="catalogo.html" class="nav-login">Catálogo</a>
+        <a href="login.html" class="nav-login">Login</a>
+        <a href="index.html#contacto" class="nav-cta">Hablemos →</a>
+      </div>
+    </div>
+  </nav>
+
+  <!-- ══ HERO ══ -->
+  <section class="sub-hero">
+    <div class="sub-hero-label">Streaming VR · Chile</div>
+    <h1>Un plan para<br />cada <em>primera fila.</em></h1>
+    <p class="sub-hero-sub">
+      Accede al catálogo completo de experiencias VR 180° estereoscópicas. Sin contratos
+      largos, cambia de plan cuando quieras, cancela en un clic.
+    </p>
+
+    <div class="billing-toggle" role="tablist" aria-label="Periodo de facturación">
+      <button class="bt-opt active" id="btMonthly" role="tab" aria-selected="true">Mensual</button>
+      <button class="bt-opt" id="btAnnual" role="tab" aria-selected="false">
+        Anual <span class="bt-save">−20%</span>
+      </button>
+    </div>
+  </section>
+
+  <!-- ══ PLANS ══ -->
+  <section class="plans-section">
+    <div class="plans-grid">
+
+      <div class="plan">
+        <div class="plan-tier">Free</div>
+        <h3 class="plan-name">Discover</h3>
+        <div class="plan-price-wrap">
+          <div class="plan-price">
+            <span class="amount">$0</span>
+            <span class="period">CLP / mes</span>
+          </div>
+          <div class="plan-billed">Para siempre, sin tarjeta</div>
+        </div>
+        <p class="plan-desc">Prueba la experiencia FrontRow VR sin compromiso ni tarjeta de crédito.</p>
+        <hr />
+        <ul class="plan-feats">
+          <li>Acceso a trailers y previews</li>
+          <li>Contenido destacado semanal</li>
+          <li>Resolución hasta 4K por ojo</li>
+          <li>1 dispositivo a la vez</li>
+          <li class="muted">Con anuncios</li>
+          <li class="muted">Sin descarga offline</li>
+        </ul>
+        <a href="login.html" class="plan-btn">Crear Cuenta</a>
+      </div>
+
+      <div class="plan featured">
+        <div class="plan-badge">Más Popular</div>
+        <div class="plan-tier">Pro</div>
+        <h3 class="plan-name">Pro</h3>
+        <div class="plan-price-wrap">
+          <div class="plan-price">
+            <span class="amount" data-monthly="$7.990" data-annual="$6.390">$7.990</span>
+            <span class="period">CLP / mes</span>
+          </div>
+          <div class="plan-billed" data-monthly="Facturado mensual" data-annual="Facturado anual · $76.680/año">Facturado mensual</div>
+        </div>
+        <p class="plan-desc">El catálogo completo a tu disposición, sin interrupciones ni anuncios.</p>
+        <hr />
+        <ul class="plan-feats">
+          <li>Catálogo completo de eventos</li>
+          <li>Sin anuncios</li>
+          <li>Resolución hasta 6K por ojo</li>
+          <li>Audio espacial ambisónico</li>
+          <li>2 dispositivos simultáneos</li>
+          <li>Descarga para offline</li>
+        </ul>
+        <a href="login.html" class="plan-btn primary">Suscribirme</a>
+      </div>
+
+      <div class="plan">
+        <div class="plan-tier">Premium</div>
+        <h3 class="plan-name">Pro Max</h3>
+        <div class="plan-price-wrap">
+          <div class="plan-price">
+            <span class="amount" data-monthly="$14.990" data-annual="$11.990">$14.990</span>
+            <span class="period">CLP / mes</span>
+          </div>
+          <div class="plan-billed" data-monthly="Facturado mensual" data-annual="Facturado anual · $143.880/año">Facturado mensual</div>
+        </div>
+        <p class="plan-desc">La experiencia VR más completa que existe. Para los más exigentes.</p>
+        <hr />
+        <ul class="plan-feats">
+          <li>Todo lo de Pro</li>
+          <li>Resolución 8K máxima por ojo</li>
+          <li>Estrenos anticipados</li>
+          <li>Eventos en vivo exclusivos</li>
+          <li>4 dispositivos simultáneos</li>
+          <li>Detrás de cámaras exclusivo</li>
+        </ul>
+        <a href="login.html" class="plan-btn">Ir Pro Max</a>
+      </div>
+
+    </div>
+  </section>
+
+  <!-- ══ COMPARISON TABLE ══ -->
+  <section class="compare-section">
+    <div class="compare-head">
+      <span class="compare-tag">Comparación detallada</span>
+      <h2>Todas las diferencias,<br />en una tabla.</h2>
+      <p>Cada función, cada límite, cada beneficio. Compara lo que importa y elige con criterio.</p>
+    </div>
+
+    <div class="compare-wrap">
+      <table class="compare-table">
+        <thead>
+          <tr>
+            <th class="col-feat">Funcionalidad</th>
+            <th class="col-plan">Discover <small>Gratis</small></th>
+            <th class="col-plan featured">Pro <small>$7.990 / mes</small></th>
+            <th class="col-plan">Pro Max <small>$14.990 / mes</small></th>
+          </tr>
+        </thead>
+        <tbody>
+
+          <tr class="feat-group"><td colspan="4">Contenido</td></tr>
+          <tr>
+            <td class="col-feat">Acceso al catálogo VR</td>
+            <td class="col-plan value">Trailers</td>
+            <td class="col-plan featured value">Completo</td>
+            <td class="col-plan value">Completo</td>
+          </tr>
+          <tr>
+            <td class="col-feat">Estrenos anticipados (7 días antes)</td>
+            <td class="col-plan"><span class="dash"></span></td>
+            <td class="col-plan featured"><span class="dash"></span></td>
+            <td class="col-plan"><span class="check">✓</span></td>
+          </tr>
+          <tr>
+            <td class="col-feat">Eventos en vivo exclusivos</td>
+            <td class="col-plan"><span class="dash"></span></td>
+            <td class="col-plan featured"><span class="dash"></span></td>
+            <td class="col-plan"><span class="check">✓</span></td>
+          </tr>
+          <tr>
+            <td class="col-feat">Behind the scenes &amp; extras</td>
+            <td class="col-plan"><span class="dash"></span></td>
+            <td class="col-plan featured"><span class="dash"></span></td>
+            <td class="col-plan"><span class="check">✓</span></td>
+          </tr>
+
+          <tr class="feat-group"><td colspan="4">Calidad técnica</td></tr>
+          <tr>
+            <td class="col-feat">Resolución máxima por ojo</td>
+            <td class="col-plan value">4K</td>
+            <td class="col-plan featured value">6K</td>
+            <td class="col-plan value">8K</td>
+          </tr>
+          <tr>
+            <td class="col-feat">Bitrate hasta</td>
+            <td class="col-plan value">50 Mbps</td>
+            <td class="col-plan featured value">120 Mbps</td>
+            <td class="col-plan value">240 Mbps</td>
+          </tr>
+          <tr>
+            <td class="col-feat">Audio espacial ambisónico (HOA)</td>
+            <td class="col-plan"><span class="dash"></span></td>
+            <td class="col-plan featured"><span class="check">✓</span></td>
+            <td class="col-plan"><span class="check">✓</span></td>
+          </tr>
+          <tr>
+            <td class="col-feat">HDR &amp; rango dinámico extendido</td>
+            <td class="col-plan"><span class="dash"></span></td>
+            <td class="col-plan featured"><span class="check">✓</span></td>
+            <td class="col-plan"><span class="check">✓</span></td>
+          </tr>
+
+          <tr class="feat-group"><td colspan="4">Dispositivos &amp; uso</td></tr>
+          <tr>
+            <td class="col-feat">Dispositivos simultáneos</td>
+            <td class="col-plan value">1</td>
+            <td class="col-plan featured value">2</td>
+            <td class="col-plan value">4</td>
+          </tr>
+          <tr>
+            <td class="col-feat">Perfiles familiares</td>
+            <td class="col-plan value">1</td>
+            <td class="col-plan featured value">3</td>
+            <td class="col-plan value">6</td>
+          </tr>
+          <tr>
+            <td class="col-feat">Descarga offline</td>
+            <td class="col-plan"><span class="dash"></span></td>
+            <td class="col-plan featured"><span class="check">✓</span></td>
+            <td class="col-plan"><span class="check">✓</span></td>
+          </tr>
+          <tr>
+            <td class="col-feat">Visores VR compatibles</td>
+            <td class="col-plan value">Meta Quest</td>
+            <td class="col-plan featured value">Todos</td>
+            <td class="col-plan value">Todos</td>
+          </tr>
+
+          <tr class="feat-group"><td colspan="4">Experiencia</td></tr>
+          <tr>
+            <td class="col-feat">Reproducción sin anuncios</td>
+            <td class="col-plan"><span class="dash"></span></td>
+            <td class="col-plan featured"><span class="check">✓</span></td>
+            <td class="col-plan"><span class="check">✓</span></td>
+          </tr>
+          <tr>
+            <td class="col-feat">Listas personales &amp; favoritos</td>
+            <td class="col-plan"><span class="check">✓</span></td>
+            <td class="col-plan featured"><span class="check">✓</span></td>
+            <td class="col-plan"><span class="check">✓</span></td>
+          </tr>
+          <tr>
+            <td class="col-feat">Multivista (cámaras simultáneas)</td>
+            <td class="col-plan"><span class="dash"></span></td>
+            <td class="col-plan featured"><span class="dash"></span></td>
+            <td class="col-plan"><span class="check">✓</span></td>
+          </tr>
+          <tr>
+            <td class="col-feat">Subtítulos &amp; multi-idioma</td>
+            <td class="col-plan"><span class="check">✓</span></td>
+            <td class="col-plan featured"><span class="check">✓</span></td>
+            <td class="col-plan"><span class="check">✓</span></td>
+          </tr>
+
+          <tr class="feat-group"><td colspan="4">Soporte</td></tr>
+          <tr>
+            <td class="col-feat">Soporte por email</td>
+            <td class="col-plan value">48 h</td>
+            <td class="col-plan featured value">24 h</td>
+            <td class="col-plan value">12 h</td>
+          </tr>
+          <tr>
+            <td class="col-feat">Soporte prioritario 24/7</td>
+            <td class="col-plan"><span class="dash"></span></td>
+            <td class="col-plan featured"><span class="dash"></span></td>
+            <td class="col-plan"><span class="check">✓</span></td>
+          </tr>
+          <tr>
+            <td class="col-feat">Cancelación en un clic</td>
+            <td class="col-plan"><span class="check">✓</span></td>
+            <td class="col-plan featured"><span class="check">✓</span></td>
+            <td class="col-plan"><span class="check">✓</span></td>
+          </tr>
+
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+  <!-- ══ FAQ ══ -->
+  <section class="faq-section">
+    <div class="faq-head">
+      <h2>Preguntas frecuentes</h2>
+      <p>Resolvemos las dudas más comunes sobre tu suscripción FrontRow VR.</p>
+    </div>
+
+    <div class="faq-list">
+
+      <details class="faq-item">
+        <summary>¿Qué visores VR son compatibles? <span class="faq-icon">+</span></summary>
+        <div class="faq-content">
+          Soportamos Meta Quest 2, 3, 3S y Pro; Apple Vision Pro; PlayStation VR2; Pico 4
+          y Pico 4 Ultra; HTC Vive XR Elite, y la mayoría de visores compatibles con
+          WebXR. También puedes verlo en cualquier navegador moderno en modo 360°
+          plano si aún no tienes un visor.
+        </div>
+      </details>
+
+      <details class="faq-item">
+        <summary>¿Puedo cancelar cuando quiera? <span class="faq-icon">+</span></summary>
+        <div class="faq-content">
+          Sí. La cancelación es en un clic desde tu panel de cuenta. Sigues teniendo
+          acceso hasta el final del periodo que ya pagaste. No hay penalizaciones ni
+          letra chica.
+        </div>
+      </details>
+
+      <details class="faq-item">
+        <summary>¿Cuál es la diferencia entre Pro y Pro Max? <span class="faq-icon">+</span></summary>
+        <div class="faq-content">
+          Pro te da el catálogo completo en hasta 6K por ojo, sin anuncios y con descarga
+          offline. Pro Max sube a 8K, agrega estrenos anticipados, eventos en vivo
+          exclusivos, multivista de cámaras simultáneas, hasta 4 dispositivos y soporte
+          prioritario 24/7. Si grabas mucho contenido en vivo o eres power user, Pro Max
+          es para ti.
+        </div>
+      </details>
+
+      <details class="faq-item">
+        <summary>¿Cómo funciona el plan anual con −20%? <span class="faq-icon">+</span></summary>
+        <div class="faq-content">
+          Al pagar 12 meses por adelantado ahorras un 20% sobre la tarifa mensual. Pro
+          baja de $7.990 a $6.390/mes equivalentes ($76.680/año). Pro Max baja de
+          $14.990 a $11.990/mes ($143.880/año). Puedes cambiar de mensual a anual (o
+          viceversa) en cualquier momento desde tu cuenta.
+        </div>
+      </details>
+
+      <details class="faq-item">
+        <summary>¿Qué métodos de pago aceptan? <span class="faq-icon">+</span></summary>
+        <div class="faq-content">
+          Aceptamos tarjetas de crédito y débito (Visa, Mastercard, American Express),
+          WebPay, Mach, Mercado Pago y transferencia bancaria para planes anuales.
+          Todos los pagos están encriptados y procesados por nuestro partner PCI-DSS.
+        </div>
+      </details>
+
+      <details class="faq-item">
+        <summary>¿Puedo comprar o rentar contenido sin suscripción? <span class="faq-icon">+</span></summary>
+        <div class="faq-content">
+          Sí. Muchos eventos están disponibles para compra ($7.990) o renta ($2.990 por
+          48 hrs) sin necesidad de suscripción. Visita la pestaña
+          <a href="eventos.html">Eventos</a> para ver el contenido disponible. Si te
+          suscribes después, lo que ya compraste sigue siendo tuyo.
+        </div>
+      </details>
+
+      <details class="faq-item">
+        <summary>¿Necesito un visor VR para suscribirme? <span class="faq-icon">+</span></summary>
+        <div class="faq-content">
+          No. Aunque la experiencia óptima es con un visor VR, todo el catálogo se puede
+          ver en modo 360° plano desde tu navegador, tablet o móvil. Cuando consigas
+          un visor, sólo entra al mismo contenido desde el dispositivo y arranca en
+          inmersivo.
+        </div>
+      </details>
+
+      <details class="faq-item">
+        <summary>¿Ofrecen prueba gratuita de Pro o Pro Max? <span class="faq-icon">+</span></summary>
+        <div class="faq-content">
+          El plan Discover es gratuito de por vida y te permite probar la plataforma.
+          Adicionalmente, regalamos 7 días gratis de Pro al crear tu cuenta. Pro Max
+          ofrece 14 días gratis durante el periodo de lanzamiento.
+        </div>
+      </details>
+
+    </div>
+  </section>
+
+  <!-- ══ CTA ══ -->
+  <section class="sub-cta">
+    <h2>¿Listo para vivirlo<br />en primera fila?</h2>
+    <p>Empieza gratis con Discover o súbete a Pro y ten todo el catálogo desde el día uno.</p>
+    <a href="login.html" class="sub-cta-btn">Crear cuenta gratis →</a>
+  </section>
+
+  <!-- ══ FOOTER ══ -->
+  <footer>
+    <a href="index.html" class="f-logo"><img src="FrontRow.png" alt="FrontRow VR" class="logo-img" /></a>
+    <div class="f-links">
+      <a href="index.html#trabajo">Trabajo</a>
+      <a href="eventos.html">Eventos</a>
+      <a href="suscripciones.html">Suscripción</a>
+      <a href="catalogo.html">Catálogo</a>
+      <a href="servicios.html">Servicios</a>
+      <a href="login.html">Login</a>
+      <a href="index.html#contacto">Contacto</a>
+    </div>
+    <span class="f-copy">© 2025 FrontRow VR · Chile</span>
+  </footer>
+
+  <script>
+    // Nav scroll
+    var nav = document.getElementById('nav');
+    window.addEventListener('scroll', function () {
+      nav.classList.toggle('scrolled', window.scrollY > 30);
+    }, { passive: true });
+
+    // Cursor
+    (function () {
+      var cur = document.getElementById('cur');
+      var ring = document.getElementById('curRing');
+      var mx = 0, my = 0, rx = 0, ry = 0;
+      document.addEventListener('mousemove', function (e) {
+        mx = e.clientX; my = e.clientY;
+        cur.style.left = mx + 'px';
+        cur.style.top  = my + 'px';
+      });
+      (function loop() {
+        rx += (mx - rx) * 0.11;
+        ry += (my - ry) * 0.11;
+        ring.style.left = rx + 'px';
+        ring.style.top  = ry + 'px';
+        requestAnimationFrame(loop);
+      })();
+      document.addEventListener('mouseover', function (e) {
+        var el = e.target.closest('a, button, summary, .plan');
+        if (el) {
+          cur.style.width  = '14px'; cur.style.height = '14px';
+          ring.style.width = '56px'; ring.style.height = '56px';
+          ring.style.borderColor = 'rgba(0,229,255,.65)';
+        } else {
+          cur.style.width  = '8px'; cur.style.height = '8px';
+          ring.style.width = '36px'; ring.style.height = '36px';
+          ring.style.borderColor = 'rgba(0,229,255,.35)';
+        }
+      });
+    })();
+
+    // Billing toggle
+    (function () {
+      var btM = document.getElementById('btMonthly');
+      var btA = document.getElementById('btAnnual');
+      function setBilling(mode) {
+        btM.classList.toggle('active', mode === 'monthly');
+        btA.classList.toggle('active', mode === 'annual');
+        btM.setAttribute('aria-selected', mode === 'monthly');
+        btA.setAttribute('aria-selected', mode === 'annual');
+        document.querySelectorAll('[data-monthly][data-annual]').forEach(function (el) {
+          el.textContent = el.getAttribute(mode === 'monthly' ? 'data-monthly' : 'data-annual');
+        });
+      }
+      btM.addEventListener('click', function () { setBilling('monthly'); });
+      btA.addEventListener('click', function () { setBilling('annual'); });
+    })();
+
+    // Cierra otros details al abrir uno (acordeón)
+    document.querySelectorAll('.faq-item').forEach(function (item) {
+      item.addEventListener('toggle', function () {
+        if (item.open) {
+          document.querySelectorAll('.faq-item').forEach(function (other) {
+            if (other !== item) other.open = false;
+          });
+        }
+      });
+    });
+  </script>
+
+</body>
+</html>
