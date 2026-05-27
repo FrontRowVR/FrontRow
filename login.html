@@ -381,6 +381,16 @@
     .form-panel { display: none; }
     .form-panel.active { display: block; }
 
+    .lang-btn {
+      background: transparent; border: 1px solid rgba(255,255,255,.25);
+      color: rgba(255,255,255,.65); font-family: 'DM Sans', sans-serif;
+      font-size: .72rem; font-weight: 500; letter-spacing: .1em;
+      padding: .28rem .7rem; border-radius: 4px; cursor: pointer;
+      transition: border-color .2s, color .2s;
+    }
+    .lang-btn:hover { border-color: var(--accent); color: var(--accent); }
+    .auth-lang { position: absolute; top: 1.8rem; right: 2rem; }
+
     /* ── RESPONSIVE ── */
     @media (max-width: 900px) {
       .auth-wrap { grid-template-columns: 1fr; }
@@ -428,6 +438,7 @@
     <!-- ══ FORM SIDE ══ -->
     <section class="auth-side">
       <a href="index.html" class="auth-back">← Volver al sitio</a>
+      <div class="auth-lang"><button id="langToggle" class="lang-btn" onclick="setLang(document.documentElement.lang==='es'?'en':'es')">EN</button></div>
 
       <div class="auth-box">
 
@@ -598,12 +609,13 @@
     // Password toggle
     function togglePwd(id, btn) {
       var input = document.getElementById(id);
+      var lang = document.documentElement.lang || 'es';
       if (input.type === 'password') {
         input.type = 'text';
-        btn.textContent = 'Ocultar';
+        btn.textContent = lang === 'en' ? 'Hide' : 'Ocultar';
       } else {
         input.type = 'password';
-        btn.textContent = 'Ver';
+        btn.textContent = lang === 'en' ? 'Show' : 'Ver';
       }
     }
 
@@ -641,5 +653,99 @@
     }
   </script>
 
-</body>
-</html>
+  <script src="i18n.js"></script>
+  <script>
+    initI18n({
+      es: {
+        'back': '← Volver al sitio',
+        'tab.login': 'Iniciar Sesión', 'tab.register': 'Crear Cuenta',
+        'login.h': 'Bienvenido de vuelta',
+        'login.sub': '¿Aún no tienes cuenta? <a href="#" data-go="register">Regístrate gratis</a>',
+        'div': 'o con email',
+        'lbl.email': 'Email', 'lbl.pwd': 'Contraseña',
+        'toggle.show': 'Ver', 'toggle.hide': 'Ocultar',
+        'remember': 'Recordarme',
+        'forgot': '¿Olvidaste tu contraseña?',
+        'submit.login': 'Entrar',
+        'reg.h': 'Crea tu cuenta',
+        'reg.sub': '¿Ya estás registrado? <a href="#" data-go="login">Inicia sesión</a>',
+        'lbl.name': 'Nombre',
+        'pwd.placeholder': 'Mínimo 8 caracteres',
+        'submit.reg': 'Crear cuenta gratis',
+        'terms': 'Al crear tu cuenta aceptas nuestros <a href="#" onclick="event.preventDefault()">Términos</a> y nuestra <a href="#" onclick="event.preventDefault()">Política de Privacidad</a>.',
+        'demo': '<strong>Modo Demo</strong> · La autenticación aún no está conectada a base de datos. Los formularios son sólo visuales.',
+        'av.eyebrow': 'Streaming VR · Chile',
+        'av.h': 'Tu primera fila,<br /><em>esperándote.</em>',
+        'av.sub': 'Crea tu cuenta y accede a conciertos, teatro y experiencias inmersivas grabadas en VR 180° estereoscópico. Sin tarjeta, sin compromiso.',
+        'av.quote': '"Sentí que estaba realmente ahí, en primera fila del concierto."',
+      },
+      en: {
+        'back': '← Back to site',
+        'tab.login': 'Sign In', 'tab.register': 'Create Account',
+        'login.h': 'Welcome back',
+        'login.sub': 'Don\'t have an account? <a href="#" data-go="register">Sign up free</a>',
+        'div': 'or with email',
+        'lbl.email': 'Email', 'lbl.pwd': 'Password',
+        'toggle.show': 'Show', 'toggle.hide': 'Hide',
+        'remember': 'Remember me',
+        'forgot': 'Forgot your password?',
+        'submit.login': 'Sign in',
+        'reg.h': 'Create your account',
+        'reg.sub': 'Already registered? <a href="#" data-go="login">Sign in</a>',
+        'lbl.name': 'Name',
+        'pwd.placeholder': 'Minimum 8 characters',
+        'submit.reg': 'Create free account',
+        'terms': 'By creating your account you agree to our <a href="#" onclick="event.preventDefault()">Terms</a> and our <a href="#" onclick="event.preventDefault()">Privacy Policy</a>.',
+        'demo': '<strong>Demo Mode</strong> · Authentication is not yet connected to a database. Forms are visual only.',
+        'av.eyebrow': 'VR Streaming · Chile',
+        'av.h': 'Your front row,<br /><em>waiting for you.</em>',
+        'av.sub': 'Create your account and access concerts, theater and immersive experiences filmed in stereoscopic VR 180°. No card, no commitment.',
+        'av.quote': '"I felt like I was really there, front row at the concert."',
+      }
+    }, [
+      {s:'.auth-back', k:'back'},
+      {s:'#tabLogin', k:'tab.login'},
+      {s:'#tabRegister', k:'tab.register'},
+      {s:'#panelLogin .auth-h', k:'login.h'},
+      {s:'#panelLogin .auth-sub', k:'login.sub', html:true},
+      {s:'#panelLogin .divider', k:'div'},
+      {s:'#panelLogin label[for="loginEmail"]', k:'lbl.email'},
+      {s:'#panelLogin label[for="loginPwd"]', k:'lbl.pwd'},
+      {s:'#panelLogin .remember input + *', k:'remember'},
+      {s:'.forgot', k:'forgot'},
+      {s:'#panelLogin .submit-btn', k:'submit.login'},
+      {s:'#panelRegister .auth-h', k:'reg.h'},
+      {s:'#panelRegister .auth-sub', k:'reg.sub', html:true},
+      {s:'#panelRegister .divider', k:'div'},
+      {s:'#panelRegister label[for="regName"]', k:'lbl.name'},
+      {s:'#panelRegister label[for="regEmail"]', k:'lbl.email'},
+      {s:'#panelRegister label[for="regPwd"]', k:'lbl.pwd'},
+      {s:'#panelRegister .submit-btn', k:'submit.reg'},
+      {s:'.terms', k:'terms', html:true},
+      {s:'.demo-banner', k:'demo', html:true},
+      {s:'.av-eyebrow', k:'av.eyebrow'},
+      {s:'.av-headline', k:'av.h', html:true},
+      {s:'.av-sub', k:'av.sub'},
+      {s:'.av-quote p', k:'av.quote'},
+    ]);
+
+    // After lang change, re-bind data-go links (they get replaced via innerHTML update)
+    var _origSetLang = window.setLang;
+    window.setLang = function (lang) {
+      _origSetLang(lang);
+      // Update visible password toggle buttons to match current state
+      document.querySelectorAll('.toggle-pwd').forEach(function (btn) {
+        var input = document.getElementById(btn.closest('.form-pwd').querySelector('input').id);
+        btn.textContent = input && input.type === 'text'
+          ? (lang === 'en' ? 'Hide' : 'Ocultar')
+          : (lang === 'en' ? 'Show' : 'Ver');
+      });
+      // Re-bind data-go links (innerHTML replacement orphaned them)
+      document.querySelectorAll('[data-go]').forEach(function (link) {
+        link.addEventListener('click', function (e) {
+          e.preventDefault();
+          switchPanel(link.getAttribute('data-go') === 'login' ? 'panelLogin' : 'panelRegister');
+        });
+      });
+    };
+  </script>

@@ -359,6 +359,15 @@
 
     @keyframes hintFade { to { opacity: 0; } }
     @keyframes spin     { to { transform: rotate(360deg); } }
+
+    .lang-btn {
+      background: transparent; border: 1px solid rgba(255,255,255,.25);
+      color: rgba(255,255,255,.65); font-family: 'DM Sans', sans-serif;
+      font-size: .72rem; font-weight: 500; letter-spacing: .1em;
+      padding: .28rem .7rem; border-radius: 4px; cursor: pointer;
+      transition: border-color .2s, color .2s;
+    }
+    .lang-btn:hover { border-color: var(--accent); color: var(--accent); }
   </style>
 </head>
 <body>
@@ -380,6 +389,7 @@
       <div class="nav-auth">
         <a href="catalogo.html" class="nav-login">Catálogo</a>
         <a href="login.html" class="nav-login">Login</a>
+        <button id="langToggle" class="lang-btn" onclick="setLang(document.documentElement.lang==='es'?'en':'es')">EN</button>
         <a href="index.html#contacto" class="nav-cta">Hablemos →</a>
       </div>
     </div>
@@ -654,6 +664,7 @@
 
         var sub = document.createElement('div');
         sub.className = 'lib-card-sub';
+        sub.setAttribute('data-i18n', 'card.sub');
         sub.textContent = 'Video 180° · Estereoscópico';
 
         body.appendChild(title);
@@ -691,6 +702,7 @@
         cntEl.textContent = cat.subscribed
           ? '🔒 Suscriptores'
           : cat.videos.length + ' video' + (cat.videos.length !== 1 ? 's' : '');
+        if (cat.subscribed) cntEl.setAttribute('data-i18n', 'lock.label');
         head.appendChild(numEl); head.appendChild(ttlEl); head.appendChild(cntEl);
 
         var gridWrap = document.createElement('div');
@@ -715,9 +727,9 @@
           overlay.className = 'lib-lock-overlay';
           overlay.innerHTML =
             '<div class="lib-lock-overlay-icon">🔒</div>' +
-            '<h3>Contenido exclusivo para suscriptores</h3>' +
-            '<p>Inicia sesión para acceder a los videos exclusivos de tu suscripción.</p>' +
-            '<button class="lib-lock-btn">Iniciar sesión →</button>';
+            '<h3 data-i18n="lock.h3">Contenido exclusivo para suscriptores</h3>' +
+            '<p data-i18n="lock.p">Inicia sesión para acceder a los videos exclusivos de tu suscripción.</p>' +
+            '<button class="lib-lock-btn" data-i18n="lock.btn">Iniciar sesión →</button>';
           gridWrap.appendChild(grid);
           gridWrap.appendChild(overlay);
         } else {
@@ -732,6 +744,51 @@
     });
   </script>
 
+  <script src="i18n.js"></script>
+  <script>
+    initI18n({
+      es: {
+        'nav.work': 'Trabajo', 'nav.events': 'Eventos', 'nav.sub': 'Suscripción',
+        'nav.services': 'Servicios', 'nav.catalog': 'Catálogo', 'nav.cta': 'Hablemos →',
+        'intro.label': 'Experiencias VR 180°',
+        'intro.h1': 'Tu catálogo<br />de experiencias.',
+        'intro.p': 'Todos los videos disponibles en tu suscripción, organizados por categoría. Haz clic en cualquiera para abrirlo en el visor VR inmersivo.',
+        'vr.hint': 'Arrastra para girar la vista · En visor VR presiona ⊙ para entrar',
+        'vr.loading': 'Cargando experiencia VR\u2026',
+        'card.sub': 'Video 180° · Estereoscópico',
+        'lock.label': '🔒 Suscriptores',
+        'lock.h3': 'Contenido exclusivo para suscriptores',
+        'lock.p': 'Inicia sesión para acceder a los videos exclusivos de tu suscripción.',
+        'lock.btn': 'Iniciar sesión →',
+      },
+      en: {
+        'nav.work': 'Work', 'nav.events': 'Events', 'nav.sub': 'Subscription',
+        'nav.services': 'Services', 'nav.catalog': 'Catalog', 'nav.cta': "Let's Talk →",
+        'intro.label': 'VR 180° Experiences',
+        'intro.h1': 'Your experience<br />catalog.',
+        'intro.p': 'All videos available in your subscription, organized by category. Click any to open it in the immersive VR viewer.',
+        'vr.hint': 'Drag to rotate view · In VR headset press ⊙ to enter',
+        'vr.loading': 'Loading VR experience\u2026',
+        'card.sub': 'VR 180° · Stereoscopic',
+        'lock.label': '🔒 Subscribers only',
+        'lock.h3': 'Exclusive content for subscribers',
+        'lock.p': "Sign in to access your subscription's exclusive videos.",
+        'lock.btn': 'Sign in →',
+      }
+    }, [
+      {s:'#nav .nav-links li:nth-child(1) a', k:'nav.work'},
+      {s:'#nav .nav-links li:nth-child(2) a', k:'nav.events'},
+      {s:'#nav .nav-links li:nth-child(3) a', k:'nav.sub'},
+      {s:'#nav .nav-links li:nth-child(4) a', k:'nav.services'},
+      {s:'#nav .nav-auth .nav-login:first-child', k:'nav.catalog'},
+      {s:'#nav .nav-auth .nav-cta', k:'nav.cta'},
+      {s:'.lib-intro-label', k:'intro.label'},
+      {s:'.lib-intro h1', k:'intro.h1', html:true},
+      {s:'.lib-intro p', k:'intro.p'},
+      {s:'.vr-modal-hint', k:'vr.hint'},
+      {s:'.vr-loading p', k:'vr.loading'},
+    ]);
+  </script>
 
 </body>
 </html>

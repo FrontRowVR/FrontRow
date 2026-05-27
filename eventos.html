@@ -97,6 +97,15 @@
     }
     .nav-cta:hover { background: #33ecff; transform: translateY(-1px); }
 
+    .lang-btn {
+      background: transparent; border: 1px solid rgba(255,255,255,.25);
+      color: rgba(255,255,255,.65); font-family: 'DM Sans', sans-serif;
+      font-size: .72rem; font-weight: 500; letter-spacing: .1em;
+      padding: .28rem .7rem; border-radius: 4px; cursor: pointer;
+      transition: border-color .2s, color .2s;
+    }
+    .lang-btn:hover { border-color: var(--accent); color: var(--accent); }
+
     /* ── INTRO ── */
     .ev-intro {
       padding: 9rem 4% 3rem;
@@ -451,6 +460,7 @@
       <div class="nav-auth">
         <a href="catalogo.html" class="nav-login">Catálogo</a>
         <a href="login.html" class="nav-login">Login</a>
+        <button id="langToggle" class="lang-btn" onclick="setLang(document.documentElement.lang==='es'?'en':'es')">EN</button>
         <a href="index.html#contacto" class="nav-cta">Hablemos →</a>
       </div>
     </div>
@@ -735,25 +745,46 @@
            + '<polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>';
     }
 
+    var EVNT_STR = {
+      es: {
+        vrFlag: 'Grabamos en VR',
+        vrNote: '▶ Disponible en VR 180° tras la función',
+        btnBuy: 'Comprar', btnRent: 'Rentar',
+        extLink: 'Ver entrada presencial ',
+        entradaLabel: 'Entrada ',
+        emptyH: 'Sin eventos',
+        emptyP: 'No hay funciones que coincidan con este filtro por ahora.',
+      },
+      en: {
+        vrFlag: 'Filming in VR',
+        vrNote: '▶ Available in VR 180° after the show',
+        btnBuy: 'Buy', btnRent: 'Rent',
+        extLink: 'Get tickets ',
+        entradaLabel: 'Ticket ',
+        emptyH: 'No events',
+        emptyP: 'No shows match this filter right now.',
+      }
+    };
+
     function buildCard(ev) {
-      var card = document.createElement('article');
+      var s = EVNT_STR[document.documentElement.lang || 'es'];
       card.className = 'ev-card' + (ev.vr ? ' vr' : '');
       card.setAttribute('data-cat', ev.cat);
       card.setAttribute('data-vr', ev.vr ? '1' : '0');
 
       var vrFlag = ev.vr
-        ? '<span class="ev-vr-flag">Grabamos en VR</span>'
+        ? '<span class="ev-vr-flag">' + s.vrFlag + '</span>'
         : '';
 
       var actions = ev.vr
         ? '<div class="ev-vr-actions">'
-        +   '<span class="ev-vr-note">▶ Disponible en VR 180° tras la función</span>'
+        +   '<span class="ev-vr-note">' + s.vrNote + '</span>'
         +   '<div class="ev-vr-buttons">'
-        +     '<button class="ev-btn ev-btn-buy" data-action="buy" data-id="' + ev.id + '">Comprar <span class="price">$7.990</span></button>'
-        +     '<button class="ev-btn ev-btn-rent" data-action="rent" data-id="' + ev.id + '">Rentar <span class="price">$2.990</span></button>'
+        +     '<button class="ev-btn ev-btn-buy" data-action="buy" data-id="' + ev.id + '">' + s.btnBuy + ' <span class="price">$7.990</span></button>'
+        +     '<button class="ev-btn ev-btn-rent" data-action="rent" data-id="' + ev.id + '">' + s.btnRent + ' <span class="price">$2.990</span></button>'
         +   '</div>'
         + '</div>'
-        : '<a class="ev-ext-link" href="#" onclick="return false">Ver entrada presencial ' + svgExt() + '</a>';
+        : '<a class="ev-ext-link" href="#" onclick="return false">' + s.extLink + svgExt() + '</a>';
 
       card.innerHTML =
         '<div class="ev-thumb">'
@@ -768,7 +799,7 @@
       +   '<p class="ev-desc">' + ev.desc + '</p>'
       +   '<div class="ev-meta-row">'
       +     '<span>' + ev.time + ' hrs</span><span class="dot">·</span>'
-      +     '<span>Entrada ' + ev.price + '</span>'
+      +     '<span>' + s.entradaLabel + ev.price + '</span>'
       +   '</div>'
       +   actions
       + '</div>';
@@ -783,8 +814,9 @@
         if (activeFilter === 'vr')  return ev.vr;
         return ev.cat === activeFilter;
       });
+      var s = EVNT_STR[document.documentElement.lang || 'es'];
       if (!shown.length) {
-        grid.innerHTML = '<div class="ev-empty"><h3>Sin eventos</h3><p>No hay funciones que coincidan con este filtro por ahora.</p></div>';
+        grid.innerHTML = '<div class="ev-empty"><h3>' + s.emptyH + '</h3><p>' + s.emptyP + '</p></div>';
         return;
       }
       shown.forEach(function (ev) { grid.appendChild(buildCard(ev)); });
@@ -823,10 +855,97 @@
     var scrTime = document.getElementById('scrTime');
     setInterval(function () {
       minutesAgo += 1;
-      scrTime.textContent = 'Actualizado hace ' + minutesAgo + ' min';
+      var lang = document.documentElement.lang || 'es';
+      scrTime.textContent = lang === 'en'
+        ? 'Updated ' + minutesAgo + ' min ago'
+        : 'Actualizado hace ' + minutesAgo + ' min';
     }, 60000);
 
     render();
+  </script>
+
+  <script src="i18n.js"></script>
+  <script>
+    initI18n({
+      es: {
+        'nav.work':'Trabajo','nav.events':'Eventos','nav.sub':'Suscripción',
+        'nav.services':'Servicios','nav.catalog':'Catálogo','nav.cta':'Hablemos →',
+        'intro.label':'Eventos · Región Metropolitana',
+        'intro.h1':'La cartelera de Santiago,<br /><em>también en VR.</em>',
+        'intro.p':'Rastreamos teatros y salas de eventos de Santiago en tiempo real. Algunos los grabaremos en VR 180° estereoscópico: podrás comprarlos o rentarlos en primera fila desde donde estés.',
+        'scr.time':'Actualizado hace 12 min',
+        'filter.all':'Todos','filter.vr':'Grabamos en VR','filter.teatro':'Teatro',
+        'filter.musica':'Música','filter.danza':'Danza &amp; Ballet','filter.opera':'Ópera',
+        'filter.standup':'Stand-up','filter.infantil':'Infantil',
+        'info.h1':'<span class="num">01</span>¿Cómo lo hacemos?',
+        'info.p1':'Un crawler revisa diariamente las carteleras de los principales teatros y salas de Santiago RM: Nescafé, Municipal, UC, Caupolicán, Movistar Arena, GAM, Mori, entre otros. Los datos se actualizan cada 12 horas.',
+        'info.h2':'<span class="num">02</span>¿Qué eventos grabamos?',
+        'info.p2':'Seleccionamos los que tienen acuerdo con el venue y el artista. Verás el badge <strong style="color:var(--accent)">VR 180°</strong> en los que sí se grabarán. Una vez grabado, podrás comprar la experiencia ($7.990) o rentarla por 48 hrs ($2.990).',
+        'info.h3':'<span class="num">03</span>¿Y si no es VR?',
+        'info.p3':'Los eventos sin badge VR son sólo referencia de cartelera. Te enlazamos al venue para comprar la entrada presencial. Sigue al evento y te avisamos si confirmamos grabación inmersiva más adelante.',
+        'fl1':'Trabajo','fl2':'Eventos','fl3':'Suscripción','fl4':'Catálogo','fl5':'Servicios','fl6':'Login','fl7':'Contacto',
+        'fc':'© 2025 FrontRow VR · Chile',
+      },
+      en: {
+        'nav.work':'Work','nav.events':'Events','nav.sub':'Subscription',
+        'nav.services':'Services','nav.catalog':'Catalog','nav.cta':"Let's Talk →",
+        'intro.label':'Events · Metropolitan Region',
+        'intro.h1':'Santiago\'s listings,<br /><em>also in VR.</em>',
+        'intro.p':'We track Santiago\'s theaters and event venues in real time. Some we\'ll film in stereoscopic VR 180°: you\'ll be able to buy or rent them front row from wherever you are.',
+        'scr.time':'Updated 12 min ago',
+        'filter.all':'All','filter.vr':'We film in VR','filter.teatro':'Theater',
+        'filter.musica':'Music','filter.danza':'Dance &amp; Ballet','filter.opera':'Opera',
+        'filter.standup':'Stand-up','filter.infantil':"Children's",
+        'info.h1':'<span class="num">01</span>How do we do it?',
+        'info.p1':'A crawler checks the listings of the main theaters and event venues in Santiago RM daily: Nescafé, Municipal, UC, Caupolicán, Movistar Arena, GAM, Mori, and others. Data is updated every 12 hours.',
+        'info.h2':'<span class="num">02</span>Which events do we film?',
+        'info.p2':'We select those that have an agreement with the venue and artist. You\'ll see the <strong style="color:var(--accent)">VR 180°</strong> badge on the ones that will be filmed. Once recorded, you can buy the experience ($7,990) or rent it for 48 hrs ($2,990).',
+        'info.h3':'<span class="num">03</span>What if it\'s not VR?',
+        'info.p3':'Events without a VR badge are just listing references. We link you to the venue to buy in-person tickets. Follow the event and we\'ll notify you if we confirm immersive filming later.',
+        'fl1':'Work','fl2':'Events','fl3':'Subscription','fl4':'Catalog','fl5':'Services','fl6':'Login','fl7':'Contact',
+        'fc':'© 2025 FrontRow VR · Chile',
+      }
+    }, [
+      {s:'#nav .nav-links li:nth-child(1) a', k:'nav.work'},
+      {s:'#nav .nav-links li:nth-child(2) a', k:'nav.events'},
+      {s:'#nav .nav-links li:nth-child(3) a', k:'nav.sub'},
+      {s:'#nav .nav-links li:nth-child(4) a', k:'nav.services'},
+      {s:'#nav .nav-auth .nav-login:first-child', k:'nav.catalog'},
+      {s:'#nav .nav-auth .nav-cta', k:'nav.cta'},
+      {s:'.ev-intro-label', k:'intro.label'},
+      {s:'.ev-intro h1', k:'intro.h1', html:true},
+      {s:'.ev-intro > p', k:'intro.p'},
+      {s:'#scrTime', k:'scr.time'},
+      {s:'#evFilters .ev-chip:nth-child(1)', k:'filter.all'},
+      {s:'#evFilters .ev-chip:nth-child(2)', k:'filter.vr'},
+      {s:'#evFilters .ev-chip:nth-child(3)', k:'filter.teatro'},
+      {s:'#evFilters .ev-chip:nth-child(4)', k:'filter.musica'},
+      {s:'#evFilters .ev-chip:nth-child(5)', k:'filter.danza', html:true},
+      {s:'#evFilters .ev-chip:nth-child(6)', k:'filter.opera'},
+      {s:'#evFilters .ev-chip:nth-child(7)', k:'filter.standup'},
+      {s:'#evFilters .ev-chip:nth-child(8)', k:'filter.infantil'},
+      {s:'.ev-info-card:nth-child(1) h4', k:'info.h1', html:true},
+      {s:'.ev-info-card:nth-child(1) p', k:'info.p1', html:true},
+      {s:'.ev-info-card:nth-child(2) h4', k:'info.h2', html:true},
+      {s:'.ev-info-card:nth-child(2) p', k:'info.p2', html:true},
+      {s:'.ev-info-card:nth-child(3) h4', k:'info.h3', html:true},
+      {s:'.ev-info-card:nth-child(3) p', k:'info.p3', html:true},
+      {s:'footer .f-links a:nth-child(1)', k:'fl1'},
+      {s:'footer .f-links a:nth-child(2)', k:'fl2'},
+      {s:'footer .f-links a:nth-child(3)', k:'fl3'},
+      {s:'footer .f-links a:nth-child(4)', k:'fl4'},
+      {s:'footer .f-links a:nth-child(5)', k:'fl5'},
+      {s:'footer .f-links a:nth-child(6)', k:'fl6'},
+      {s:'footer .f-links a:nth-child(7)', k:'fl7'},
+      {s:'footer .f-copy', k:'fc'},
+    ]);
+
+    // Wrap setLang to also re-render event cards with new language strings
+    var _origSetLang = window.setLang;
+    window.setLang = function (lang) {
+      _origSetLang(lang);
+      render();
+    };
   </script>
 
 </body>

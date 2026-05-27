@@ -96,6 +96,15 @@
     }
     .nav-cta:hover { background: #33ecff; transform: translateY(-1px); }
 
+    .lang-btn {
+      background: transparent; border: 1px solid rgba(255,255,255,.25);
+      color: rgba(255,255,255,.65); font-family: 'DM Sans', sans-serif;
+      font-size: .72rem; font-weight: 500; letter-spacing: .1em;
+      padding: .28rem .7rem; border-radius: 4px; cursor: pointer;
+      transition: border-color .2s, color .2s;
+    }
+    .lang-btn:hover { border-color: var(--accent); color: var(--accent); }
+
     /* ── HERO ── */
     .sub-hero {
       padding: 10rem 4% 4rem;
@@ -521,6 +530,7 @@
       <div class="nav-auth">
         <a href="catalogo.html" class="nav-login">Catálogo</a>
         <a href="login.html" class="nav-login">Login</a>
+        <button id="langToggle" class="lang-btn" onclick="setLang(document.documentElement.lang==='es'?'en':'es')">EN</button>
         <a href="index.html#contacto" class="nav-cta">Hablemos →</a>
       </div>
     </div>
@@ -946,6 +956,291 @@
         }
       });
     });
+  </script>
+
+  <script src="i18n.js"></script>
+  <script>
+    var SUSC_TRANS = {
+      es: {
+        'nav.work':'Trabajo','nav.events':'Eventos','nav.sub':'Suscripción',
+        'nav.services':'Servicios','nav.catalog':'Catálogo','nav.cta':'Hablemos →',
+        'hero.label':'Streaming VR · Chile',
+        'hero.h1':'Un plan para<br />cada <em>primera fila.</em>',
+        'hero.p':'Accede al catálogo completo de experiencias VR 180° estereoscópicas. Sin contratos largos, cambia de plan cuando quieras, cancela en un clic.',
+        'hero.monthly':'Mensual','hero.annual':'Anual <span class="bt-save">−20%</span>',
+        'plan.period':'CLP / mes',
+        'disc.tier':'Free','disc.billed':'Para siempre, sin tarjeta',
+        'disc.desc':'Prueba la experiencia FrontRow VR sin compromiso ni tarjeta de crédito.',
+        'disc.f1':'Acceso a trailers y previews','disc.f2':'Contenido destacado semanal',
+        'disc.f3':'Resolución hasta 4K por ojo','disc.f4':'1 dispositivo a la vez',
+        'disc.f5':'Con anuncios','disc.f6':'Sin descarga offline',
+        'disc.btn':'Crear Cuenta',
+        'pro.badge':'Más Popular','pro.tier':'Pro',
+        'pro.billed.m':'Facturado mensual','pro.billed.a':'Facturado anual · $76.680/año',
+        'pro.desc':'El catálogo completo a tu disposición, sin interrupciones ni anuncios.',
+        'pro.f1':'Catálogo completo de eventos','pro.f2':'Sin anuncios',
+        'pro.f3':'Resolución hasta 6K por ojo','pro.f4':'Audio espacial ambiónico',
+        'pro.f5':'2 dispositivos simultáneos','pro.f6':'Descarga para offline',
+        'pro.btn':'Suscribirme',
+        'max.tier':'Premium',
+        'max.billed.m':'Facturado mensual','max.billed.a':'Facturado anual · $143.880/año',
+        'max.desc':'La experiencia VR más completa que existe. Para los más exigentes.',
+        'max.f1':'Todo lo de Pro','max.f2':'Resolución 8K máxima por ojo',
+        'max.f3':'Estrenos anticipados','max.f4':'Eventos en vivo exclusivos',
+        'max.f5':'4 dispositivos simultáneos','max.f6':'Detrás de cámaras exclusivo',
+        'max.btn':'Ir Pro Max',
+        'cmp.tag':'Comparación detallada',
+        'cmp.h2':'Todas las diferencias,<br />en una tabla.',
+        'cmp.p':'Cada función, cada límite, cada beneficio. Compara lo que importa y elige con criterio.',
+        'cmp.th.feat':'Funcionalidad',
+        'cmp.th.d':'Discover <small>Gratis</small>',
+        'cmp.th.p':'Pro <small>$7.990 / mes</small>',
+        'cmp.th.m':'Pro Max <small>$14.990 / mes</small>',
+        'tb.g1':'Contenido','tb.g2':'Calidad técnica','tb.g3':'Dispositivos &amp; uso',
+        'tb.g4':'Experiencia','tb.g5':'Soporte',
+        'tb.f1':'Acceso al catálogo VR','tb.f2':'Estrenos anticipados (7 días antes)',
+        'tb.f3':'Eventos en vivo exclusivos','tb.f4':'Behind the scenes &amp; extras',
+        'tb.f5':'Resolución máxima por ojo','tb.f6':'Bitrate hasta',
+        'tb.f7':'Audio espacial ambiónico (HOA)','tb.f8':'HDR &amp; rango dinámico extendido',
+        'tb.f9':'Dispositivos simultáneos','tb.f10':'Perfiles familiares',
+        'tb.f11':'Descarga offline','tb.f12':'Visores VR compatibles',
+        'tb.f13':'Reproducción sin anuncios','tb.f14':'Listas personales &amp; favoritos',
+        'tb.f15':'Multivista (cámaras simultáneas)','tb.f16':'Subtítulos &amp; multi-idioma',
+        'tb.f17':'Soporte por email','tb.f18':'Soporte prioritario 24/7',
+        'tb.f19':'Cancelación en un clic',
+        'tb.v.full':'Completo','tb.v.all':'Todos',
+        'faq.h':'Preguntas frecuentes',
+        'faq.p':'Resolvemos las dudas más comunes sobre tu suscripción FrontRow VR.',
+        'faq.q1':'¿Qué visores VR son compatibles? <span class="faq-icon">+</span>',
+        'faq.a1':'Soportamos Meta Quest 2, 3, 3S y Pro; Apple Vision Pro; PlayStation VR2; Pico 4 y Pico 4 Ultra; HTC Vive XR Elite, y la mayoría de visores compatibles con WebXR. También puedes verlo en cualquier navegador moderno en modo 360° plano si aún no tienes un visor.',
+        'faq.q2':'¿Puedo cancelar cuando quiera? <span class="faq-icon">+</span>',
+        'faq.a2':'Sí. La cancelación es en un clic desde tu panel de cuenta. Sigues teniendo acceso hasta el final del periodo que ya pagaste. No hay penalizaciones ni letra chica.',
+        'faq.q3':'¿Cuál es la diferencia entre Pro y Pro Max? <span class="faq-icon">+</span>',
+        'faq.a3':'Pro te da el catálogo completo en hasta 6K por ojo, sin anuncios y con descarga offline. Pro Max sube a 8K, agrega estrenos anticipados, eventos en vivo exclusivos, multivista de cámaras simultáneas, hasta 4 dispositivos y soporte prioritario 24/7.',
+        'faq.q4':'¿Cómo funciona el plan anual con −20%? <span class="faq-icon">+</span>',
+        'faq.a4':'Al pagar 12 meses por adelantado ahorras un 20% sobre la tarifa mensual. Pro baja de $7.990 a $6.390/mes equivalentes ($76.680/año). Pro Max baja de $14.990 a $11.990/mes ($143.880/año).',
+        'faq.q5':'¿Qué métodos de pago aceptan? <span class="faq-icon">+</span>',
+        'faq.a5':'Aceptamos tarjetas de crédito y débito (Visa, Mastercard, American Express), WebPay, Mach, Mercado Pago y transferencia bancaria para planes anuales. Todos los pagos están encriptados y procesados por nuestro partner PCI-DSS.',
+        'faq.q6':'¿Puedo comprar o rentar contenido sin suscripción? <span class="faq-icon">+</span>',
+        'faq.a6':'Sí. Muchos eventos están disponibles para compra ($7.990) o renta ($2.990 por 48 hrs) sin suscripción. Visita <a href="eventos.html">Eventos</a> para ver el contenido disponible.',
+        'faq.q7':'¿Necesito un visor VR para suscribirme? <span class="faq-icon">+</span>',
+        'faq.a7':'No. Aunque la experiencia óptima es con un visor VR, todo el catálogo se puede ver en modo 360° plano desde tu navegador, tablet o móvil.',
+        'faq.q8':'¿Ofrecen prueba gratuita de Pro o Pro Max? <span class="faq-icon">+</span>',
+        'faq.a8':'El plan Discover es gratuito de por vida y te permite probar la plataforma. Además, regalamos 7 días gratis de Pro al crear tu cuenta. Pro Max ofrece 14 días gratis durante el periodo de lanzamiento.',
+        'cta.h2':'¿Listo para vivirlo<br />en primera fila?',
+        'cta.p':'Empieza gratis con Discover o súbete a Pro y ten todo el catálogo desde el día uno.',
+        'cta.btn':'Crear cuenta gratis →',
+        'fl1':'Trabajo','fl2':'Eventos','fl3':'Suscripción','fl4':'Catálogo','fl5':'Servicios','fl6':'Login','fl7':'Contacto',
+        'fc':'© 2025 FrontRow VR · Chile',
+      },
+      en: {
+        'nav.work':'Work','nav.events':'Events','nav.sub':'Subscription',
+        'nav.services':'Services','nav.catalog':'Catalog','nav.cta':"Let's Talk →",
+        'hero.label':'Streaming VR · Chile',
+        'hero.h1':'A plan for<br />every <em>front row.</em>',
+        'hero.p':'Access the full catalog of stereoscopic VR 180° experiences. No long contracts, switch plans whenever, cancel with one click.',
+        'hero.monthly':'Monthly','hero.annual':'Annual <span class="bt-save">−20%</span>',
+        'plan.period':'CLP / month',
+        'disc.tier':'Free','disc.billed':'Free forever, no card needed',
+        'disc.desc':'Try the FrontRow VR experience with no commitment or credit card.',
+        'disc.f1':'Access to trailers and previews','disc.f2':'Weekly featured content',
+        'disc.f3':'Up to 4K resolution per eye','disc.f4':'1 device at a time',
+        'disc.f5':'Ad-supported','disc.f6':'No offline download',
+        'disc.btn':'Create Account',
+        'pro.badge':'Most Popular','pro.tier':'Pro',
+        'pro.billed.m':'Billed monthly','pro.billed.a':'Billed annually · $76,680/yr',
+        'pro.desc':'The full catalog at your fingertips, uninterrupted and ad-free.',
+        'pro.f1':'Full event catalog','pro.f2':'Ad-free',
+        'pro.f3':'Up to 6K resolution per eye','pro.f4':'Ambisonic spatial audio',
+        'pro.f5':'2 simultaneous devices','pro.f6':'Offline download',
+        'pro.btn':'Subscribe',
+        'max.tier':'Premium',
+        'max.billed.m':'Billed monthly','max.billed.a':'Billed annually · $143,880/yr',
+        'max.desc':'The most complete VR experience available. For the most demanding.',
+        'max.f1':'Everything in Pro','max.f2':'Maximum 8K resolution per eye',
+        'max.f3':'Early access releases','max.f4':'Exclusive live events',
+        'max.f5':'4 simultaneous devices','max.f6':'Exclusive behind the scenes',
+        'max.btn':'Go Pro Max',
+        'cmp.tag':'Detailed comparison',
+        'cmp.h2':'All the differences,<br />in one table.',
+        'cmp.p':'Every feature, every limit, every benefit. Compare what matters and choose wisely.',
+        'cmp.th.feat':'Feature',
+        'cmp.th.d':'Discover <small>Free</small>',
+        'cmp.th.p':'Pro <small>$7,990 / mo</small>',
+        'cmp.th.m':'Pro Max <small>$14,990 / mo</small>',
+        'tb.g1':'Content','tb.g2':'Technical quality','tb.g3':'Devices &amp; usage',
+        'tb.g4':'Experience','tb.g5':'Support',
+        'tb.f1':'VR catalog access','tb.f2':'Early releases (7 days early)',
+        'tb.f3':'Exclusive live events','tb.f4':'Behind the scenes &amp; extras',
+        'tb.f5':'Max resolution per eye','tb.f6':'Bitrate up to',
+        'tb.f7':'Ambisonic spatial audio (HOA)','tb.f8':'HDR &amp; extended dynamic range',
+        'tb.f9':'Simultaneous devices','tb.f10':'Family profiles',
+        'tb.f11':'Offline download','tb.f12':'Compatible VR headsets',
+        'tb.f13':'Ad-free playback','tb.f14':'Personal lists &amp; favorites',
+        'tb.f15':'Multi-view (simultaneous cameras)','tb.f16':'Subtitles &amp; multi-language',
+        'tb.f17':'Email support','tb.f18':'Priority 24/7 support',
+        'tb.f19':'One-click cancellation',
+        'tb.v.full':'Full','tb.v.all':'All',
+        'faq.h':'Frequently asked questions',
+        'faq.p':'We answer the most common questions about your FrontRow VR subscription.',
+        'faq.q1':'Which VR headsets are compatible? <span class="faq-icon">+</span>',
+        'faq.a1':'We support Meta Quest 2, 3, 3S &amp; Pro; Apple Vision Pro; PlayStation VR2; Pico 4 &amp; Pico 4 Ultra; HTC Vive XR Elite, and most WebXR-compatible headsets. You can also watch in flat 360° mode in any modern browser if you don\'t have a headset yet.',
+        'faq.q2':'Can I cancel at any time? <span class="faq-icon">+</span>',
+        'faq.a2':'Yes. Cancellation is one click from your account panel. You keep access until the end of the period you already paid for. No penalties, no fine print.',
+        'faq.q3':'What\'s the difference between Pro and Pro Max? <span class="faq-icon">+</span>',
+        'faq.a3':'Pro gives you the full catalog in up to 6K per eye, ad-free with offline download. Pro Max ups to 8K, adds early releases, exclusive live events, simultaneous multi-camera view, up to 4 devices, and priority 24/7 support.',
+        'faq.q4':'How does the annual plan with −20% work? <span class="faq-icon">+</span>',
+        'faq.a4':'By paying 12 months upfront you save 20% off the monthly rate. Pro drops from $7,990 to the equivalent of $6,390/mo ($76,680/yr). Pro Max drops from $14,990 to $11,990/mo ($143,880/yr).',
+        'faq.q5':'What payment methods do you accept? <span class="faq-icon">+</span>',
+        'faq.a5':'We accept credit and debit cards (Visa, Mastercard, American Express), WebPay, Mach, Mercado Pago, and bank transfer for annual plans. All payments are encrypted and processed by our PCI-DSS partner.',
+        'faq.q6':'Can I buy or rent content without a subscription? <span class="faq-icon">+</span>',
+        'faq.a6':'Yes. Many events are available for purchase ($7,990) or rental ($2,990 for 48 hrs) without a subscription. Visit <a href="eventos.html">Events</a> to see available content.',
+        'faq.q7':'Do I need a VR headset to subscribe? <span class="faq-icon">+</span>',
+        'faq.a7':'No. While the optimal experience is with a VR headset, the entire catalog can be watched in flat 360° mode from your browser, tablet, or phone.',
+        'faq.q8':'Do you offer a free trial for Pro or Pro Max? <span class="faq-icon">+</span>',
+        'faq.a8':'The Discover plan is free forever and lets you try the platform. We also give 7 free days of Pro when you create your account. Pro Max offers 14 free days during the launch period.',
+        'cta.h2':'Ready to experience it<br />front row?',
+        'cta.p':'Start free with Discover or jump to Pro and have the full catalog from day one.',
+        'cta.btn':'Create free account →',
+        'fl1':'Work','fl2':'Events','fl3':'Subscription','fl4':'Catalog','fl5':'Services','fl6':'Login','fl7':'Contact',
+        'fc':'© 2025 FrontRow VR · Chile',
+      }
+    };
+
+    initI18n(SUSC_TRANS, [
+      {s:'#nav .nav-links li:nth-child(1) a', k:'nav.work'},
+      {s:'#nav .nav-links li:nth-child(2) a', k:'nav.events'},
+      {s:'#nav .nav-links li:nth-child(3) a', k:'nav.sub'},
+      {s:'#nav .nav-links li:nth-child(4) a', k:'nav.services'},
+      {s:'#nav .nav-auth .nav-login:first-child', k:'nav.catalog'},
+      {s:'#nav .nav-auth .nav-cta', k:'nav.cta'},
+      {s:'.sub-hero-label', k:'hero.label'},
+      {s:'.sub-hero h1', k:'hero.h1', html:true},
+      {s:'.sub-hero-sub', k:'hero.p'},
+      {s:'#btMonthly', k:'hero.monthly'},
+      {s:'#btAnnual', k:'hero.annual', html:true},
+      {s:'.plans-grid .plan:nth-child(1) .plan-tier', k:'disc.tier'},
+      {s:'.plans-grid .plan:nth-child(1) .plan-billed', k:'disc.billed'},
+      {s:'.plans-grid .plan:nth-child(1) .plan-desc', k:'disc.desc'},
+      {s:'.plans-grid .plan:nth-child(1) .plan-feats li:nth-child(1)', k:'disc.f1'},
+      {s:'.plans-grid .plan:nth-child(1) .plan-feats li:nth-child(2)', k:'disc.f2'},
+      {s:'.plans-grid .plan:nth-child(1) .plan-feats li:nth-child(3)', k:'disc.f3'},
+      {s:'.plans-grid .plan:nth-child(1) .plan-feats li:nth-child(4)', k:'disc.f4'},
+      {s:'.plans-grid .plan:nth-child(1) .plan-feats li:nth-child(5)', k:'disc.f5'},
+      {s:'.plans-grid .plan:nth-child(1) .plan-feats li:nth-child(6)', k:'disc.f6'},
+      {s:'.plans-grid .plan:nth-child(1) .plan-btn', k:'disc.btn'},
+      {s:'.plans-grid .plan:nth-child(1) .period', k:'plan.period'},
+      {s:'.plans-grid .plan:nth-child(2) .plan-badge', k:'pro.badge'},
+      {s:'.plans-grid .plan:nth-child(2) .plan-tier', k:'pro.tier'},
+      {s:'.plans-grid .plan:nth-child(2) .plan-desc', k:'pro.desc'},
+      {s:'.plans-grid .plan:nth-child(2) .plan-feats li:nth-child(1)', k:'pro.f1'},
+      {s:'.plans-grid .plan:nth-child(2) .plan-feats li:nth-child(2)', k:'pro.f2'},
+      {s:'.plans-grid .plan:nth-child(2) .plan-feats li:nth-child(3)', k:'pro.f3'},
+      {s:'.plans-grid .plan:nth-child(2) .plan-feats li:nth-child(4)', k:'pro.f4'},
+      {s:'.plans-grid .plan:nth-child(2) .plan-feats li:nth-child(5)', k:'pro.f5'},
+      {s:'.plans-grid .plan:nth-child(2) .plan-feats li:nth-child(6)', k:'pro.f6'},
+      {s:'.plans-grid .plan:nth-child(2) .plan-btn', k:'pro.btn'},
+      {s:'.plans-grid .plan:nth-child(2) .period', k:'plan.period'},
+      {s:'.plans-grid .plan:nth-child(3) .plan-tier', k:'max.tier'},
+      {s:'.plans-grid .plan:nth-child(3) .plan-desc', k:'max.desc'},
+      {s:'.plans-grid .plan:nth-child(3) .plan-feats li:nth-child(1)', k:'max.f1'},
+      {s:'.plans-grid .plan:nth-child(3) .plan-feats li:nth-child(2)', k:'max.f2'},
+      {s:'.plans-grid .plan:nth-child(3) .plan-feats li:nth-child(3)', k:'max.f3'},
+      {s:'.plans-grid .plan:nth-child(3) .plan-feats li:nth-child(4)', k:'max.f4'},
+      {s:'.plans-grid .plan:nth-child(3) .plan-feats li:nth-child(5)', k:'max.f5'},
+      {s:'.plans-grid .plan:nth-child(3) .plan-feats li:nth-child(6)', k:'max.f6'},
+      {s:'.plans-grid .plan:nth-child(3) .plan-btn', k:'max.btn'},
+      {s:'.plans-grid .plan:nth-child(3) .period', k:'plan.period'},
+      {s:'.compare-tag', k:'cmp.tag'},
+      {s:'.compare-head h2', k:'cmp.h2', html:true},
+      {s:'.compare-head p', k:'cmp.p'},
+      {s:'.compare-table thead th.col-feat', k:'cmp.th.feat'},
+      {s:'.compare-table thead th:nth-child(2)', k:'cmp.th.d', html:true},
+      {s:'.compare-table thead th:nth-child(3)', k:'cmp.th.p', html:true},
+      {s:'.compare-table thead th:nth-child(4)', k:'cmp.th.m', html:true},
+      {s:'.compare-table tbody tr:nth-child(1) td', k:'tb.g1'},
+      {s:'.compare-table tbody tr:nth-child(2) .col-feat', k:'tb.f1'},
+      {s:'.compare-table tbody tr:nth-child(2) td:nth-child(3)', k:'tb.v.full'},
+      {s:'.compare-table tbody tr:nth-child(2) td:nth-child(4)', k:'tb.v.full'},
+      {s:'.compare-table tbody tr:nth-child(3) .col-feat', k:'tb.f2'},
+      {s:'.compare-table tbody tr:nth-child(4) .col-feat', k:'tb.f3'},
+      {s:'.compare-table tbody tr:nth-child(5) .col-feat', k:'tb.f4'},
+      {s:'.compare-table tbody tr:nth-child(6) td', k:'tb.g2'},
+      {s:'.compare-table tbody tr:nth-child(7) .col-feat', k:'tb.f5'},
+      {s:'.compare-table tbody tr:nth-child(8) .col-feat', k:'tb.f6'},
+      {s:'.compare-table tbody tr:nth-child(9) .col-feat', k:'tb.f7'},
+      {s:'.compare-table tbody tr:nth-child(10) .col-feat', k:'tb.f8'},
+      {s:'.compare-table tbody tr:nth-child(11) td', k:'tb.g3'},
+      {s:'.compare-table tbody tr:nth-child(12) .col-feat', k:'tb.f9'},
+      {s:'.compare-table tbody tr:nth-child(13) .col-feat', k:'tb.f10'},
+      {s:'.compare-table tbody tr:nth-child(14) .col-feat', k:'tb.f11'},
+      {s:'.compare-table tbody tr:nth-child(15) .col-feat', k:'tb.f12'},
+      {s:'.compare-table tbody tr:nth-child(15) td:nth-child(3)', k:'tb.v.all'},
+      {s:'.compare-table tbody tr:nth-child(15) td:nth-child(4)', k:'tb.v.all'},
+      {s:'.compare-table tbody tr:nth-child(16) td', k:'tb.g4'},
+      {s:'.compare-table tbody tr:nth-child(17) .col-feat', k:'tb.f13'},
+      {s:'.compare-table tbody tr:nth-child(18) .col-feat', k:'tb.f14'},
+      {s:'.compare-table tbody tr:nth-child(19) .col-feat', k:'tb.f15'},
+      {s:'.compare-table tbody tr:nth-child(20) .col-feat', k:'tb.f16'},
+      {s:'.compare-table tbody tr:nth-child(21) td', k:'tb.g5'},
+      {s:'.compare-table tbody tr:nth-child(22) .col-feat', k:'tb.f17'},
+      {s:'.compare-table tbody tr:nth-child(23) .col-feat', k:'tb.f18'},
+      {s:'.compare-table tbody tr:nth-child(24) .col-feat', k:'tb.f19'},
+      {s:'.faq-head h2', k:'faq.h'},
+      {s:'.faq-head p', k:'faq.p'},
+      {s:'.faq-list .faq-item:nth-child(1) summary', k:'faq.q1', html:true},
+      {s:'.faq-list .faq-item:nth-child(1) .faq-content', k:'faq.a1'},
+      {s:'.faq-list .faq-item:nth-child(2) summary', k:'faq.q2', html:true},
+      {s:'.faq-list .faq-item:nth-child(2) .faq-content', k:'faq.a2'},
+      {s:'.faq-list .faq-item:nth-child(3) summary', k:'faq.q3', html:true},
+      {s:'.faq-list .faq-item:nth-child(3) .faq-content', k:'faq.a3'},
+      {s:'.faq-list .faq-item:nth-child(4) summary', k:'faq.q4', html:true},
+      {s:'.faq-list .faq-item:nth-child(4) .faq-content', k:'faq.a4'},
+      {s:'.faq-list .faq-item:nth-child(5) summary', k:'faq.q5', html:true},
+      {s:'.faq-list .faq-item:nth-child(5) .faq-content', k:'faq.a5'},
+      {s:'.faq-list .faq-item:nth-child(6) summary', k:'faq.q6', html:true},
+      {s:'.faq-list .faq-item:nth-child(6) .faq-content', k:'faq.a6', html:true},
+      {s:'.faq-list .faq-item:nth-child(7) summary', k:'faq.q7', html:true},
+      {s:'.faq-list .faq-item:nth-child(7) .faq-content', k:'faq.a7'},
+      {s:'.faq-list .faq-item:nth-child(8) summary', k:'faq.q8', html:true},
+      {s:'.faq-list .faq-item:nth-child(8) .faq-content', k:'faq.a8'},
+      {s:'.sub-cta h2', k:'cta.h2', html:true},
+      {s:'.sub-cta p', k:'cta.p'},
+      {s:'.sub-cta-btn', k:'cta.btn'},
+      {s:'footer .f-links a:nth-child(1)', k:'fl1'},
+      {s:'footer .f-links a:nth-child(2)', k:'fl2'},
+      {s:'footer .f-links a:nth-child(3)', k:'fl3'},
+      {s:'footer .f-links a:nth-child(4)', k:'fl4'},
+      {s:'footer .f-links a:nth-child(5)', k:'fl5'},
+      {s:'footer .f-links a:nth-child(6)', k:'fl6'},
+      {s:'footer .f-links a:nth-child(7)', k:'fl7'},
+      {s:'footer .f-copy', k:'fc'},
+    ]);
+
+    // Wrap setLang to also update billing labels
+    var _origSetLang = window.setLang;
+    window.setLang = function (lang) {
+      _origSetLang(lang);
+      var t = SUSC_TRANS[lang];
+      if (!t) return;
+      var proBilled = document.querySelector('.plans-grid .plan:nth-child(2) .plan-billed');
+      var maxBilled = document.querySelector('.plans-grid .plan:nth-child(3) .plan-billed');
+      if (proBilled) {
+        proBilled.setAttribute('data-monthly', t['pro.billed.m']);
+        proBilled.setAttribute('data-annual', t['pro.billed.a']);
+      }
+      if (maxBilled) {
+        maxBilled.setAttribute('data-monthly', t['max.billed.m']);
+        maxBilled.setAttribute('data-annual', t['max.billed.a']);
+      }
+      var btM = document.getElementById('btMonthly');
+      if (btM) {
+        var mode = btM.classList.contains('active') ? 'monthly' : 'annual';
+        [proBilled, maxBilled].forEach(function (el) {
+          if (el) el.textContent = el.getAttribute(mode === 'monthly' ? 'data-monthly' : 'data-annual');
+        });
+      }
+    };
   </script>
 
 </body>

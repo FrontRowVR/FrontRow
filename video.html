@@ -88,6 +88,15 @@
     }
     .nav-cta:hover { background: #33ecff; transform: translateY(-1px); }
 
+    .lang-btn {
+      background: transparent; border: 1px solid rgba(255,255,255,.25);
+      color: rgba(255,255,255,.65); font-family: 'DM Sans', sans-serif;
+      font-size: .72rem; font-weight: 500; letter-spacing: .1em;
+      padding: .28rem .7rem; border-radius: 4px; cursor: pointer;
+      transition: border-color .2s, color .2s;
+    }
+    .lang-btn:hover { border-color: var(--accent); color: var(--accent); }
+
     /* ── NOT FOUND ── */
     .not-found {
       min-height: 100vh; display: flex; flex-direction: column;
@@ -406,6 +415,7 @@
       <div class="nav-auth">
         <a href="catalogo.html" class="nav-login">Catálogo</a>
         <a href="login.html" class="nav-login">Login</a>
+        <button id="langToggle" class="lang-btn" onclick="setLang(document.documentElement.lang==='es'?'en':'es')">EN</button>
         <a href="index.html#contacto" class="nav-cta">Hablemos →</a>
       </div>
     </div>
@@ -463,7 +473,7 @@
         <input type="range" id="vrVolBar" class="vr-volbar" min="0" max="1" value="1" step="0.05" />
       </div>
     </div>
-    <p class="vr-modal-hint">Arrastra para girar la vista · En visor VR presiona ⊙ para entrar</p>
+    <p class="vr-modal-hint" id="vrHint">Arrastra para girar la vista · En visor VR presiona ⊙ para entrar</p>
   </div>
 
   <!-- ══ FOOTER ══ -->
@@ -695,7 +705,11 @@
       var footer  = document.getElementById('siteFooter');
 
       if (!vid) {
-        content.innerHTML = '<div class="not-found"><h1>Video no encontrado</h1><p>El video que buscas no existe o fue eliminado.</p><a href="catalogo.html">← Volver al catálogo</a></div>';
+        var lang = document.documentElement.lang || 'es';
+        var nfStr = lang === 'en'
+          ? { h: 'Video not found', p: 'The video you are looking for does not exist or was removed.', a: '← Back to catalog' }
+          : { h: 'Video no encontrado', p: 'El video que buscas no existe o fue eliminado.', a: '← Volver al catálogo' };
+        content.innerHTML = '<div class="not-found"><h1>' + nfStr.h + '</h1><p>' + nfStr.p + '</p><a href="catalogo.html">' + nfStr.a + '</a></div>';
         footer.style.display = '';
         return;
       }
@@ -730,11 +744,19 @@
 
       // Meta
       var metaEl = document.createElement('div'); metaEl.className = 'vh-meta';
+      var lang = document.documentElement.lang || 'es';
+      var VID_STR = lang === 'en'
+        ? { dur: 'Duration', res: 'Resolution', fmt: 'Format', ste: 'Stereoscopic',
+            buy: 'Buy', rent: 'Rent', openVr: 'Open in VR 180° viewer',
+            gallery: 'Screenshots', img1: '1 image' }
+        : { dur: 'Duración', res: 'Resolución', fmt: 'Formato', ste: 'Estereoscópico',
+            buy: 'Comprar', rent: 'Alquilar', openVr: 'Abrir en visor VR 180°',
+            gallery: 'Capturas', img1: '1 imagen' };
+
       [
-        { label: 'Duración', value: vid.duration },
-        { label: 'Resolución', value: vid.res },
-        { label: 'Formato', value: 'Estereoscópico' },
-      ].forEach(function (m) {
+        { label: VID_STR.dur, value: vid.duration },
+        { label: VID_STR.res, value: vid.res },
+        { label: VID_STR.fmt, value: VID_STR.ste },      ].forEach(function (m) {
         var item = document.createElement('div'); item.className = 'vh-meta-item';
         var lbl = document.createElement('span'); lbl.className = 'vh-meta-label'; lbl.textContent = m.label;
         var val = document.createElement('span'); val.className = 'vh-meta-value'; val.textContent = m.value;
@@ -747,17 +769,17 @@
 
       var buyBtn = document.createElement('a');
       buyBtn.className = 'btn-buy'; buyBtn.href = 'index.html#contacto';
-      buyBtn.innerHTML = '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 2L3 6v14a2 2 0 002 2h14a2 2 0 002-2V6l-3-4z"/><line x1="3" y1="6" x2="21" y2="6"/><path d="M16 10a4 4 0 01-8 0"/></svg>Comprar — $' + vid.price.buy.toFixed(2);
+      buyBtn.innerHTML = '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 2L3 6v14a2 2 0 002 2h14a2 2 0 002-2V6l-3-4z"/><line x1="3" y1="6" x2="21" y2="6"/><path d="M16 10a4 4 0 01-8 0"/></svg>' + VID_STR.buy + ' — $' + vid.price.buy.toFixed(2);
 
       var rentBtn = document.createElement('a');
       rentBtn.className = 'btn-rent'; rentBtn.href = 'index.html#contacto';
-      rentBtn.innerHTML = '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>Alquilar — $' + vid.price.rent.toFixed(2);
+      rentBtn.innerHTML = '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>' + VID_STR.rent + ' — $' + vid.price.rent.toFixed(2);
 
       row1.appendChild(buyBtn); row1.appendChild(rentBtn);
 
       var vrBtn = document.createElement('button');
       vrBtn.className = 'btn-vr';
-      vrBtn.innerHTML = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M2 12s3-7 10-7 10 7 10 7-3 7-10 7-10-7-10-7z"/><circle cx="12" cy="12" r="3"/></svg>Abrir en visor VR 180°';
+      vrBtn.innerHTML = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M2 12s3-7 10-7 10 7 10 7-3 7-10 7-10-7-10-7z"/><circle cx="12" cy="12" r="3"/></svg>' + VID_STR.openVr;
       vrBtn.addEventListener('click', function () { openVr(vid); });
 
       actions.appendChild(row1);
@@ -772,8 +794,8 @@
       var gallery = document.createElement('section');
       gallery.className = 'vh-gallery';
       var gHead = document.createElement('div'); gHead.className = 'vh-gallery-head';
-      var gTitle = document.createElement('h2'); gTitle.textContent = 'Capturas';
-      var gCount = document.createElement('span'); gCount.textContent = '1 imagen';
+      var gTitle = document.createElement('h2'); gTitle.textContent = VID_STR.gallery;
+      var gCount = document.createElement('span'); gCount.textContent = VID_STR.img1;
       gHead.appendChild(gTitle); gHead.appendChild(gCount);
       var gGrid = document.createElement('div'); gGrid.className = 'vh-gallery-grid';
       var gImg = document.createElement('img');
@@ -785,5 +807,54 @@
       footer.style.display = '';
     });
   </script>
-</body>
-</html>
+
+  <script src="i18n.js"></script>
+  <script>
+    initI18n({
+      es: {
+        'nav.work':'Trabajo','nav.events':'Eventos','nav.sub':'Suscripción',
+        'nav.services':'Servicios','nav.catalog':'Catálogo','nav.cta':'Hablemos →',
+        'vr.loading':'Cargando experiencia VR…',
+        'vr.hint':'Arrastra para girar la vista · En visor VR presiona ⊙ para entrar',
+        'fl1':'Trabajo','fl2':'Eventos','fl3':'Suscripción','fl4':'Catálogo','fl5':'Servicios','fl6':'Login','fl7':'Contacto',
+        'fc':'© 2025 FrontRow VR · Chile',
+      },
+      en: {
+        'nav.work':'Work','nav.events':'Events','nav.sub':'Subscription',
+        'nav.services':'Services','nav.catalog':'Catalog','nav.cta':"Let's Talk →",
+        'vr.loading':'Loading VR experience…',
+        'vr.hint':'Drag to rotate view · In VR headset press ⊙ to enter',
+        'fl1':'Work','fl2':'Events','fl3':'Subscription','fl4':'Catalog','fl5':'Services','fl6':'Login','fl7':'Contact',
+        'fc':'© 2025 FrontRow VR · Chile',
+      }
+    }, [
+      {s:'#nav .nav-links li:nth-child(1) a', k:'nav.work'},
+      {s:'#nav .nav-links li:nth-child(2) a', k:'nav.events'},
+      {s:'#nav .nav-links li:nth-child(3) a', k:'nav.sub'},
+      {s:'#nav .nav-links li:nth-child(4) a', k:'nav.services'},
+      {s:'#nav .nav-auth .nav-login:first-child', k:'nav.catalog'},
+      {s:'#nav .nav-auth .nav-cta', k:'nav.cta'},
+      {s:'#vrLoading p', k:'vr.loading'},
+      {s:'#vrHint', k:'vr.hint'},
+      {s:'footer .f-links a:nth-child(1)', k:'fl1'},
+      {s:'footer .f-links a:nth-child(2)', k:'fl2'},
+      {s:'footer .f-links a:nth-child(3)', k:'fl3'},
+      {s:'footer .f-links a:nth-child(4)', k:'fl4'},
+      {s:'footer .f-links a:nth-child(5)', k:'fl5'},
+      {s:'footer .f-links a:nth-child(6)', k:'fl6'},
+      {s:'footer .f-links a:nth-child(7)', k:'fl7'},
+      {s:'footer .f-copy', k:'fc'},
+    ]);
+
+    // Re-render page content on language change
+    var _origSetLang = window.setLang;
+    window.setLang = function (lang) {
+      _origSetLang(lang);
+      // Trigger page re-render if vid is loaded
+      var content = document.getElementById('pageContent');
+      if (content && content.firstChild) {
+        var evt = new Event('DOMContentLoaded');
+        document.dispatchEvent(evt);
+      }
+    };
+  </script>
