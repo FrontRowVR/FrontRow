@@ -1624,13 +1624,10 @@
       }
     }
 
-    sb.auth.getSession().then(function(result) {
-      updateNav(result.data.session);
-    });
-
     sb.auth.onAuthStateChange(function(event, session) {
-      if (event === 'SIGNED_OUT') { updateNav(null); }
-      else if (session) { updateNav(session); }
+      if (event === 'INITIAL_SESSION' || event === 'SIGNED_OUT' || event === 'SIGNED_IN') {
+        updateNav(session);
+      }
     });
 
     // Nav on scroll

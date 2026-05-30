@@ -541,7 +541,7 @@
       window.location.href = 'login.html';
     }
 
-    // Verificar sesión — getSession() lee localStorage al instante (confiable en carga inicial)
+    // Verificar sesión — INITIAL_SESSION es el evento garantizado al inicio, sin race condition
     function updateNav(session) {
       var name = session.user.user_metadata && session.user.user_metadata.full_name
         ? session.user.user_metadata.full_name.split(' ')[0]
@@ -554,15 +554,15 @@
       if (navLogoutBtn) navLogoutBtn.style.display = 'inline';
     }
 
-    sb.auth.getSession().then(function(result) {
-      if (!result.data.session) { window.location.href = 'login.html'; return; }
-      updateNav(result.data.session);
-    });
-
-    // Solo reaccionar a logout explícito (cierre de sesión desde otra pestaña)
     sb.auth.onAuthStateChange(function(event, session) {
-      if (event === 'SIGNED_OUT') { window.location.href = 'login.html'; }
-      else if (session) { updateNav(session); }
+      if (event === 'INITIAL_SESSION') {
+        if (!session) { window.location.href = 'login.html'; return; }
+        updateNav(session);
+      } else if (event === 'SIGNED_OUT') {
+        window.location.href = 'login.html';
+      } else if (session) {
+        updateNav(session);
+      }
     });
 
     document.addEventListener('DOMContentLoaded', function () {
