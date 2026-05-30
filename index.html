@@ -1606,7 +1606,7 @@
       window.location.reload();
     }
 
-    sb.auth.onAuthStateChange(function(event, session) {
+    function updateNav(session) {
       var navUser = document.getElementById('navUser');
       var navLoginBtn = document.getElementById('navLoginBtn');
       var navLogoutBtn = document.getElementById('navLogoutBtn');
@@ -1622,6 +1622,15 @@
         if (navLoginBtn) navLoginBtn.style.display = 'inline';
         if (navLogoutBtn) navLogoutBtn.style.display = 'none';
       }
+    }
+
+    sb.auth.getSession().then(function(result) {
+      updateNav(result.data.session);
+    });
+
+    sb.auth.onAuthStateChange(function(event, session) {
+      if (event === 'SIGNED_OUT') { updateNav(null); }
+      else if (session) { updateNav(session); }
     });
 
     // Nav on scroll

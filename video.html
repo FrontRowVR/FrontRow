@@ -505,8 +505,7 @@
       window.location.href = 'login.html';
     }
 
-    sb.auth.onAuthStateChange(function(event, session) {
-      if (!session) { window.location.href = 'login.html'; return; }
+    function updateNav(session) {
       var name = session.user.user_metadata && session.user.user_metadata.full_name
         ? session.user.user_metadata.full_name.split(' ')[0]
         : session.user.email.split('@')[0];
@@ -516,6 +515,16 @@
       if (navUser) navUser.textContent = 'Hola, ' + name;
       if (navLoginBtn) navLoginBtn.style.display = 'none';
       if (navLogoutBtn) navLogoutBtn.style.display = 'inline';
+    }
+
+    sb.auth.getSession().then(function(result) {
+      if (!result.data.session) { window.location.href = 'login.html'; return; }
+      updateNav(result.data.session);
+    });
+
+    sb.auth.onAuthStateChange(function(event, session) {
+      if (event === 'SIGNED_OUT') { window.location.href = 'login.html'; }
+      else if (session) { updateNav(session); }
     });
 
     // ── Video catalog data ──
