@@ -1,0 +1,557 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Mi Perfil · FrontRow VR</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Unbounded:wght@400;600;700;800;900&family=DM+Sans:ital,wght@0,300;0,400;0,500;1,300&display=swap" rel="stylesheet" />
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --black:      #050507;
+      --surface:    #0a0a10;
+      --surface2:   #111118;
+      --white:      #ffffff;
+      --offwhite:   #e8e8f2;
+      --muted:      #7a7a8c;
+      --faint:      rgba(255,255,255,0.06);
+      --border:     rgba(255,255,255,0.08);
+      --accent:     #00e5ff;
+      --accent-dim: rgba(0,229,255,0.12);
+      --danger:     #ff5577;
+    }
+
+    html { scroll-behavior: smooth; }
+
+    body {
+      background: var(--black);
+      color: var(--white);
+      font-family: 'DM Sans', sans-serif;
+      font-weight: 400;
+      line-height: 1.6;
+      overflow-x: hidden;
+      min-height: 100vh;
+      cursor: none;
+    }
+
+    /* ── SCROLLBAR ── */
+    ::-webkit-scrollbar { width: 4px; }
+    ::-webkit-scrollbar-track { background: var(--black); }
+    ::-webkit-scrollbar-thumb { background: var(--accent); border-radius: 2px; }
+
+    /* ── CUSTOM CURSOR ── */
+    .cursor {
+      position: fixed; width: 8px; height: 8px;
+      background: var(--accent); border-radius: 50%;
+      pointer-events: none; z-index: 9999;
+      transform: translate(-50%,-50%);
+      transition: width .15s, height .15s;
+    }
+    .cursor-ring {
+      position: fixed; width: 36px; height: 36px;
+      border: 1px solid rgba(0,229,255,.35); border-radius: 50%;
+      pointer-events: none; z-index: 9998;
+      transform: translate(-50%,-50%);
+      transition: width .25s, height .25s, border-color .25s;
+    }
+
+    /* ── NAV ── */
+    #nav {
+      position: fixed; top: 0; left: 0; right: 0; z-index: 100;
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 1.6rem 4%;
+      background: rgba(5,5,7,.88);
+      backdrop-filter: blur(20px);
+      border-bottom: 1px solid var(--border);
+    }
+    .logo { text-decoration: none; display: flex; align-items: center; }
+    .logo-img { height: 52px; width: auto; display: block; }
+
+    .nav-right { display: flex; align-items: center; gap: 2.4rem; }
+    .nav-links { list-style: none; display: flex; gap: 2rem; }
+    .nav-links a {
+      color: rgba(255,255,255,.6); text-decoration: none;
+      font-size: .82rem; letter-spacing: .08em; text-transform: uppercase;
+      font-weight: 500; transition: color .2s;
+    }
+    .nav-links a:hover { color: var(--white); }
+
+    .nav-auth { display: flex; align-items: center; gap: 1.6rem; }
+    .nav-login {
+      font-size: .82rem; letter-spacing: .08em; text-transform: uppercase;
+      color: rgba(255,255,255,.7); text-decoration: none; font-weight: 500;
+      transition: color .2s;
+    }
+    .nav-login:hover { color: var(--white); }
+
+    #navUserBtn:hover { background: rgba(0,229,255,.22) !important; }
+
+    .lang-btn {
+      font-family: 'DM Sans', sans-serif;
+      font-size: .78rem; letter-spacing: .1em; text-transform: uppercase;
+      color: rgba(255,255,255,.5); background: none; border: 1px solid rgba(255,255,255,.15);
+      padding: .3rem .6rem; cursor: pointer; transition: color .2s, border-color .2s;
+    }
+    .lang-btn:hover { color: var(--white); border-color: rgba(255,255,255,.4); }
+
+    /* ── PAGE ── */
+    .page-wrap {
+      max-width: 760px;
+      margin: 0 auto;
+      padding: 8rem 4% 5rem;
+    }
+
+    /* ── PROFILE HEADER ── */
+    .profile-header {
+      display: flex;
+      align-items: center;
+      gap: 1.8rem;
+      margin-bottom: 3rem;
+      padding-bottom: 2rem;
+      border-bottom: 1px solid var(--border);
+    }
+    .profile-avatar {
+      width: 72px; height: 72px;
+      border-radius: 50%;
+      background: var(--accent-dim);
+      border: 2px solid rgba(0,229,255,.35);
+      display: flex; align-items: center; justify-content: center;
+      flex-shrink: 0;
+    }
+    .profile-avatar svg { opacity: .85; }
+    .profile-info h1 {
+      font-family: 'Unbounded', sans-serif;
+      font-size: 1.5rem;
+      font-weight: 700;
+      letter-spacing: -.01em;
+      margin-bottom: .2rem;
+    }
+    .profile-info p {
+      color: var(--muted);
+      font-size: .9rem;
+    }
+
+    /* ── SECTION CARD ── */
+    .profile-card {
+      background: var(--surface2);
+      border: 1px solid var(--border);
+      padding: 1.8rem;
+      margin-bottom: 1.2rem;
+    }
+    .profile-card h2 {
+      font-family: 'Unbounded', sans-serif;
+      font-size: .82rem;
+      font-weight: 600;
+      letter-spacing: .12em;
+      text-transform: uppercase;
+      color: var(--accent);
+      margin-bottom: 1.4rem;
+    }
+
+    /* ── FORM ── */
+    .form-group {
+      display: flex;
+      flex-direction: column;
+      gap: .5rem;
+      margin-bottom: 1.2rem;
+    }
+    .form-group label {
+      font-size: .8rem;
+      color: var(--muted);
+      letter-spacing: .06em;
+      text-transform: uppercase;
+    }
+    .form-group input {
+      background: rgba(255,255,255,.04);
+      border: 1px solid var(--border);
+      color: var(--white);
+      font-family: 'DM Sans', sans-serif;
+      font-size: .95rem;
+      padding: .7rem 1rem;
+      outline: none;
+      transition: border-color .2s;
+      width: 100%;
+    }
+    .form-group input:focus { border-color: rgba(0,229,255,.5); }
+    .form-group input::placeholder { color: var(--muted); }
+
+    .btn-save {
+      font-family: 'DM Sans', sans-serif;
+      font-size: .82rem;
+      letter-spacing: .08em;
+      text-transform: uppercase;
+      font-weight: 700;
+      background: var(--accent);
+      color: var(--black);
+      border: none;
+      padding: .6rem 1.4rem;
+      cursor: pointer;
+      transition: background .2s;
+    }
+    .btn-save:hover { background: #33ecff; }
+    .btn-save:disabled { opacity: .5; cursor: default; }
+
+    .btn-danger {
+      font-family: 'DM Sans', sans-serif;
+      font-size: .82rem;
+      letter-spacing: .08em;
+      text-transform: uppercase;
+      font-weight: 600;
+      background: none;
+      color: var(--danger);
+      border: 1px solid rgba(255,85,119,.35);
+      padding: .6rem 1.4rem;
+      cursor: pointer;
+      transition: background .2s, border-color .2s;
+    }
+    .btn-danger:hover { background: rgba(255,85,119,.08); border-color: var(--danger); }
+
+    .form-msg {
+      font-size: .82rem;
+      padding: .5rem .75rem;
+      margin-top: .8rem;
+      display: none;
+    }
+    .form-msg.ok  { color: var(--accent); background: rgba(0,229,255,.08); border-left: 2px solid var(--accent); }
+    .form-msg.err { color: var(--danger); background: rgba(255,85,119,.08); border-left: 2px solid var(--danger); }
+
+    /* ── SUBSCRIPTION BADGE ── */
+    .plan-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: .6rem;
+      padding: .5rem 1rem;
+      border: 1px solid var(--border);
+      background: var(--accent-dim);
+      font-size: .85rem;
+      font-weight: 600;
+      margin-bottom: 1rem;
+    }
+    .plan-badge .plan-dot {
+      width: 8px; height: 8px;
+      border-radius: 50%;
+      background: var(--accent);
+      flex-shrink: 0;
+    }
+    .plan-badge.free   { border-color: rgba(255,255,255,.15); background: rgba(255,255,255,.04); }
+    .plan-badge.free   .plan-dot { background: var(--muted); }
+    .plan-badge.basic  { border-color: rgba(0,229,255,.3); background: rgba(0,229,255,.08); }
+    .plan-badge.basic  .plan-dot { background: var(--accent); }
+    .plan-badge.premium { border-color: rgba(255,215,0,.35); background: rgba(255,215,0,.07); }
+    .plan-badge.premium .plan-dot { background: #ffd700; }
+
+    .plan-info { font-size: .82rem; color: var(--muted); }
+
+    /* ── TICKETS ── */
+    .ticket-list { display: flex; flex-direction: column; gap: .8rem; }
+    .ticket-item {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: .9rem 1.1rem;
+      border: 1px solid var(--border);
+      background: rgba(255,255,255,.02);
+      gap: 1rem;
+    }
+    .ticket-title { font-size: .9rem; font-weight: 500; }
+    .ticket-meta  { font-size: .78rem; color: var(--muted); margin-top: .1rem; }
+    .ticket-type {
+      font-size: .72rem;
+      letter-spacing: .07em;
+      text-transform: uppercase;
+      padding: .25rem .6rem;
+      border-radius: 2px;
+      font-weight: 600;
+      flex-shrink: 0;
+    }
+    .ticket-type.rent  { background: rgba(0,229,255,.12); color: var(--accent); }
+    .ticket-type.buy   { background: rgba(255,215,0,.1);  color: #ffd700; }
+
+    .empty-state {
+      font-size: .88rem;
+      color: var(--muted);
+      padding: 1rem 0;
+    }
+
+    /* ── LOGOUT ── */
+    .logout-row {
+      display: flex;
+      justify-content: flex-end;
+      margin-top: .5rem;
+    }
+
+    /* ── RESPONSIVE ── */
+    @media (max-width: 600px) {
+      .profile-header { flex-direction: column; align-items: flex-start; gap: 1rem; }
+      .nav-links { display: none; }
+      .profile-card { padding: 1.2rem; }
+    }
+  </style>
+</head>
+<body>
+
+  <div class="cursor" id="cur"></div>
+  <div class="cursor-ring" id="curRing"></div>
+
+  <!-- ══ NAV ══ -->
+  <nav id="nav">
+    <a href="index.html" class="logo"><img src="FrontRow.png" alt="FrontRow VR" class="logo-img" /></a>
+    <div class="nav-right">
+      <ul class="nav-links">
+        <li><a href="index.html#trabajo">Trabajo</a></li>
+        <li><a href="eventos.html">Eventos</a></li>
+        <li><a href="suscripciones.html">Suscripción</a></li>
+        <li><a href="servicios.html">Servicios</a></li>
+      </ul>
+      <div class="nav-auth">
+        <a href="catalogo.html" class="nav-login">Catálogo</a>
+        <a href="perfil.html" id="navUserBtn" style="display:none;width:32px;height:32px;border-radius:50%;background:rgba(0,229,255,.12);border:1px solid rgba(0,229,255,.35);align-items:center;justify-content:center;transition:background .2s;text-decoration:none;" title="Mi perfil">
+          <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#00e5ff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8" r="4"/><path d="M4 20c0-4 3.6-7 8-7s8 3 8 7"/></svg>
+        </a>
+        <button id="langToggle" class="lang-btn" onclick="toggleLang()">EN</button>
+      </div>
+    </div>
+  </nav>
+
+  <!-- ══ CONTENT ══ -->
+  <div class="page-wrap">
+
+    <!-- PROFILE HEADER -->
+    <div class="profile-header">
+      <div class="profile-avatar">
+        <svg xmlns="http://www.w3.org/2000/svg" width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="#00e5ff" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8" r="4"/><path d="M4 20c0-4 3.6-7 8-7s8 3 8 7"/></svg>
+      </div>
+      <div class="profile-info">
+        <h1 id="profileName">—</h1>
+        <p id="profileEmail">—</p>
+      </div>
+    </div>
+
+    <!-- DATOS PERSONALES -->
+    <div class="profile-card">
+      <h2>Datos personales</h2>
+      <div class="form-group">
+        <label>Nombre completo</label>
+        <input type="text" id="inputName" placeholder="Tu nombre" />
+      </div>
+      <button class="btn-save" onclick="saveName()">Guardar nombre</button>
+      <div class="form-msg" id="msgName"></div>
+    </div>
+
+    <!-- CAMBIAR CONTRASEÑA -->
+    <div class="profile-card">
+      <h2>Seguridad</h2>
+      <div class="form-group">
+        <label>Nueva contraseña</label>
+        <input type="password" id="inputPwd" placeholder="Mínimo 8 caracteres" autocomplete="new-password" />
+      </div>
+      <div class="form-group">
+        <label>Confirmar contraseña</label>
+        <input type="password" id="inputPwd2" placeholder="Repite la contraseña" autocomplete="new-password" />
+      </div>
+      <button class="btn-save" onclick="savePassword()">Cambiar contraseña</button>
+      <div class="form-msg" id="msgPwd"></div>
+    </div>
+
+    <!-- SUSCRIPCIÓN -->
+    <div class="profile-card">
+      <h2>Mi suscripción</h2>
+      <div id="subArea">
+        <div class="plan-badge free"><span class="plan-dot"></span><span id="planName">Cargando…</span></div>
+        <p class="plan-info" id="planInfo"></p>
+      </div>
+    </div>
+
+    <!-- TICKETS -->
+    <div class="profile-card">
+      <h2>Mis tickets</h2>
+      <div class="ticket-list" id="ticketList">
+        <p class="empty-state">Cargando tickets…</p>
+      </div>
+    </div>
+
+    <!-- CERRAR SESIÓN -->
+    <div class="profile-card">
+      <h2>Cuenta</h2>
+      <div class="logout-row">
+        <button class="btn-danger" onclick="doLogout()">Cerrar sesión</button>
+      </div>
+    </div>
+
+  </div><!-- /page-wrap -->
+
+  <!-- ══ CURSOR JS ══ -->
+  <script>
+    (function(){
+      var cur = document.getElementById('cur');
+      var ring = document.getElementById('curRing');
+      var mx=0,my=0,rx=0,ry=0;
+      document.addEventListener('mousemove',function(e){ mx=e.clientX; my=e.clientY; cur.style.left=mx+'px'; cur.style.top=my+'px'; });
+      (function animate(){ rx+=(mx-rx)*.12; ry+=(my-ry)*.12; ring.style.left=rx+'px'; ring.style.top=ry+'px'; requestAnimationFrame(animate); })();
+    })();
+  </script>
+
+  <!-- ══ AUTH + PROFILE ══ -->
+  <script>
+    var SUPABASE_URL = 'https://hinkokmrmxyquegcnvxk.supabase.co';
+    var SUPABASE_ANON = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imhpbmtva21ybXh5cXVlZ2NudnhrIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODAxNTMyNTIsImV4cCI6MjA5NTcyOTI1Mn0.w7a6yqAdBDW4shez3vON2bkvuhYkFFVAShf1cMf-r_A';
+    var sb = supabase.createClient(SUPABASE_URL, SUPABASE_ANON);
+
+    var currentSession = null;
+
+    function showMsg(el, text, type) {
+      el.textContent = text;
+      el.className = 'form-msg ' + type;
+      el.style.display = 'block';
+      if (type === 'ok') setTimeout(function(){ el.style.display='none'; }, 4000);
+    }
+
+    function renderSubscription(plan) {
+      var badge  = document.querySelector('.plan-badge');
+      var namEl  = document.getElementById('planName');
+      var infoEl = document.getElementById('planInfo');
+      var planMap = {
+        'free':    { label: 'Plan Gratuito',  cls: 'free',    info: 'Acceso básico al catálogo.' },
+        'basic':   { label: 'Plan Básico',    cls: 'basic',   info: 'Acceso completo al catálogo en resolución estándar.' },
+        'premium': { label: 'Plan Premium',   cls: 'premium', info: 'Acceso en 8K, descargas y contenido exclusivo.' }
+      };
+      var p = planMap[plan] || planMap['free'];
+      namEl.textContent = p.label;
+      infoEl.textContent = p.info;
+      badge.className = 'plan-badge ' + p.cls;
+    }
+
+    function renderTickets(tickets) {
+      var list = document.getElementById('ticketList');
+      if (!tickets || tickets.length === 0) {
+        list.innerHTML = '<p class="empty-state">No tienes tickets comprados aún.</p>';
+        return;
+      }
+      list.innerHTML = '';
+      tickets.forEach(function(t) {
+        var expText = t.ticket_type === 'buy'
+          ? 'Acceso permanente'
+          : (t.expires_at ? 'Expira: ' + new Date(t.expires_at).toLocaleDateString('es-CL') : 'Alquiler');
+        var item = document.createElement('div');
+        item.className = 'ticket-item';
+        item.innerHTML =
+          '<div>' +
+            '<div class="ticket-title">' + escHtml(t.video_id) + '</div>' +
+            '<div class="ticket-meta">' + expText + '</div>' +
+          '</div>' +
+          '<span class="ticket-type ' + (t.ticket_type || 'rent') + '">' +
+            (t.ticket_type === 'buy' ? 'Comprado' : 'Alquilado') +
+          '</span>';
+        list.appendChild(item);
+      });
+    }
+
+    function escHtml(s) {
+      return String(s).replace(/[&<>"']/g, function(c) {
+        return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c];
+      });
+    }
+
+    async function loadProfile(session) {
+      var user = session.user;
+
+      // Header
+      var name = (user.user_metadata && user.user_metadata.full_name) || '';
+      document.getElementById('profileName').textContent = name || user.email.split('@')[0];
+      document.getElementById('profileEmail').textContent = user.email;
+      document.getElementById('inputName').value = name;
+
+      // Nav icon
+      var navUserBtn = document.getElementById('navUserBtn');
+      if (navUserBtn) navUserBtn.style.display = 'flex';
+
+      // Subscription
+      var subRes = await sb.from('user_subscriptions')
+        .select('plan_id, status, expires_at')
+        .eq('user_id', user.id)
+        .eq('status', 'active')
+        .order('started_at', { ascending: false })
+        .limit(1)
+        .maybeSingle();
+
+      var plan = (subRes.data && subRes.data.plan_id) || 'free';
+      renderSubscription(plan);
+
+      // Tickets
+      var tickRes = await sb.from('video_tickets')
+        .select('video_id, ticket_type, expires_at, purchased_at')
+        .eq('user_id', user.id)
+        .order('purchased_at', { ascending: false });
+
+      renderTickets(tickRes.data);
+    }
+
+    async function saveName() {
+      var val = document.getElementById('inputName').value.trim();
+      var msgEl = document.getElementById('msgName');
+      if (!val) { showMsg(msgEl, 'Ingresa un nombre.', 'err'); return; }
+      var btn = document.querySelector('.profile-card:nth-child(2) .btn-save');
+      btn.disabled = true;
+      var res = await sb.auth.updateUser({ data: { full_name: val } });
+      btn.disabled = false;
+      if (res.error) { showMsg(msgEl, res.error.message, 'err'); }
+      else {
+        document.getElementById('profileName').textContent = val;
+        showMsg(msgEl, 'Nombre actualizado correctamente.', 'ok');
+        // También actualizar en tabla profiles si existe
+        var uid = currentSession && currentSession.user.id;
+        if (uid) sb.from('profiles').upsert({ id: uid, full_name: val }, { onConflict: 'id' });
+      }
+    }
+
+    async function savePassword() {
+      var pwd  = document.getElementById('inputPwd').value;
+      var pwd2 = document.getElementById('inputPwd2').value;
+      var msgEl = document.getElementById('msgPwd');
+      if (pwd.length < 8) { showMsg(msgEl, 'La contraseña debe tener al menos 8 caracteres.', 'err'); return; }
+      if (pwd !== pwd2)   { showMsg(msgEl, 'Las contraseñas no coinciden.', 'err'); return; }
+      var btn = document.querySelector('.profile-card:nth-child(3) .btn-save');
+      btn.disabled = true;
+      var res = await sb.auth.updateUser({ password: pwd });
+      btn.disabled = false;
+      if (res.error) { showMsg(msgEl, res.error.message, 'err'); }
+      else {
+        document.getElementById('inputPwd').value = '';
+        document.getElementById('inputPwd2').value = '';
+        showMsg(msgEl, 'Contraseña actualizada correctamente.', 'ok');
+      }
+    }
+
+    async function doLogout() {
+      await sb.auth.signOut();
+      window.location.href = 'login.html';
+    }
+
+    // ── Verificar sesión al cargar ──
+    sb.auth.getSession().then(function(result) {
+      var session = result.data.session;
+      if (!session) { window.location.href = 'login.html'; return; }
+      currentSession = session;
+      loadProfile(session);
+    });
+
+    sb.auth.onAuthStateChange(function(event, session) {
+      if (event === 'SIGNED_OUT') { window.location.href = 'login.html'; }
+      else if (event === 'SIGNED_IN') { currentSession = session; loadProfile(session); }
+    });
+
+    // ── Lang toggle (basic) ──
+    function toggleLang() {
+      var btn = document.getElementById('langToggle');
+      var isEs = btn.textContent.trim() === 'EN';
+      btn.textContent = isEs ? 'ES' : 'EN';
+    }
+  </script>
+
+</body>
+</html>
