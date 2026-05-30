@@ -542,8 +542,7 @@
     }
 
     // Verificar sesión — redirige a login si no hay usuario autenticado
-    sb.auth.getSession().then(function(result) {
-      var session = result.data.session;
+    sb.auth.onAuthStateChange(function(event, session) {
       if (!session) { window.location.href = 'login.html'; return; }
       var name = session.user.user_metadata && session.user.user_metadata.full_name
         ? session.user.user_metadata.full_name.split(' ')[0]

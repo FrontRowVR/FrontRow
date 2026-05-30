@@ -1606,8 +1606,7 @@
       window.location.reload();
     }
 
-    sb.auth.getSession().then(function(result) {
-      var session = result.data.session;
+    sb.auth.onAuthStateChange(function(event, session) {
       var navUser = document.getElementById('navUser');
       var navLoginBtn = document.getElementById('navLoginBtn');
       var navLogoutBtn = document.getElementById('navLogoutBtn');
@@ -1618,6 +1617,10 @@
         if (navUser) navUser.textContent = 'Hola, ' + name;
         if (navLoginBtn) navLoginBtn.style.display = 'none';
         if (navLogoutBtn) navLogoutBtn.style.display = 'inline';
+      } else {
+        if (navUser) navUser.textContent = '';
+        if (navLoginBtn) navLoginBtn.style.display = 'inline';
+        if (navLogoutBtn) navLogoutBtn.style.display = 'none';
       }
     });
 
