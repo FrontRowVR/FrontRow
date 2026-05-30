@@ -437,7 +437,7 @@
     <div class="vr-error" id="vrError">
       <p id="vrErrorMsg">Error al cargar el video.</p>
     </div>
-    <video id="vrVideo" style="position:absolute;width:1px;height:1px;opacity:0;pointer-events:none;left:-9999px" loop playsinline webkit-playsinline preload="auto"></video>
+    <video id="vrVideo" crossorigin="anonymous" style="position:absolute;width:1px;height:1px;opacity:0;pointer-events:none;left:-9999px" loop playsinline webkit-playsinline preload="auto"></video>
     <a-scene id="vrScene" embedded vr-mode-ui="enabled: true"
       loading-screen="dotsColor: #00e5ff; backgroundColor: #050507"
       renderer="antialias: true; colorManagement: true">
@@ -698,11 +698,13 @@
     });
 
     // ── Render page from URL param ──
-    document.addEventListener('DOMContentLoaded', function () {
+    function renderPage() {
       var id  = new URLSearchParams(window.location.search).get('id');
       var vid = VIDEO_CATALOG.find(function (v) { return v.id === id; });
       var content = document.getElementById('pageContent');
       var footer  = document.getElementById('siteFooter');
+
+      content.innerHTML = '';
 
       if (!vid) {
         var lang = document.documentElement.lang || 'es';
@@ -805,7 +807,8 @@
       content.appendChild(gallery);
 
       footer.style.display = '';
-    });
+    }
+    document.addEventListener('DOMContentLoaded', renderPage);
   </script>
 
   <script src="i18n.js"></script>
@@ -850,11 +853,8 @@
     var _origSetLang = window.setLang;
     window.setLang = function (lang) {
       _origSetLang(lang);
-      // Trigger page re-render if vid is loaded
-      var content = document.getElementById('pageContent');
-      if (content && content.firstChild) {
-        var evt = new Event('DOMContentLoaded');
-        document.dispatchEvent(evt);
+      if (document.getElementById('pageContent').firstChild) {
+        renderPage();
       }
     };
   </script>
