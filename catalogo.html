@@ -778,12 +778,12 @@
     });
   </script>
 
-  <script src="i18n.js"></script>
+  <script src="i18n.js?v=3"></script>
   <script>
     initI18n({
       es: {
         'nav.work': 'Trabajo', 'nav.events': 'Eventos', 'nav.sub': 'Suscripción',
-        'nav.services': 'Servicios', 'nav.catalog': 'Catálogo', 'nav.cta': 'Hablemos →',
+        'nav.services': 'Servicios', 'nav.catalog': 'Catálogo', 'nav.logout': 'Salir',
         'intro.label': 'Experiencias VR 180°',
         'intro.h1': 'Tu catálogo<br />de experiencias.',
         'intro.p': 'Todos los videos disponibles en tu suscripción, organizados por categoría. Haz clic en cualquiera para abrirlo en el visor VR inmersivo.',
@@ -797,7 +797,7 @@
       },
       en: {
         'nav.work': 'Work', 'nav.events': 'Events', 'nav.sub': 'Subscription',
-        'nav.services': 'Services', 'nav.catalog': 'Catalog', 'nav.cta': "Let's Talk →",
+        'nav.services': 'Services', 'nav.catalog': 'Catalog', 'nav.logout': 'Sign out',
         'intro.label': 'VR 180° Experiences',
         'intro.h1': 'Your experience<br />catalog.',
         'intro.p': 'All videos available in your subscription, organized by category. Click any to open it in the immersive VR viewer.',
@@ -814,8 +814,8 @@
       {s:'#nav .nav-links li:nth-child(2) a', k:'nav.events'},
       {s:'#nav .nav-links li:nth-child(3) a', k:'nav.sub'},
       {s:'#nav .nav-links li:nth-child(4) a', k:'nav.services'},
-      {s:'#nav .nav-auth .nav-login:first-child', k:'nav.catalog'},
-      {s:'#nav .nav-auth .nav-cta', k:'nav.cta'},
+      {s:'#nav .nav-auth a[href="catalogo.html"]', k:'nav.catalog'},
+      {s:'#nav .nav-auth #navLogoutBtn', k:'nav.logout'},
       {s:'.lib-intro-label', k:'intro.label'},
       {s:'.lib-intro h1', k:'intro.h1', html:true},
       {s:'.lib-intro p', k:'intro.p'},

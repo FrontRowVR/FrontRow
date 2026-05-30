@@ -812,12 +812,12 @@
     });
   </script>
 
-  <script src="i18n.js"></script>
+  <script src="i18n.js?v=3"></script>
   <script>
     initI18n({
       es: {
         'nav.work':'Trabajo','nav.events':'Eventos','nav.sub':'Suscripción',
-        'nav.services':'Servicios','nav.catalog':'Catálogo','nav.cta':'Hablemos →',
+        'nav.services':'Servicios','nav.catalog':'Catálogo','nav.logout':'Salir',
         'pi.label':'Cómo trabajamos',
         'pi.h1':'De la idea<br />al visor.',
         'pi.p':'Producción inmersiva de principio a fin. Conoce los servicios que ofrecemos y el proceso que seguimos para llevar tu evento al mundo VR.',
@@ -862,7 +862,7 @@
       },
       en: {
         'nav.work':'Work','nav.events':'Events','nav.sub':'Subscription',
-        'nav.services':'Services','nav.catalog':'Catalog','nav.cta':"Let's Talk →",
+        'nav.services':'Services','nav.catalog':'Catalog','nav.logout':'Sign out',
         'pi.label':'How we work',
         'pi.h1':'From idea<br />to headset.',
         'pi.p':'Immersive production from start to finish. Discover the services we offer and the process we follow to bring your event to the VR world.',
@@ -911,7 +911,7 @@
       {s:'#nav .nav-links li:nth-child(3) a', k:'nav.sub'},
       {s:'#nav .nav-links li:nth-child(4) a', k:'nav.services'},
       {s:'#nav .nav-auth a[href="catalogo.html"]', k:'nav.catalog'},
-      {s:'#nav .nav-auth .nav-cta', k:'nav.cta'},
+      {s:'#nav .nav-auth #navLogoutBtn', k:'nav.logout'},
       {s:'.page-intro-label', k:'pi.label'},
       {s:'.page-intro h1', k:'pi.h1', html:true},
       {s:'.page-intro p', k:'pi.p'},

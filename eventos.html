@@ -890,12 +890,12 @@
     });
   </script>
 
-  <script src="i18n.js"></script>
+  <script src="i18n.js?v=3"></script>
   <script>
     initI18n({
       es: {
         'nav.work':'Trabajo','nav.events':'Eventos','nav.sub':'Suscripción',
-        'nav.services':'Servicios','nav.catalog':'Catálogo','nav.cta':'Hablemos →',
+        'nav.services':'Servicios','nav.catalog':'Catálogo','nav.logout':'Salir',
         'intro.label':'Eventos · Región Metropolitana',
         'intro.h1':'La cartelera de Santiago,<br /><em>también en VR.</em>',
         'intro.p':'Rastreamos teatros y salas de eventos de Santiago en tiempo real. Algunos los grabaremos en VR 180° estereoscópico: podrás comprarlos o rentarlos en primera fila desde donde estés.',
@@ -914,7 +914,7 @@
       },
       en: {
         'nav.work':'Work','nav.events':'Events','nav.sub':'Subscription',
-        'nav.services':'Services','nav.catalog':'Catalog','nav.cta':"Let's Talk →",
+        'nav.services':'Services','nav.catalog':'Catalog','nav.logout':'Sign out',
         'intro.label':'Events · Metropolitan Region',
         'intro.h1':'Santiago\'s listings,<br /><em>also in VR.</em>',
         'intro.p':'We track Santiago\'s theaters and event venues in real time. Some we\'ll film in stereoscopic VR 180°: you\'ll be able to buy or rent them front row from wherever you are.',
@@ -937,7 +937,7 @@
       {s:'#nav .nav-links li:nth-child(3) a', k:'nav.sub'},
       {s:'#nav .nav-links li:nth-child(4) a', k:'nav.services'},
       {s:'#nav .nav-auth a[href="catalogo.html"]', k:'nav.catalog'},
-      {s:'#nav .nav-auth .nav-cta', k:'nav.cta'},
+      {s:'#nav .nav-auth #navLogoutBtn', k:'nav.logout'},
       {s:'.ev-intro-label', k:'intro.label'},
       {s:'.ev-intro h1', k:'intro.h1', html:true},
       {s:'.ev-intro > p', k:'intro.p'},

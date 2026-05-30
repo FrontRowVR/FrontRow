@@ -983,12 +983,12 @@
     });
   </script>
 
-  <script src="i18n.js"></script>
+  <script src="i18n.js?v=3"></script>
   <script>
     var SUSC_TRANS = {
       es: {
         'nav.work':'Trabajo','nav.events':'Eventos','nav.sub':'Suscripción',
-        'nav.services':'Servicios','nav.catalog':'Catálogo','nav.cta':'Hablemos →',
+        'nav.services':'Servicios','nav.catalog':'Catálogo','nav.logout':'Salir',
         'hero.label':'Streaming VR · Chile',
         'hero.h1':'Un plan para<br />cada <em>primera fila.</em>',
         'hero.p':'Accede al catálogo completo de experiencias VR 180° estereoscópicas. Sin contratos largos, cambia de plan cuando quieras, cancela en un clic.',
@@ -1060,7 +1060,7 @@
       },
       en: {
         'nav.work':'Work','nav.events':'Events','nav.sub':'Subscription',
-        'nav.services':'Services','nav.catalog':'Catalog','nav.cta':"Let's Talk →",
+        'nav.services':'Services','nav.catalog':'Catalog','nav.logout':'Sign out',
         'hero.label':'Streaming VR · Chile',
         'hero.h1':'A plan for<br />every <em>front row.</em>',
         'hero.p':'Access the full catalog of stereoscopic VR 180° experiences. No long contracts, switch plans whenever, cancel with one click.',
@@ -1138,7 +1138,7 @@
       {s:'#nav .nav-links li:nth-child(3) a', k:'nav.sub'},
       {s:'#nav .nav-links li:nth-child(4) a', k:'nav.services'},
       {s:'#nav .nav-auth a[href="catalogo.html"]', k:'nav.catalog'},
-      {s:'#nav .nav-auth .nav-cta', k:'nav.cta'},
+      {s:'#nav .nav-auth #navLogoutBtn', k:'nav.logout'},
       {s:'.sub-hero-label', k:'hero.label'},
       {s:'.sub-hero h1', k:'hero.h1', html:true},
       {s:'.sub-hero-sub', k:'hero.p'},

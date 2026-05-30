@@ -844,12 +844,12 @@
     document.addEventListener('DOMContentLoaded', renderPage);
   </script>
 
-  <script src="i18n.js"></script>
+  <script src="i18n.js?v=3"></script>
   <script>
     initI18n({
       es: {
         'nav.work':'Trabajo','nav.events':'Eventos','nav.sub':'Suscripción',
-        'nav.services':'Servicios','nav.catalog':'Catálogo','nav.cta':'Hablemos →',
+        'nav.services':'Servicios','nav.catalog':'Catálogo','nav.logout':'Salir',
         'vr.loading':'Cargando experiencia VR…',
         'vr.hint':'Arrastra para girar la vista · En visor VR presiona ⊙ para entrar',
         'fl1':'Trabajo','fl2':'Eventos','fl3':'Suscripción','fl4':'Catálogo','fl5':'Servicios','fl6':'Login','fl7':'Contacto',
@@ -857,7 +857,7 @@
       },
       en: {
         'nav.work':'Work','nav.events':'Events','nav.sub':'Subscription',
-        'nav.services':'Services','nav.catalog':'Catalog','nav.cta':"Let's Talk →",
+        'nav.services':'Services','nav.catalog':'Catalog','nav.logout':'Sign out',
         'vr.loading':'Loading VR experience…',
         'vr.hint':'Drag to rotate view · In VR headset press ⊙ to enter',
         'fl1':'Work','fl2':'Events','fl3':'Subscription','fl4':'Catalog','fl5':'Services','fl6':'Login','fl7':'Contact',
@@ -868,8 +868,8 @@
       {s:'#nav .nav-links li:nth-child(2) a', k:'nav.events'},
       {s:'#nav .nav-links li:nth-child(3) a', k:'nav.sub'},
       {s:'#nav .nav-links li:nth-child(4) a', k:'nav.services'},
-      {s:'#nav .nav-auth .nav-login:first-child', k:'nav.catalog'},
-      {s:'#nav .nav-auth .nav-cta', k:'nav.cta'},
+      {s:'#nav .nav-auth a[href="catalogo.html"]', k:'nav.catalog'},
+      {s:'#nav .nav-auth #navLogoutBtn', k:'nav.logout'},
       {s:'#vrLoading p', k:'vr.loading'},
       {s:'#vrHint', k:'vr.hint'},
       {s:'footer .f-links a:nth-child(1)', k:'fl1'},
