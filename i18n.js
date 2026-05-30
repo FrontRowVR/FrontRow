@@ -10,7 +10,6 @@
       var t = translations[lang];
       if (!t) return;
       document.documentElement.lang = lang;
-      localStorage.setItem('lang', lang);
       // Selector-based map
       if (i18nMap) {
         i18nMap.forEach(function (item) {
@@ -33,14 +32,8 @@
     };
     // Init on DOMContentLoaded (fires after any per-page DOMContentLoaded listeners)
     document.addEventListener('DOMContentLoaded', function () {
-      var saved = localStorage.getItem('lang');
-      var lang;
-      if (saved) {
-        lang = saved;
-      } else {
-        var nav = (navigator.languages && navigator.languages[0]) || navigator.language || 'en';
-        lang = nav.toLowerCase().startsWith('es') ? 'es' : 'en';
-      }
+      var nav = (navigator.languages && navigator.languages[0]) || navigator.language || 'en';
+      var lang = nav.toLowerCase().startsWith('es') ? 'es' : 'en';
       window.setLang(lang);
     });
   };

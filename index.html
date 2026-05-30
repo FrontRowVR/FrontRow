@@ -2115,7 +2115,6 @@
     var t = TRANSLATIONS[lang];
     if (!t) return;
     document.documentElement.lang = lang;
-    localStorage.setItem('lang', lang);
     I18N_MAP.forEach(function(item) {
       var el = document.querySelector(item.s);
       if (!el || t[item.k] === undefined) return;
@@ -2127,14 +2126,8 @@
   }
 
   document.addEventListener('DOMContentLoaded', function () {
-    var saved = localStorage.getItem('lang');
-    var lang;
-    if (saved) {
-      lang = saved;
-    } else {
-      var nav = (navigator.languages && navigator.languages[0]) || navigator.language || 'en';
-      lang = nav.toLowerCase().startsWith('es') ? 'es' : 'en';
-    }
+    var nav = (navigator.languages && navigator.languages[0]) || navigator.language || 'en';
+    var lang = nav.toLowerCase().startsWith('es') ? 'es' : 'en';
     setLang(lang);
   });
   </script>

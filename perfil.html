@@ -604,14 +604,8 @@
 
     // ── Detectar idioma y aplicar ──
     document.addEventListener('DOMContentLoaded', function() {
-      var saved = localStorage.getItem('lang');
-      var lang;
-      if (saved) {
-        lang = saved;
-      } else {
-        var nav = (navigator.languages && navigator.languages[0]) || navigator.language || 'en';
-        lang = nav.toLowerCase().startsWith('es') ? 'es' : 'en';
-      }
+      var nav = (navigator.languages && navigator.languages[0]) || navigator.language || 'en';
+      var lang = nav.toLowerCase().startsWith('es') ? 'es' : 'en';
       applyLang(lang);
     });
 
