@@ -890,10 +890,9 @@
         if (navLogoutBtn) navLogoutBtn.style.display = 'none';
       }
     }
+    sb.auth.getSession().then(function(result) { updateNav(result.data.session); });
     sb.auth.onAuthStateChange(function(event, session) {
-      if (event === 'INITIAL_SESSION' || event === 'SIGNED_OUT' || event === 'SIGNED_IN') {
-        updateNav(session);
-      }
+      if (event === 'SIGNED_IN' || event === 'SIGNED_OUT') { updateNav(session); }
     });
   </script>
 
