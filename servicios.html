@@ -489,8 +489,10 @@
         <li><a href="servicios.html">Servicios</a></li>
       </ul>
       <div class="nav-auth">
+        <span id="navUser" style="font-size:.78rem;color:rgba(255,255,255,.55);letter-spacing:.04em;"></span>
         <a href="catalogo.html" class="nav-login">Catálogo</a>
-        <a href="login.html" class="nav-login">Login</a>
+        <a href="login.html" class="nav-login" id="navLoginBtn">Login</a>
+        <button id="navLogoutBtn" class="nav-login" onclick="doLogout()" style="display:none;background:none;border:none;cursor:pointer;color:rgba(255,255,255,.7);font-size:.82rem;letter-spacing:.08em;text-transform:uppercase;font-weight:500;">Salir</button>
         <button id="langToggle" class="lang-btn" onclick="setLang(document.documentElement.lang==='es'?'en':'es')">EN</button>
         <a href="index.html#contacto" class="nav-cta">Hablemos →</a>
       </div>
@@ -787,6 +789,36 @@
     });
   </script>
 
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script>
+    var SUPA_URL = 'https://hinkokmrmxyquegcnvxk.supabase.co';
+    var SUPA_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imhpbmtva21ybXh5cXVlZ2NudnhrIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODAxNTMyNTIsImV4cCI6MjA5NTcyOTI1Mn0.w7a6yqAdBDW4shez3vON2bkvuhYkFFVAShf1cMf-r_A';
+    var sb = supabase.createClient(SUPA_URL, SUPA_KEY);
+    function doLogout() { sb.auth.signOut().then(function() { window.location.href = 'login.html'; }); }
+    function updateNav(session) {
+      var navUser = document.getElementById('navUser');
+      var navLoginBtn = document.getElementById('navLoginBtn');
+      var navLogoutBtn = document.getElementById('navLogoutBtn');
+      if (session) {
+        var name = session.user.user_metadata && session.user.user_metadata.full_name
+          ? session.user.user_metadata.full_name.split(' ')[0]
+          : session.user.email.split('@')[0];
+        if (navUser) navUser.textContent = 'Hola, ' + name;
+        if (navLoginBtn) navLoginBtn.style.display = 'none';
+        if (navLogoutBtn) navLogoutBtn.style.display = 'inline';
+      } else {
+        if (navUser) navUser.textContent = '';
+        if (navLoginBtn) navLoginBtn.style.display = 'inline';
+        if (navLogoutBtn) navLogoutBtn.style.display = 'none';
+      }
+    }
+    sb.auth.onAuthStateChange(function(event, session) {
+      if (event === 'INITIAL_SESSION' || event === 'SIGNED_OUT' || event === 'SIGNED_IN') {
+        updateNav(session);
+      }
+    });
+  </script>
+
   <script src="i18n.js"></script>
   <script>
     initI18n({
@@ -885,7 +917,7 @@
       {s:'#nav .nav-links li:nth-child(2) a', k:'nav.events'},
       {s:'#nav .nav-links li:nth-child(3) a', k:'nav.sub'},
       {s:'#nav .nav-links li:nth-child(4) a', k:'nav.services'},
-      {s:'#nav .nav-auth .nav-login:first-child', k:'nav.catalog'},
+      {s:'#nav .nav-auth a[href="catalogo.html"]', k:'nav.catalog'},
       {s:'#nav .nav-auth .nav-cta', k:'nav.cta'},
       {s:'.page-intro-label', k:'pi.label'},
       {s:'.page-intro h1', k:'pi.h1', html:true},
