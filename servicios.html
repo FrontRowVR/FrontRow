@@ -82,6 +82,7 @@
       transition: color .2s;
     }
     .nav-links a:hover { color: var(--white); }
+    .nav-links a.active { color: var(--accent); }
     .nav-auth { display: flex; align-items: center; gap: 1.6rem; }
     .nav-login {
       font-size: .82rem; letter-spacing: .08em; text-transform: uppercase;
@@ -486,7 +487,7 @@
         <li><a href="index.html#trabajo">Trabajo</a></li>
         <li><a href="eventos.html">Eventos</a></li>
         <li><a href="suscripciones.html">Suscripción</a></li>
-        <li><a href="servicios.html">Servicios</a></li>
+        <li><a href="servicios.html" class="active">Servicios</a></li>
       </ul>
       <div class="nav-auth">
         <span id="navUser" style="font-size:.78rem;color:rgba(255,255,255,.55);letter-spacing:.04em;"></span>
