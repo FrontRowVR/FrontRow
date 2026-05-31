@@ -458,12 +458,12 @@
         <li><a href="servicios.html">Servicios</a></li>
       </ul>
       <div class="nav-auth">
-        <span id="navUser" style="font-size:.78rem;color:rgba(255,255,255,.55);letter-spacing:.04em;"></span>
         <a href="catalogo.html" class="nav-login">Catálogo</a>
         <a href="login.html" class="nav-login" id="navLoginBtn">Login</a>
         <a href="perfil.html" id="navUserBtn" style="display:none;width:32px;height:32px;border-radius:50%;background:rgba(0,229,255,.12);border:1px solid rgba(0,229,255,.35);align-items:center;justify-content:center;transition:background .2s;text-decoration:none;" title="Mi perfil">
           <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#00e5ff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8" r="4"/><path d="M4 20c0-4 3.6-7 8-7s8 3 8 7"/></svg>
         </a>
+        <button id="navLogoutBtn" class="nav-login" onclick="doLogout()" style="display:none;background:none;border:none;cursor:pointer;color:rgba(255,255,255,.7);font-size:.82rem;letter-spacing:.08em;text-transform:uppercase;font-weight:500;">Salir</button>
       </div>
     </div>
   </nav>
@@ -874,14 +874,17 @@
     var sb = supabase.createClient(SUPA_URL, SUPA_KEY);
     function doLogout() { sb.auth.signOut().then(function() { window.location.href = 'login.html'; }); }
     function updateNav(session) {
-      var navLoginBtn = document.getElementById('navLoginBtn');
-      var navUserBtn  = document.getElementById('navUserBtn');
+      var navLoginBtn  = document.getElementById('navLoginBtn');
+      var navUserBtn   = document.getElementById('navUserBtn');
+      var navLogoutBtn = document.getElementById('navLogoutBtn');
       if (session) {
-        if (navLoginBtn) navLoginBtn.style.display = 'none';
-        if (navUserBtn)  navUserBtn.style.display  = 'flex';
+        if (navLoginBtn)  navLoginBtn.style.display  = 'none';
+        if (navUserBtn)   navUserBtn.style.display   = 'flex';
+        if (navLogoutBtn) navLogoutBtn.style.display = 'inline';
       } else {
-        if (navLoginBtn) navLoginBtn.style.display = 'inline';
-        if (navUserBtn)  navUserBtn.style.display  = 'none';
+        if (navLoginBtn)  navLoginBtn.style.display  = 'inline';
+        if (navUserBtn)   navUserBtn.style.display   = 'none';
+        if (navLogoutBtn) navLogoutBtn.style.display = 'none';
       }
     }
     sb.auth.getSession().then(function(result) { updateNav(result.data.session); });
