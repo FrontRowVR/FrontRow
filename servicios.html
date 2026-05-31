@@ -790,10 +790,11 @@
     });
   </script>
 
+  <script src="supabase-config.js?v=1"></script>
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <script>
-    var SUPA_URL = 'https://hinkokmrmxyquegcnvxk.supabase.co';
-    var SUPA_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imhpbmtva21ybXh5cXVlZ2NudnhrIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODAxNTMyNTIsImV4cCI6MjA5NTcyOTI1Mn0.w7a6yqAdBDW4shez3vON2bkvuhYkFFVAShf1cMf-r_A';
+    var SUPA_URL = window.SUPABASE_URL;
+    var SUPA_KEY = window.SUPABASE_ANON;
     var sb = supabase.createClient(SUPA_URL, SUPA_KEY);
     function doLogout() { sb.auth.signOut().then(function() { window.location.href = 'login.html'; }); }
     function updateNav(session) {

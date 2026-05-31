@@ -1123,6 +1123,7 @@
   </style>
   <!-- A-Frame: visor VR WebXR -->
   <script src="https://aframe.io/releases/1.5.0/aframe.min.js"></script>
+  <script src="supabase-config.js?v=1"></script>
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 </head>
 <body>
@@ -1596,8 +1597,8 @@
 
   <script>
     // ── Supabase Auth ──
-    const SUPA_URL = 'https://hinkokmrmxyquegcnvxk.supabase.co';
-    const SUPA_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imhpbmtva21ybXh5cXVlZ2NudnhrIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODAxNTMyNTIsImV4cCI6MjA5NTcyOTI1Mn0.w7a6yqAdBDW4shez3vON2bkvuhYkFFVAShf1cMf-r_A';
+    const SUPA_URL = window.SUPABASE_URL;
+    const SUPA_KEY = window.SUPABASE_ANON;
     const sb = supabase.createClient(SUPA_URL, SUPA_KEY);
 
     async function doLogout() {

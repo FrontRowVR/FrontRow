@@ -404,6 +404,7 @@
       .auth-tab { font-size: .68rem; padding: .8rem .7rem; }
     }
   </style>
+  <script src="supabase-config.js?v=1"></script>
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 </head>
 <body>
@@ -547,6 +548,34 @@
           </form>
         </div>
 
+        <!-- ── RECOVERY PANEL (password reset, oculto hasta detectar token) ── -->
+        <div class="form-panel" id="panelRecovery">
+          <h1 class="auth-h">Nueva contraseña</h1>
+          <p class="auth-sub">Define una nueva contraseña para tu cuenta.</p>
+
+          <form onsubmit="event.preventDefault(); doSetNewPassword();">
+            <div class="form-field">
+              <label for="recPwd">Nueva contraseña</label>
+              <div class="form-pwd">
+                <input id="recPwd" type="password" required minlength="8" placeholder="Mínimo 8 caracteres" autocomplete="new-password" />
+                <button type="button" class="toggle-pwd" onclick="togglePwd('recPwd', this)">Ver</button>
+              </div>
+            </div>
+
+            <div class="form-field">
+              <label for="recPwd2">Confirmar contraseña</label>
+              <div class="form-pwd">
+                <input id="recPwd2" type="password" required minlength="8" placeholder="Repite la contraseña" autocomplete="new-password" />
+                <button type="button" class="toggle-pwd" onclick="togglePwd('recPwd2', this)">Ver</button>
+              </div>
+            </div>
+
+            <div id="authErrorRec" style="display:none; margin-bottom:.9rem; padding:.7rem 1rem; background:rgba(255,85,119,.10); border:1px solid rgba(255,85,119,.3); color:var(--danger); font-size:.82rem; line-height:1.5;"></div>
+
+            <button type="submit" id="btnRecovery" data-label="Actualizar contraseña" class="submit-btn">Actualizar contraseña</button>
+          </form>
+        </div>
+
         <!-- demo banner eliminado: auth real activo -->
 
       </div>
@@ -640,13 +669,32 @@
     }
 
     // ── Supabase Auth ──
-    const SUPA_URL = 'https://hinkokmrmxyquegcnvxk.supabase.co';
-    const SUPA_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imhpbmtva21ybXh5cXVlZ2NudnhrIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODAxNTMyNTIsImV4cCI6MjA5NTcyOTI1Mn0.w7a6yqAdBDW4shez3vON2bkvuhYkFFVAShf1cMf-r_A';
+    const SUPA_URL = window.SUPABASE_URL;
+    const SUPA_KEY = window.SUPABASE_ANON;
     const { createClient } = supabase;
     const sb = createClient(SUPA_URL, SUPA_KEY);
 
-    // Redirigir si ya hay sesión — INITIAL_SESSION es el estado real al cargar, SIGNED_IN tras hacer login
+    // Detectar flow de recuperación de contraseña ANTES de que Supabase limpie el hash
+    var isRecoveryFlow = location.hash.indexOf('type=recovery') !== -1;
+
+    function showRecoveryUI() {
+      isRecoveryFlow = true;
+      var tabs = document.querySelector('.auth-tabs');
+      if (tabs) tabs.style.display = 'none';
+      document.querySelectorAll('.form-panel').forEach(function(p) { p.classList.remove('active'); });
+      var rec = document.getElementById('panelRecovery');
+      if (rec) rec.classList.add('active');
+    }
+
+    if (isRecoveryFlow) {
+      if (document.readyState !== 'loading') showRecoveryUI();
+      else document.addEventListener('DOMContentLoaded', showRecoveryUI);
+    }
+
+    // Redirigir si ya hay sesión — pero NO durante recovery (queremos que el usuario cambie su contraseña primero)
     sb.auth.onAuthStateChange(function(event, session) {
+      if (event === 'PASSWORD_RECOVERY') { showRecoveryUI(); return; }
+      if (isRecoveryFlow) return;
       if ((event === 'INITIAL_SESSION' || event === 'SIGNED_IN') && session) {
         window.location.href = 'catalogo.html';
       }
@@ -723,6 +771,39 @@
       showError('Login con ' + provider + ' próximamente.');
     }
 
+    // ── Password recovery (nueva contraseña) ──
+    function showRecError(msg, isSuccess) {
+      var el = document.getElementById('authErrorRec');
+      el.textContent = msg;
+      el.style.color       = isSuccess ? 'var(--accent)' : 'var(--danger)';
+      el.style.borderColor = isSuccess ? 'rgba(0,229,255,.3)' : 'rgba(255,85,119,.3)';
+      el.style.background  = isSuccess ? 'rgba(0,229,255,.08)' : 'rgba(255,85,119,.10)';
+      el.style.display = 'block';
+    }
+
+    async function doSetNewPassword() {
+      var lang = document.documentElement.lang || 'es';
+      var pwd  = document.getElementById('recPwd').value;
+      var pwd2 = document.getElementById('recPwd2').value;
+      var btn  = document.getElementById('btnRecovery');
+      if (pwd.length < 8) {
+        showRecError(lang === 'en' ? 'Password must be at least 8 characters.' : 'La contraseña debe tener al menos 8 caracteres.');
+        return;
+      }
+      if (pwd !== pwd2) {
+        showRecError(lang === 'en' ? 'Passwords do not match.' : 'Las contraseñas no coinciden.');
+        return;
+      }
+      setLoading(btn, true);
+      var { error } = await sb.auth.updateUser({ password: pwd });
+      setLoading(btn, false);
+      if (error) { showRecError(error.message); return; }
+      showRecError(lang === 'en' ? '✓ Password updated. Redirecting…' : '✓ Contraseña actualizada. Redirigiendo…', true);
+      setTimeout(function() {
+        sb.auth.signOut().then(function() { window.location.href = 'login.html'; });
+      }, 1500);
+    }
+
     // Si la URL tiene ?tab=register, abre directo el registro
     if (location.search.indexOf('tab=register') !== -1) {
       switchPanel('panelRegister');
@@ -754,6 +835,11 @@
         'av.h': 'Tu primera fila,<br /><em>esperándote.</em>',
         'av.sub': 'Crea tu cuenta y accede a conciertos, teatro y experiencias inmersivas grabadas en VR 180° estereoscópico. Sin tarjeta, sin compromiso.',
         'av.quote': '"Sentí que estaba realmente ahí, en primera fila del concierto."',
+        'rec.h': 'Nueva contraseña',
+        'rec.sub': 'Define una nueva contraseña para tu cuenta.',
+        'rec.newpwd': 'Nueva contraseña',
+        'rec.confirm': 'Confirmar contraseña',
+        'rec.submit': 'Actualizar contraseña',
       },
       en: {
         'back': '← Back to site',
@@ -777,6 +863,11 @@
         'av.h': 'Your front row,<br /><em>waiting for you.</em>',
         'av.sub': 'Create your account and access concerts, theater and immersive experiences filmed in stereoscopic VR 180°. No card, no commitment.',
         'av.quote': '"I felt like I was really there, front row at the concert."',
+        'rec.h': 'New password',
+        'rec.sub': 'Set a new password for your account.',
+        'rec.newpwd': 'New password',
+        'rec.confirm': 'Confirm password',
+        'rec.submit': 'Update password',
       }
     }, [
       {s:'.auth-back', k:'back'},
@@ -803,6 +894,11 @@
       {s:'.av-headline', k:'av.h', html:true},
       {s:'.av-sub', k:'av.sub'},
       {s:'.av-quote p', k:'av.quote'},
+      {s:'#panelRecovery .auth-h', k:'rec.h'},
+      {s:'#panelRecovery .auth-sub', k:'rec.sub'},
+      {s:'#panelRecovery label[for="recPwd"]', k:'rec.newpwd'},
+      {s:'#panelRecovery label[for="recPwd2"]', k:'rec.confirm'},
+      {s:'#panelRecovery .submit-btn', k:'rec.submit'},
     ]);
 
     // After lang change, re-bind data-go links (they get replaced via innerHTML update)

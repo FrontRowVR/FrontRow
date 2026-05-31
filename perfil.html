@@ -7,6 +7,7 @@
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Unbounded:wght@400;600;700;800;900&family=DM+Sans:ital,wght@0,300;0,400;0,500;1,300&display=swap" rel="stylesheet" />
+  <script src="supabase-config.js?v=1"></script>
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 
   <style>
@@ -397,8 +398,8 @@
 
   <!-- ══ AUTH + PROFILE ══ -->
   <script>
-    var SUPABASE_URL = 'https://hinkokmrmxyquegcnvxk.supabase.co';
-    var SUPABASE_ANON = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imhpbmtva21ybXh5cXVlZ2NudnhrIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODAxNTMyNTIsImV4cCI6MjA5NTcyOTI1Mn0.w7a6yqAdBDW4shez3vON2bkvuhYkFFVAShf1cMf-r_A';
+    var SUPABASE_URL = window.SUPABASE_URL;
+    var SUPABASE_ANON = window.SUPABASE_ANON;
     var sb = supabase.createClient(SUPABASE_URL, SUPABASE_ANON);
 
     var currentSession = null;
@@ -550,6 +551,9 @@
         .limit(1)
         .maybeSingle();
 
+      if (subRes.error) {
+        console.error('[perfil] Error leyendo user_subscriptions:', subRes.error);
+      }
       currentPlan = (subRes.data && subRes.data.plan_id) || 'free';
       renderSubscription(currentPlan);
 
@@ -559,7 +563,12 @@
         .eq('user_id', user.id)
         .order('purchased_at', { ascending: false });
 
-      renderTickets(tickRes.data);
+      if (tickRes.error) {
+        console.error('[perfil] Error leyendo video_tickets:', tickRes.error);
+        renderTickets([]);
+      } else {
+        renderTickets(tickRes.data);
+      }
     }
 
     async function saveName() {
@@ -575,7 +584,13 @@
         document.getElementById('profileName').textContent = val;
         showMsg(msgEl, t('msg.nameOk'), 'ok');
         var uid = currentSession && currentSession.user.id;
-        if (uid) sb.from('profiles').upsert({ id: uid, full_name: val }, { onConflict: 'id' });
+        if (uid) {
+          sb.from('profiles')
+            .upsert({ id: uid, full_name: val }, { onConflict: 'id' })
+            .then(function(r) {
+              if (r.error) console.error('[perfil] Error upsert profiles:', r.error);
+            });
+        }
       }
     }
 
