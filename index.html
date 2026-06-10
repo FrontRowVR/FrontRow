@@ -461,11 +461,29 @@
       font-size: .82rem; color: var(--muted);
       font-weight: 400;
     }
+    .plan-price .amount-old {
+      font-family: 'Unbounded', sans-serif;
+      font-size: 1.1rem; font-weight: 600;
+      color: rgba(255,255,255,.32); text-decoration: line-through;
+    }
+    .plan-price .plan-save {
+      align-self: center;
+      font-family: 'Unbounded', sans-serif;
+      font-size: .6rem; font-weight: 700; letter-spacing: .08em;
+      color: var(--black); background: var(--accent);
+      padding: .25rem .5rem; border-radius: 4px;
+    }
 
     .plan-desc {
       font-size: .88rem; color: var(--muted);
-      margin-bottom: 2rem; line-height: 1.6;
+      margin-bottom: 1.6rem; line-height: 1.6;
     }
+    .plan-highlight {
+      font-size: .82rem; font-weight: 600; color: var(--offwhite);
+      padding-top: 1.4rem; border-top: 1px solid var(--border);
+      letter-spacing: .01em;
+    }
+    .plan.featured .plan-highlight { color: var(--accent); }
 
     .plan hr {
       border: none; height: 1px; background: var(--border);
@@ -754,6 +772,26 @@
       border-top: 1px solid var(--border);
     }
     .pev-venue svg { width: 11px; height: 11px; flex-shrink: 0; }
+    .pev-cta-wrap {
+      display: flex; justify-content: center; margin-top: 3rem;
+    }
+    .pev-cta {
+      display: inline-flex; align-items: center; gap: .7rem;
+      padding: .95rem 2.2rem;
+      border: 1px solid rgba(0,229,255,.4);
+      background: rgba(0,229,255,.08);
+      font-family: 'Unbounded', sans-serif;
+      font-weight: 700; font-size: .8rem; letter-spacing: .1em;
+      text-transform: uppercase; text-decoration: none;
+      color: var(--accent);
+      transition: background .25s, border-color .25s, transform .25s;
+    }
+    .pev-cta:hover {
+      background: rgba(0,229,255,.16);
+      border-color: var(--accent);
+      transform: translateY(-2px);
+    }
+    .pev-cta svg { width: 16px; height: 16px; }
 
     /* ── PARA QUIÉN GRABAMOS ── */
     #para-quien {
@@ -1173,21 +1211,27 @@
   <div class="ticker" aria-hidden="true">
     <div class="ticker-track">
       <span>FirstRow VR</span><span class="dot">◆</span>
-      <span>Video 180°</span><span class="dot">◆</span>
-      <span>Audio Espacial</span><span class="dot">◆</span>
-      <span>Entretenimiento Inmersivo</span><span class="dot">◆</span>
-      <span>Conciertos en VR</span><span class="dot">◆</span>
-      <span>Festivales</span><span class="dot">◆</span>
+      <span>Video 180° Estereoscópico</span><span class="dot">◆</span>
+      <span>Resolución hasta 8K</span><span class="dot">◆</span>
+      <span>Audio Ambisónico 3D</span><span class="dot">◆</span>
+      <span>Meta Quest 2</span><span class="dot">◆</span>
+      <span>Meta Quest 3 / 3S</span><span class="dot">◆</span>
+      <span>Apple Vision Pro</span><span class="dot">◆</span>
+      <span>Pico 4 Ultra</span><span class="dot">◆</span>
+      <span>Conciertos &amp; Festivales</span><span class="dot">◆</span>
       <span>Charlas Profesionales</span><span class="dot">◆</span>
-      <span>Chile</span><span class="dot">◆</span>
+      <span>Hecho en Chile</span><span class="dot">◆</span>
       <span>FirstRow VR</span><span class="dot">◆</span>
-      <span>Video 180°</span><span class="dot">◆</span>
-      <span>Audio Espacial</span><span class="dot">◆</span>
-      <span>Entretenimiento Inmersivo</span><span class="dot">◆</span>
-      <span>Conciertos en VR</span><span class="dot">◆</span>
-      <span>Festivales</span><span class="dot">◆</span>
+      <span>Video 180° Estereoscópico</span><span class="dot">◆</span>
+      <span>Resolución hasta 8K</span><span class="dot">◆</span>
+      <span>Audio Ambisónico 3D</span><span class="dot">◆</span>
+      <span>Meta Quest 2</span><span class="dot">◆</span>
+      <span>Meta Quest 3 / 3S</span><span class="dot">◆</span>
+      <span>Apple Vision Pro</span><span class="dot">◆</span>
+      <span>Pico 4 Ultra</span><span class="dot">◆</span>
+      <span>Conciertos &amp; Festivales</span><span class="dot">◆</span>
       <span>Charlas Profesionales</span><span class="dot">◆</span>
-      <span>Chile</span><span class="dot">◆</span>
+      <span>Hecho en Chile</span><span class="dot">◆</span>
     </div>
   </div>
 
@@ -1273,68 +1317,68 @@
     <div class="uc-grid">
 
       <div class="uc-card">
-        <img src="https://images.unsplash.com/photo-1524368535928-5b5e00ddc76b?auto=format&fit=crop&w=700&q=80" alt="Conciertos y Festivales" loading="lazy" />
+        <img src="https://images.unsplash.com/photo-1511578314322-379afb476865?auto=format&fit=crop&w=700&q=80" alt="Ferias y Conferencias" loading="lazy" />
         <div class="uc-overlay"></div>
         <div class="uc-bar"></div>
         <div class="uc-content">
-          <div class="uc-cat">Live Music</div>
-          <div class="uc-title">Conciertos &amp; Festivales</div>
-          <div class="uc-desc">Rock, pop, clásica, electrónica. La energía del escenario en primera fila, para siempre.</div>
+          <div class="uc-cat">Negocios</div>
+          <div class="uc-title">Ferias &amp; Conferencias</div>
+          <div class="uc-desc">Stands, lanzamientos y keynotes en 180°. Lleva tu feria a clientes en todo el mundo, como si recorrieran el pasillo.</div>
         </div>
       </div>
 
       <div class="uc-card">
-        <img src="https://images.unsplash.com/photo-1741671323163-5da1c3dcb4b2?auto=format&fit=crop&w=700&q=80" alt="Teatro y Artes Escénicas" loading="lazy" />
+        <img src="https://images.unsplash.com/photo-1741671323163-5da1c3dcb4b2?auto=format&fit=crop&w=700&q=80" alt="Teatro y Backstage" loading="lazy" />
         <div class="uc-overlay"></div>
         <div class="uc-bar"></div>
         <div class="uc-content">
           <div class="uc-cat">Artes Escénicas</div>
-          <div class="uc-title">Teatro &amp; Danza</div>
-          <div class="uc-desc">Arte preservado en su dimensión completa. Cada gesto, cada emoción, cada actuación.</div>
+          <div class="uc-title">Teatro &amp; Backstage</div>
+          <div class="uc-desc">Obras completas y el detrás de escena que nadie ve. Primera fila en la función y acceso exclusivo tras bambalinas.</div>
         </div>
       </div>
 
       <div class="uc-card">
-        <img src="https://images.unsplash.com/photo-1544531586-fde5298cdd40?auto=format&fit=crop&w=700&q=80" alt="Educación y Formación" loading="lazy" />
+        <img src="https://images.unsplash.com/photo-1544531586-fde5298cdd40?auto=format&fit=crop&w=700&q=80" alt="Educación Interactiva" loading="lazy" />
         <div class="uc-overlay"></div>
         <div class="uc-bar"></div>
         <div class="uc-content">
-          <div class="uc-cat">Educación</div>
-          <div class="uc-title">Clases &amp; Conferencias</div>
-          <div class="uc-desc">Keynotes, talleres y formación presencial convertida en experiencia inmersiva global.</div>
+          <div class="uc-cat">Aprendizaje</div>
+          <div class="uc-title">Educación Interactiva</div>
+          <div class="uc-desc">Clases y talleres donde aprendes junto al video. Pausa, explora y practica dentro de la experiencia, no solo mires.</div>
         </div>
       </div>
 
       <div class="uc-card">
-        <img src="https://images.unsplash.com/photo-1511578314322-379afb476865?auto=format&fit=crop&w=700&q=80" alt="Eventos Corporativos" loading="lazy" />
+        <img src="https://images.unsplash.com/photo-1524368535928-5b5e00ddc76b?auto=format&fit=crop&w=700&q=80" alt="Conciertos y Eventos" loading="lazy" />
         <div class="uc-overlay"></div>
         <div class="uc-bar"></div>
         <div class="uc-content">
-          <div class="uc-cat">Corporativo</div>
-          <div class="uc-title">Eventos Empresariales</div>
-          <div class="uc-desc">Lanzamientos, cumbres y presentaciones para equipos distribuidos alrededor del mundo.</div>
+          <div class="uc-cat">Live Music</div>
+          <div class="uc-title">Conciertos &amp; Eventos</div>
+          <div class="uc-desc">Rock, pop, electrónica y festivales. La energía del escenario en primera fila, para siempre.</div>
         </div>
       </div>
 
       <div class="uc-card">
-        <img src="https://images.unsplash.com/photo-1556909114-f6e7ad7d3136?auto=format&fit=crop&w=700&q=80" alt="Entretenimiento y Lifestyle" loading="lazy" />
-        <div class="uc-overlay"></div>
-        <div class="uc-bar"></div>
-        <div class="uc-content">
-          <div class="uc-cat">Entretenimiento</div>
-          <div class="uc-title">Lifestyle &amp; Contenido</div>
-          <div class="uc-desc">Cocina, moda, wellness, gastronomía. Contenido que transporte a tu audiencia al lugar.</div>
-        </div>
-      </div>
-
-      <div class="uc-card">
-        <img src="https://images.unsplash.com/photo-1590674680695-8b9efe9b764d?auto=format&fit=crop&w=700&q=80" alt="Deportes" loading="lazy" />
+        <img src="https://images.unsplash.com/photo-1590674680695-8b9efe9b764d?auto=format&fit=crop&w=700&q=80" alt="Deportes y eSports" loading="lazy" />
         <div class="uc-overlay"></div>
         <div class="uc-bar"></div>
         <div class="uc-content">
           <div class="uc-cat">Deportes</div>
-          <div class="uc-title">Deportes &amp; Competencias</div>
-          <div class="uc-desc">La adrenalina del campo, la cancha o la pista, desde el mejor ángulo de la historia.</div>
+          <div class="uc-title">Deportes &amp; eSports</div>
+          <div class="uc-desc">La adrenalina de la cancha, el ring o la arena gamer, desde el mejor ángulo de la historia.</div>
+        </div>
+      </div>
+
+      <div class="uc-card">
+        <img src="https://images.unsplash.com/photo-1469854523086-cc02fe5d8800?auto=format&fit=crop&w=700&q=80" alt="Turismo y Lugares" loading="lazy" />
+        <div class="uc-overlay"></div>
+        <div class="uc-bar"></div>
+        <div class="uc-content">
+          <div class="uc-cat">Turismo</div>
+          <div class="uc-title">Turismo &amp; Lugares</div>
+          <div class="uc-desc">Destinos, museos y paisajes de Chile que transportan a tu audiencia al lugar, sin moverse de casa.</div>
         </div>
       </div>
 
@@ -1355,100 +1399,59 @@
 
       <div class="pev-card">
         <div class="pev-thumb">
-          <img src="https://images.unsplash.com/photo-1507676184212-d03ab07a01bf?auto=format&fit=crop&w=700&q=80" alt="El Fantasma de la Ópera" loading="lazy" />
-          <div class="pev-date-badge"><span class="day">13</span><span class="month">Jun</span></div>
+          <img src="https://images.unsplash.com/photo-1465847899084-d164df4dedc6?auto=format&fit=crop&w=700&q=80" alt="Sinfónica Nacional · Beethoven 9" loading="lazy" />
+          <div class="pev-date-badge"><span class="day">03</span><span class="month">Jun</span></div>
           <span class="pev-status">VR 180°</span>
         </div>
         <div class="pev-body">
-          <span class="pev-cat">Musical</span>
-          <h3 class="pev-title">El Fantasma de la Ópera</h3>
+          <span class="pev-cat">Música</span>
+          <h3 class="pev-title">Sinfónica Nacional · Beethoven 9</h3>
           <div class="pev-venue">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5c-1.38 0-2.5-1.12-2.5-2.5s1.12-2.5 2.5-2.5 2.5 1.12 2.5 2.5-1.12 2.5-2.5 2.5z"/></svg>
-            Teatro Municipal · Santiago
+            Teatro Nescafé de las Artes · Providencia
           </div>
         </div>
       </div>
 
       <div class="pev-card">
         <div class="pev-thumb">
-          <img src="https://images.unsplash.com/photo-1468234847176-28606b3da61e?auto=format&fit=crop&w=700&q=80" alt="Hamlet" loading="lazy" />
-          <div class="pev-date-badge"><span class="day">20</span><span class="month">Jun</span></div>
+          <img src="https://images.unsplash.com/photo-1547153760-18fc86324498?auto=format&fit=crop&w=700&q=80" alt="El Lago de los Cisnes" loading="lazy" />
+          <div class="pev-date-badge"><span class="day">08</span><span class="month">Jun</span></div>
           <span class="pev-status soon">Próximamente</span>
         </div>
         <div class="pev-body">
-          <span class="pev-cat">Teatro</span>
-          <h3 class="pev-title">Hamlet</h3>
+          <span class="pev-cat">Danza</span>
+          <h3 class="pev-title">El Lago de los Cisnes</h3>
           <div class="pev-venue">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5c-1.38 0-2.5-1.12-2.5-2.5s1.12-2.5 2.5-2.5 2.5 1.12 2.5 2.5-1.12 2.5-2.5 2.5z"/></svg>
-            Teatro Nacional Chileno · Santiago
+            Teatro Municipal · Santiago Centro
           </div>
         </div>
       </div>
 
       <div class="pev-card">
         <div class="pev-thumb">
-          <img src="https://images.unsplash.com/photo-1514320291840-2e0a9bf2a9ae?auto=format&fit=crop&w=700&q=80" alt="El Rey León" loading="lazy" />
-          <div class="pev-date-badge"><span class="day">05</span><span class="month">Jul</span></div>
-          <span class="pev-status soon">Próximamente</span>
-        </div>
-        <div class="pev-body">
-          <span class="pev-cat">Musical</span>
-          <h3 class="pev-title">El Rey León</h3>
-          <div class="pev-venue">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5c-1.38 0-2.5-1.12-2.5-2.5s1.12-2.5 2.5-2.5 2.5 1.12 2.5 2.5-1.12 2.5-2.5 2.5z"/></svg>
-            Movistar Arena · Santiago
-          </div>
-        </div>
-      </div>
-
-      <div class="pev-card">
-        <div class="pev-thumb">
-          <img src="https://images.unsplash.com/photo-1508700115892-45ecd05ae2ad?auto=format&fit=crop&w=700&q=80" alt="La Traviata" loading="lazy" />
-          <div class="pev-date-badge"><span class="day">18</span><span class="month">Jul</span></div>
+          <img src="https://images.unsplash.com/photo-1503095396549-807759245b35?auto=format&fit=crop&w=700&q=80" alt="La Bohème" loading="lazy" />
+          <div class="pev-date-badge"><span class="day">12</span><span class="month">Jun</span></div>
           <span class="pev-status soon">Próximamente</span>
         </div>
         <div class="pev-body">
           <span class="pev-cat">Ópera</span>
-          <h3 class="pev-title">La Traviata</h3>
+          <h3 class="pev-title">La Bohème</h3>
           <div class="pev-venue">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5c-1.38 0-2.5-1.12-2.5-2.5s1.12-2.5 2.5-2.5 2.5 1.12 2.5 2.5-1.12 2.5-2.5 2.5z"/></svg>
-            Teatro Municipal · Viña del Mar
+            Teatro Municipal · Santiago Centro
           </div>
         </div>
       </div>
 
-      <div class="pev-card">
-        <div class="pev-thumb">
-          <img src="https://images.unsplash.com/photo-1518611012118-696072aa579a?auto=format&fit=crop&w=700&q=80" alt="Romeo y Julieta" loading="lazy" />
-          <div class="pev-date-badge"><span class="day">01</span><span class="month">Ago</span></div>
-          <span class="pev-status soon">Próximamente</span>
-        </div>
-        <div class="pev-body">
-          <span class="pev-cat">Ballet</span>
-          <h3 class="pev-title">Romeo y Julieta</h3>
-          <div class="pev-venue">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5c-1.38 0-2.5-1.12-2.5-2.5s1.12-2.5 2.5-2.5 2.5 1.12 2.5 2.5-1.12 2.5-2.5 2.5z"/></svg>
-            Teatro UC · Santiago
-          </div>
-        </div>
-      </div>
+    </div>
 
-      <div class="pev-card">
-        <div class="pev-thumb">
-          <img src="https://images.unsplash.com/photo-1534294228306-bd54eb9a7ba8?auto=format&fit=crop&w=700&q=80" alt="Chicago" loading="lazy" />
-          <div class="pev-date-badge"><span class="day">15</span><span class="month">Ago</span></div>
-          <span class="pev-status soon">Próximamente</span>
-        </div>
-        <div class="pev-body">
-          <span class="pev-cat">Musical</span>
-          <h3 class="pev-title">Chicago</h3>
-          <div class="pev-venue">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5c-1.38 0-2.5-1.12-2.5-2.5s1.12-2.5 2.5-2.5 2.5 1.12 2.5 2.5-1.12 2.5-2.5 2.5z"/></svg>
-            Teatro Caupolicán · Santiago
-          </div>
-        </div>
-      </div>
-
+    <div class="pev-cta-wrap">
+      <a href="eventos.html" class="pev-cta">
+        <span>Ver todos los eventos</span>
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14M13 6l6 6-6 6"/></svg>
+      </a>
     </div>
   </section>
 
@@ -1472,16 +1475,7 @@
           <span class="period">CLP / mes</span>
         </div>
         <p class="plan-desc">Prueba la experiencia FirstRow VR sin compromiso.</p>
-        <hr />
-        <ul class="plan-feats">
-          <li>Acceso a trailers y previews</li>
-          <li>Contenido destacado semanal</li>
-          <li>Resolución hasta 4K por ojo</li>
-          <li>1 dispositivo a la vez</li>
-          <li class="muted">Con anuncios</li>
-          <li class="muted">Sin descarga offline</li>
-        </ul>
-        <a href="#" class="plan-btn">Crear Cuenta</a>
+        <div class="plan-highlight">Hasta 4K · con anuncios</div>
       </div>
 
       <div class="plan featured">
@@ -1489,42 +1483,35 @@
         <div class="plan-tier">Pro</div>
         <h3 class="plan-name">Pro</h3>
         <div class="plan-price">
-          <span class="amount">$7.990</span>
+          <span class="amount-old">$7.990</span>
+          <span class="amount">$6.390</span>
           <span class="period">CLP / mes</span>
+          <span class="plan-save">−20%</span>
         </div>
         <p class="plan-desc">El catálogo completo a tu disposición, sin interrupciones.</p>
-        <hr />
-        <ul class="plan-feats">
-          <li>Catálogo completo de eventos</li>
-          <li>Sin anuncios</li>
-          <li>Resolución hasta 6K por ojo</li>
-          <li>Audio espacial ambisónico</li>
-          <li>2 dispositivos simultáneos</li>
-          <li>Descarga para offline</li>
-        </ul>
-        <a href="#" class="plan-btn primary">Suscribirme</a>
+        <div class="plan-highlight">Catálogo completo en 6K · sin anuncios</div>
       </div>
 
       <div class="plan">
         <div class="plan-tier">Premium</div>
         <h3 class="plan-name">Pro Max</h3>
         <div class="plan-price">
-          <span class="amount">$14.990</span>
+          <span class="amount-old">$14.990</span>
+          <span class="amount">$11.990</span>
           <span class="period">CLP / mes</span>
+          <span class="plan-save">−20%</span>
         </div>
         <p class="plan-desc">La experiencia VR más completa que existe.</p>
-        <hr />
-        <ul class="plan-feats">
-          <li>Todo lo de Pro</li>
-          <li>Resolución 8K máxima por ojo</li>
-          <li>Estrenos anticipados</li>
-          <li>Eventos en vivo exclusivos</li>
-          <li>4 dispositivos simultáneos</li>
-          <li>Detrás de cámaras exclusivo</li>
-        </ul>
-        <a href="#" class="plan-btn">Ir Pro Max</a>
+        <div class="plan-highlight">Todo en 8K · estrenos y eventos en vivo</div>
       </div>
 
+    </div>
+
+    <div class="pev-cta-wrap">
+      <a href="suscripciones.html" class="pev-cta">
+        <span>Ver planes y comparativa</span>
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14M13 6l6 6-6 6"/></svg>
+      </a>
     </div>
   </section>
 
@@ -1533,7 +1520,7 @@
     <div class="stats-grid">
       <div class="stat-cell">
         <div class="stat-val">8K</div>
-        <div class="stat-lbl">Resolución por ojo</div>
+        <div class="stat-lbl">Resolución</div>
       </div>
       <div class="stat-cell">
         <div class="stat-val">180°</div>
@@ -1887,7 +1874,7 @@
       'sc.l0':'Danza','sc.l1':'Cocina','sc.l2':'Maquillaje','sc.l3':'Moda',
       'st.tag':'Nuestra misión','st.h2':'"No importa dónde estés. <em>La primera fila siempre es tuya.</em>"','st.lnk':'Ver servicios →',
       'f1.tag':'Grabación Profesional','f1.h3':'Video 180° Estereeoscópico de Alta Resolución',
-      'f1.p':'Cámaras de nivel broadcast con lentes duales capturan cada escenario en hasta 8K por ojo, preservando la profundidad y el detalle que el contenido VR exige.',
+      'f1.p':'Cámaras de nivel broadcast con lentes duales capturan cada escenario en hasta 8K, preservando la profundidad y el detalle que el contenido VR exige.',
       'f2.tag':'Audio Inmersivo','f2.h3':'Sonido Espacial que Te Rodea',
       'f2.p':'Audio ambisónico de alto orden captura el campo sonoro completo. Cada fuente de sonido tiene su lugar exacto en el espacio. Cierra los ojos y estás ahí.',
       'f3.tag':'Distribución Multi-Plataforma','f3.h3':'Listo para Cualquier Visor del Mercado',
@@ -1898,7 +1885,7 @@
       'ev.t4':'Teatro & Danza','ev.t5':'Deportes & eSports','ev.t6':'Streaming VR en Vivo',
       'ev1.pill':'Alta Energía','ev1.h4':'Conciertos en Vivo',
       'ev1.p':'Rock, pop, electrónica, clásica. Capturamos la energía del escenario desde ángulos que ningún espectador pudo ver esa noche.',
-      'ev1.s1':'Por ojo','ev1.s2':'Audio Ambisónico','ev1.s3':'Producciones',
+      'ev1.s1':'Resolución','ev1.s2':'Audio Ambisónico','ev1.s3':'Producciones',
       'ev2.pill':'Multi-cámara','ev2.h4':'Festivales de Música',
       'ev2.p':'Multi-escenario, multitud real y atmósfera completa. Cubrimos hasta 3 escenarios en paralelo con flujo sincronizado de video y audio.',
       'ev2.s1':'Escenarios paralelos','ev2.s2':'Cobertura continua','ev2.s3':'Producciones',
@@ -1916,22 +1903,23 @@
       'ev6.s1':'Latencia','ev6.s2':'Aforo global','ev6.s3':'Soporte live',
       'sub.tag':'Streaming VR','sub.h2':'Accede a todo<br />el catálogo.',
       'sub.p':'Más que grabar eventos, construimos una biblioteca de experiencias inmersivas bajo demanda. Elige el plan que va contigo.',
+      'p1.hl':'Hasta 4K · con anuncios','p2.hl':'Catálogo completo en 6K · sin anuncios','p3.hl':'Todo en 8K · estrenos y eventos en vivo','sub.cta':'Ver planes y comparativa',
       'p1.tier':'Free','p1.name':'Discover','p1.per':'CLP / mes',
       'p1.desc':'Prueba la experiencia FirstRow VR sin compromiso.',
       'p1.f1':'Acceso a trailers y previews','p1.f2':'Contenido destacado semanal',
-      'p1.f3':'Resolución hasta 4K por ojo','p1.f4':'1 dispositivo a la vez',
+      'p1.f3':'Resolución hasta 4K','p1.f4':'1 dispositivo a la vez',
       'p1.f5':'Con anuncios','p1.f6':'Sin descarga offline','p1.btn':'Crear Cuenta',
       'p2.badge':'Más Popular','p2.tier':'Pro','p2.name':'Pro','p2.per':'CLP / mes',
       'p2.desc':'El catálogo completo a tu disposición, sin interrupciones.',
       'p2.f1':'Catálogo completo de eventos','p2.f2':'Sin anuncios',
-      'p2.f3':'Resolución hasta 6K por ojo','p2.f4':'Audio espacial ambisónico',
+      'p2.f3':'Resolución hasta 6K','p2.f4':'Audio espacial ambisónico',
       'p2.f5':'2 dispositivos simultáneos','p2.f6':'Descarga para offline','p2.btn':'Suscribirme',
       'p3.tier':'Premium','p3.name':'Pro Max','p3.per':'CLP / mes',
       'p3.desc':'La experiencia VR más completa que existe.',
-      'p3.f1':'Todo lo de Pro','p3.f2':'Resolución 8K máxima por ojo',
+      'p3.f1':'Todo lo de Pro','p3.f2':'Resolución 8K máxima',
       'p3.f3':'Estrenos anticipados','p3.f4':'Eventos en vivo exclusivos',
       'p3.f5':'4 dispositivos simultáneos','p3.f6':'Detrás de cámaras exclusivo','p3.btn':'Ir Pro Max',
-      'st1':'Resolución por ojo','st2':'Campo visual capturado','st3':'Audio ambisónico','st4':'Plataformas VR compatibles',
+      'st1':'Resolución','st2':'Campo visual capturado','st3':'Audio ambisónico','st4':'Plataformas VR compatibles',
       'pr.tag':'Proceso','pr.h2':'De tu evento<br />al visor.',
       'pr.h1':'Consultoría &amp; Planificación','pr.p1':'Analizamos el venue, el tipo de evento y los objetivos para diseñar el plan de producción perfecto.',
       'pr.h2b':'Setup &amp; Grabación','pr.p2':'Desplegamos cámaras y sistemas de audio durante el evento con supervisión técnica en tiempo real.',
@@ -1943,17 +1931,16 @@
       'cta.p':'Cuéntanos sobre tu proyecto y preparamos una propuesta a medida, sin compromiso.',
       'fl1':'Trabajo','fl2':'Eventos','fl3':'Suscripción','fl4':'Catálogo','fl5':'Servicios','fl6':'Login','fl7':'Contacto',
       'pq.tag':'Nuestros Clientes','pq.h2':'Grabamos<br />para todos.','pq.sub':'Cualquier experiencia que valga la pena vivir, vale la pena capturar en 180° estereoscópico.',
-      'pq.c1.cat':'Live Music','pq.c1.tit':'Conciertos & Festivales','pq.c1.desc':'Rock, pop, clásica, electrónica. La energía del escenario en primera fila, para siempre.',
-      'pq.c2.cat':'Artes Escénicas','pq.c2.tit':'Teatro & Danza','pq.c2.desc':'Arte preservado en su dimensión completa. Cada gesto, cada emoción, cada actuación.',
-      'pq.c3.cat':'Educación','pq.c3.tit':'Clases & Conferencias','pq.c3.desc':'Keynotes, talleres y formación presencial convertida en experiencia inmersiva global.',
-      'pq.c4.cat':'Corporativo','pq.c4.tit':'Eventos Empresariales','pq.c4.desc':'Lanzamientos, cumbres y presentaciones para equipos distribuidos alrededor del mundo.',
-      'pq.c5.cat':'Entretenimiento','pq.c5.tit':'Lifestyle & Contenido','pq.c5.desc':'Cocina, moda, wellness, gastronomía. Contenido que transporte a tu audiencia al lugar.',
-      'pq.c6.cat':'Deportes','pq.c6.tit':'Deportes & Competencias','pq.c6.desc':'La adrenalina del campo, la cancha o la pista, desde el mejor ángulo de la historia.',
+      'pq.c1.cat':'Negocios','pq.c1.tit':'Ferias & Conferencias','pq.c1.desc':'Stands, lanzamientos y keynotes en 180°. Lleva tu feria a clientes en todo el mundo, como si recorrieran el pasillo.',
+      'pq.c2.cat':'Artes Escénicas','pq.c2.tit':'Teatro & Backstage','pq.c2.desc':'Obras completas y el detrás de escena que nadie ve. Primera fila en la función y acceso exclusivo tras bambalinas.',
+      'pq.c3.cat':'Aprendizaje','pq.c3.tit':'Educación Interactiva','pq.c3.desc':'Clases y talleres donde aprendes junto al video. Pausa, explora y practica dentro de la experiencia, no solo mires.',
+      'pq.c4.cat':'Live Music','pq.c4.tit':'Conciertos & Eventos','pq.c4.desc':'Rock, pop, electrónica y festivales. La energía del escenario en primera fila, para siempre.',
+      'pq.c5.cat':'Deportes','pq.c5.tit':'Deportes & eSports','pq.c5.desc':'La adrenalina de la cancha, el ring o la arena gamer, desde el mejor ángulo de la historia.',
+      'pq.c6.cat':'Turismo','pq.c6.tit':'Turismo & Lugares','pq.c6.desc':'Destinos, museos y paisajes de Chile que transportan a tu audiencia al lugar, sin moverse de casa.',
       'pev.tag':'Agenda VR','pev.h2':'Próximos<br />eventos.','pev.sub':'Próximamente disponibles en VR 180°. Vívelos en primera fila desde donde estés.',
-      'pev.c1.cat':'Musical','pev.c1.st':'VR 180°','pev.c2.cat':'Teatro','pev.c2.st':'Próximamente',
-      'pev.c3.cat':'Musical','pev.c3.st':'Próximamente','pev.c4.cat':'Ópera','pev.c4.st':'Próximamente',
-      'pev.c5.cat':'Ballet','pev.c5.st':'Próximamente','pev.c6.cat':'Musical','pev.c6.st':'Próximamente',
-      'pev.aug':'Ago',
+      'pev.c1.cat':'Música','pev.c1.st':'VR 180°','pev.c2.cat':'Danza','pev.c2.st':'Próximamente',
+      'pev.c3.cat':'Ópera','pev.c3.st':'Próximamente',
+      'pev.cta':'Ver todos los eventos',
       'fc':'\u00a9 2025 FirstRow VR \u00b7 Chile'
     },
     en: {
@@ -1967,7 +1954,7 @@
       'sc.l0':'Dance','sc.l1':'Kitchen','sc.l2':'Makeup','sc.l3':'Fashion',
       'st.tag':'Our mission','st.h2':'"No matter where you are. <em>The front row is always yours.</em>"','st.lnk':'View services →',
       'f1.tag':'Professional Recording','f1.h3':'High-Resolution Stereoscopic 180\u00b0 Video',
-      'f1.p':'Broadcast-level cameras with dual lenses capture every scene at up to 8K per eye, preserving the depth and detail VR content demands.',
+      'f1.p':'Broadcast-level cameras with dual lenses capture every scene at up to 8K, preserving the depth and detail VR content demands.',
       'f2.tag':'Immersive Audio','f2.h3':'Spatial Sound That Surrounds You',
       'f2.p':"Higher-order ambisonics captures the complete sound field. Every sound source has its exact place in space. Close your eyes and you're there.",
       'f3.tag':'Multi-Platform Distribution','f3.h3':'Ready for Any Headset on the Market',
@@ -1978,7 +1965,7 @@
       'ev.t4':'Theater & Dance','ev.t5':'Sports & eSports','ev.t6':'Live VR Streaming',
       'ev1.pill':'High Energy','ev1.h4':'Live Concerts',
       'ev1.p':'Rock, pop, electronic, classical. We capture the stage energy from angles no one in the audience could see that night.',
-      'ev1.s1':'Per eye','ev1.s2':'Ambisonics','ev1.s3':'Productions',
+      'ev1.s1':'Resolution','ev1.s2':'Ambisonics','ev1.s3':'Productions',
       'ev2.pill':'Multi-camera','ev2.h4':'Music Festivals',
       'ev2.p':'Multi-stage, real crowd and full atmosphere. We cover up to 3 stages in parallel with synchronized video and audio.',
       'ev2.s1':'Parallel stages','ev2.s2':'Continuous coverage','ev2.s3':'Productions',
@@ -1996,22 +1983,23 @@
       'ev6.s1':'Latency','ev6.s2':'Global capacity','ev6.s3':'Live support',
       'sub.tag':'VR Streaming','sub.h2':'Access the full<br />catalog.',
       'sub.p':'More than recording events, we build a library of on-demand immersive experiences. Choose the plan that fits you.',
+      'p1.hl':'Up to 4K · with ads','p2.hl':'Full catalog in 6K · ad-free','p3.hl':'Everything in 8K · premieres & live events','sub.cta':'See plans & comparison',
       'p1.tier':'Free','p1.name':'Discover','p1.per':'USD / month',
       'p1.desc':'Try the FirstRow VR experience with no commitment.',
       'p1.f1':'Access to trailers and previews','p1.f2':'Weekly featured content',
-      'p1.f3':'Up to 4K per eye','p1.f4':'1 device at a time',
+      'p1.f3':'Up to 4K','p1.f4':'1 device at a time',
       'p1.f5':'With ads','p1.f6':'No offline download','p1.btn':'Create Account',
       'p2.badge':'Most Popular','p2.tier':'Pro','p2.name':'Pro','p2.per':'USD / month',
       'p2.desc':'The full catalog at your disposal, without interruptions.',
       'p2.f1':'Full event catalog','p2.f2':'Ad-free',
-      'p2.f3':'Up to 6K per eye','p2.f4':'Ambisonics spatial audio',
+      'p2.f3':'Up to 6K','p2.f4':'Ambisonics spatial audio',
       'p2.f5':'2 simultaneous devices','p2.f6':'Offline download','p2.btn':'Subscribe',
       'p3.tier':'Premium','p3.name':'Pro Max','p3.per':'USD / month',
       'p3.desc':'The most complete VR experience that exists.',
-      'p3.f1':'Everything in Pro','p3.f2':'Maximum 8K per eye',
+      'p3.f1':'Everything in Pro','p3.f2':'Maximum 8K',
       'p3.f3':'Early releases','p3.f4':'Exclusive live events',
       'p3.f5':'4 simultaneous devices','p3.f6':'Exclusive behind the scenes','p3.btn':'Go Pro Max',
-      'st1':'Resolution per eye','st2':'Visual field captured','st3':'Ambisonics audio','st4':'Compatible VR platforms',
+      'st1':'Resolution','st2':'Visual field captured','st3':'Ambisonics audio','st4':'Compatible VR platforms',
       'pr.tag':'Process','pr.h2':'From your event<br />to the headset.',
       'pr.h1':'Consulting &amp; Planning','pr.p1':'We analyze the venue, event type and objectives to design the perfect production plan.',
       'pr.h2b':'Setup &amp; Recording','pr.p2':'We deploy cameras and audio systems during the event with real-time technical supervision.',
@@ -2023,17 +2011,16 @@
       'cta.p':"Tell us about your project and we'll prepare a tailored proposal, no commitment.",
       'fl1':'Work','fl2':'Events','fl3':'Subscription','fl4':'Catalog','fl5':'Services','fl6':'Login','fl7':'Contact',
       'pq.tag':'Our Clients','pq.h2':'We record<br />for everyone.','pq.sub':'Any experience worth living is worth capturing in stereoscopic 180°.',
-      'pq.c1.cat':'Live Music','pq.c1.tit':'Concerts & Festivals','pq.c1.desc':'Rock, pop, classical, electronic. The stage energy in the front row, forever.',
-      'pq.c2.cat':'Performing Arts','pq.c2.tit':'Theater & Dance','pq.c2.desc':'Art preserved in its full dimension. Every gesture, every emotion, every performance.',
-      'pq.c3.cat':'Education','pq.c3.tit':'Classes & Conferences','pq.c3.desc':'Keynotes, workshops and in-person training transformed into a global immersive experience.',
-      'pq.c4.cat':'Corporate','pq.c4.tit':'Corporate Events','pq.c4.desc':'Launches, summits and presentations for distributed teams around the world.',
-      'pq.c5.cat':'Entertainment','pq.c5.tit':'Lifestyle & Content','pq.c5.desc':'Cooking, fashion, wellness, gastronomy. Content that transports your audience to the place.',
-      'pq.c6.cat':'Sports','pq.c6.tit':'Sports & Competitions','pq.c6.desc':'The adrenaline of the field, court or track, from the best angle in history.',
+      'pq.c1.cat':'Business','pq.c1.tit':'Trade Shows & Conferences','pq.c1.desc':'Booths, launches and keynotes in 180°. Bring your trade show to clients worldwide, as if they walked the floor.',
+      'pq.c2.cat':'Performing Arts','pq.c2.tit':'Theater & Backstage','pq.c2.desc':'Full plays and the behind-the-scenes no one sees. Front row at the show plus exclusive access backstage.',
+      'pq.c3.cat':'Learning','pq.c3.tit':'Interactive Education','pq.c3.desc':'Classes and workshops where you learn alongside the video. Pause, explore and practice inside the experience, don’t just watch.',
+      'pq.c4.cat':'Live Music','pq.c4.tit':'Concerts & Events','pq.c4.desc':'Rock, pop, electronic and festivals. The stage energy in the front row, forever.',
+      'pq.c5.cat':'Sports','pq.c5.tit':'Sports & eSports','pq.c5.desc':'The adrenaline of the court, the ring or the gaming arena, from the best angle in history.',
+      'pq.c6.cat':'Travel','pq.c6.tit':'Travel & Places','pq.c6.desc':'Destinations, museums and landscapes of Chile that transport your audience to the place, without leaving home.',
       'pev.tag':'VR Agenda','pev.h2':'Upcoming<br />events.','pev.sub':'Coming soon in VR 180°. Experience them front row from wherever you are.',
-      'pev.c1.cat':'Musical','pev.c1.st':'VR 180°','pev.c2.cat':'Theater','pev.c2.st':'Coming Soon',
-      'pev.c3.cat':'Musical','pev.c3.st':'Coming Soon','pev.c4.cat':'Opera','pev.c4.st':'Coming Soon',
-      'pev.c5.cat':'Ballet','pev.c5.st':'Coming Soon','pev.c6.cat':'Musical','pev.c6.st':'Coming Soon',
-      'pev.aug':'Aug',
+      'pev.c1.cat':'Music','pev.c1.st':'VR 180°','pev.c2.cat':'Dance','pev.c2.st':'Coming Soon',
+      'pev.c3.cat':'Opera','pev.c3.st':'Coming Soon',
+      'pev.cta':'See all events',
       'fc':'\u00a9 2025 FirstRow VR \u00b7 Chile'
     }
   };
@@ -2077,6 +2064,8 @@
     {s:'.plans-grid .plan:nth-child(3) .plan-feats li:nth-child(3)',k:'p3.f3'},{s:'.plans-grid .plan:nth-child(3) .plan-feats li:nth-child(4)',k:'p3.f4'},
     {s:'.plans-grid .plan:nth-child(3) .plan-feats li:nth-child(5)',k:'p3.f5'},{s:'.plans-grid .plan:nth-child(3) .plan-feats li:nth-child(6)',k:'p3.f6'},
     {s:'.plans-grid .plan:nth-child(3) .plan-btn',k:'p3.btn'},
+    {s:'.plans-grid .plan:nth-child(1) .plan-highlight',k:'p1.hl'},{s:'.plans-grid .plan:nth-child(2) .plan-highlight',k:'p2.hl'},{s:'.plans-grid .plan:nth-child(3) .plan-highlight',k:'p3.hl'},
+    {s:'#suscripcion .pev-cta span',k:'sub.cta'},
     // STATS
     {s:'.stats-grid .stat-cell:nth-child(1) .stat-lbl',k:'st1'},{s:'.stats-grid .stat-cell:nth-child(2) .stat-lbl',k:'st2'},
     {s:'.stats-grid .stat-cell:nth-child(3) .stat-lbl',k:'st3'},{s:'.stats-grid .stat-cell:nth-child(4) .stat-lbl',k:'st4'},
@@ -2101,9 +2090,7 @@
     {s:'#proximos-eventos .pev-grid .pev-card:nth-child(1) .pev-cat',k:'pev.c1.cat'},{s:'#proximos-eventos .pev-grid .pev-card:nth-child(1) .pev-status',k:'pev.c1.st'},
     {s:'#proximos-eventos .pev-grid .pev-card:nth-child(2) .pev-cat',k:'pev.c2.cat'},{s:'#proximos-eventos .pev-grid .pev-card:nth-child(2) .pev-status',k:'pev.c2.st'},
     {s:'#proximos-eventos .pev-grid .pev-card:nth-child(3) .pev-cat',k:'pev.c3.cat'},{s:'#proximos-eventos .pev-grid .pev-card:nth-child(3) .pev-status',k:'pev.c3.st'},
-    {s:'#proximos-eventos .pev-grid .pev-card:nth-child(4) .pev-cat',k:'pev.c4.cat'},{s:'#proximos-eventos .pev-grid .pev-card:nth-child(4) .pev-status',k:'pev.c4.st'},
-    {s:'#proximos-eventos .pev-grid .pev-card:nth-child(5) .pev-cat',k:'pev.c5.cat'},{s:'#proximos-eventos .pev-grid .pev-card:nth-child(5) .pev-status',k:'pev.c5.st'},{s:'#proximos-eventos .pev-grid .pev-card:nth-child(5) .pev-date-badge .month',k:'pev.aug'},
-    {s:'#proximos-eventos .pev-grid .pev-card:nth-child(6) .pev-cat',k:'pev.c6.cat'},{s:'#proximos-eventos .pev-grid .pev-card:nth-child(6) .pev-status',k:'pev.c6.st'},{s:'#proximos-eventos .pev-grid .pev-card:nth-child(6) .pev-date-badge .month',k:'pev.aug'},
+    {s:'#proximos-eventos .pev-cta span',k:'pev.cta'},
     // CTA
     {s:'#contacto .tag',k:'cta.tag'},{s:'#contacto h2',k:'cta.h2',html:true},{s:'#contacto .cta-body p',k:'cta.p'},
     // FOOTER

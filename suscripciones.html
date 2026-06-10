@@ -1,4 +1,4 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="es">
 <head>
   <meta charset="UTF-8" />
@@ -226,6 +226,29 @@
     .plan-billed {
       font-size: .72rem; color: rgba(255,255,255,.4);
       margin-top: .35rem; min-height: 1em;
+    }
+    .plan-price .amount-old {
+      font-family: 'Unbounded', sans-serif;
+      font-size: 1.15rem; font-weight: 600;
+      color: rgba(255,255,255,.35);
+      text-decoration: line-through;
+    }
+    .promo-banner {
+      display: flex; align-items: center; justify-content: center;
+      gap: .7rem; flex-wrap: wrap;
+      max-width: 760px; margin: 0 auto 3rem;
+      padding: .85rem 1.4rem;
+      background: rgba(0,229,255,.08);
+      border: 1px solid rgba(0,229,255,.3);
+      border-radius: 8px;
+      font-size: .86rem; color: var(--offwhite); text-align: center;
+    }
+    .promo-banner .promo-tag {
+      font-family: 'Unbounded', sans-serif;
+      font-size: .64rem; font-weight: 700; letter-spacing: .12em;
+      text-transform: uppercase; color: var(--black);
+      background: var(--accent); padding: .3rem .65rem; border-radius: 4px;
+      white-space: nowrap;
     }
     .plan-desc {
       font-size: .9rem; color: var(--muted);
@@ -557,6 +580,10 @@
 
   <!-- ══ PLANS ══ -->
   <section class="plans-section">
+    <div class="promo-banner">
+      <span class="promo-tag">Oferta</span>
+      <span class="promo-text">−20% en planes mensuales por tiempo limitado · ya aplicado en los precios</span>
+    </div>
     <div class="plans-grid">
 
       <div class="plan">
@@ -574,7 +601,7 @@
         <ul class="plan-feats">
           <li>Acceso a trailers y previews</li>
           <li>Contenido destacado semanal</li>
-          <li>Resolución hasta 4K por ojo</li>
+          <li>Resolución hasta 4K</li>
           <li>1 dispositivo a la vez</li>
           <li class="muted">Con anuncios</li>
           <li class="muted">Sin descarga offline</li>
@@ -588,17 +615,18 @@
         <h3 class="plan-name">Pro</h3>
         <div class="plan-price-wrap">
           <div class="plan-price">
-            <span class="amount" data-monthly="$7.990" data-annual="$6.390">$7.990</span>
+            <span class="amount-old">$7.990</span>
+            <span class="amount" data-monthly="$6.390" data-annual="$6.390">$6.390</span>
             <span class="period">CLP / mes</span>
           </div>
-          <div class="plan-billed" data-monthly="Facturado mensual" data-annual="Facturado anual · $76.680/año">Facturado mensual</div>
+          <div class="plan-billed" data-monthly="Promo −20% · Facturado mensual" data-annual="Facturado anual · $76.680/año">Promo −20% · Facturado mensual</div>
         </div>
         <p class="plan-desc">El catálogo completo a tu disposición, sin interrupciones ni anuncios.</p>
         <hr />
         <ul class="plan-feats">
           <li>Catálogo completo de eventos</li>
           <li>Sin anuncios</li>
-          <li>Resolución hasta 6K por ojo</li>
+          <li>Resolución hasta 6K</li>
           <li>Audio espacial ambisónico</li>
           <li>2 dispositivos simultáneos</li>
           <li>Descarga para offline</li>
@@ -611,16 +639,17 @@
         <h3 class="plan-name">Pro Max</h3>
         <div class="plan-price-wrap">
           <div class="plan-price">
-            <span class="amount" data-monthly="$14.990" data-annual="$11.990">$14.990</span>
+            <span class="amount-old">$14.990</span>
+            <span class="amount" data-monthly="$11.990" data-annual="$11.990">$11.990</span>
             <span class="period">CLP / mes</span>
           </div>
-          <div class="plan-billed" data-monthly="Facturado mensual" data-annual="Facturado anual · $143.880/año">Facturado mensual</div>
+          <div class="plan-billed" data-monthly="Promo −20% · Facturado mensual" data-annual="Facturado anual · $143.880/año">Promo −20% · Facturado mensual</div>
         </div>
         <p class="plan-desc">La experiencia VR más completa que existe. Para los más exigentes.</p>
         <hr />
         <ul class="plan-feats">
           <li>Todo lo de Pro</li>
-          <li>Resolución 8K máxima por ojo</li>
+          <li>Resolución 8K máxima</li>
           <li>Estrenos anticipados</li>
           <li>Eventos en vivo exclusivos</li>
           <li>4 dispositivos simultáneos</li>
@@ -646,8 +675,8 @@
           <tr>
             <th class="col-feat">Funcionalidad</th>
             <th class="col-plan">Discover <small>Gratis</small></th>
-            <th class="col-plan featured">Pro <small>$7.990 / mes</small></th>
-            <th class="col-plan">Pro Max <small>$14.990 / mes</small></th>
+            <th class="col-plan featured">Pro <small>$6.390 / mes</small></th>
+            <th class="col-plan">Pro Max <small>$11.990 / mes</small></th>
           </tr>
         </thead>
         <tbody>
@@ -680,7 +709,7 @@
 
           <tr class="feat-group"><td colspan="4">Calidad técnica</td></tr>
           <tr>
-            <td class="col-feat">Resolución máxima por ojo</td>
+            <td class="col-feat">Resolución máxima</td>
             <td class="col-plan value">4K</td>
             <td class="col-plan featured value">6K</td>
             <td class="col-plan value">8K</td>
@@ -812,7 +841,7 @@
       <details class="faq-item">
         <summary>¿Cuál es la diferencia entre Pro y Pro Max? <span class="faq-icon">+</span></summary>
         <div class="faq-content">
-          Pro te da el catálogo completo en hasta 6K por ojo, sin anuncios y con descarga
+          Pro te da el catálogo completo en hasta 6K, sin anuncios y con descarga
           offline. Pro Max sube a 8K, agrega estrenos anticipados, eventos en vivo
           exclusivos, multivista de cámaras simultáneas, hasta 4 dispositivos y soporte
           prioritario 24/7. Si grabas mucho contenido en vivo o eres power user, Pro Max
@@ -823,10 +852,11 @@
       <details class="faq-item">
         <summary>¿Cómo funciona el plan anual con −20%? <span class="faq-icon">+</span></summary>
         <div class="faq-content">
-          Al pagar 12 meses por adelantado ahorras un 20% sobre la tarifa mensual. Pro
-          baja de $7.990 a $6.390/mes equivalentes ($76.680/año). Pro Max baja de
-          $14.990 a $11.990/mes ($143.880/año). Puedes cambiar de mensual a anual (o
-          viceversa) en cualquier momento desde tu cuenta.
+          Tanto la promo mensual como el plan anual aplican −20% sobre el precio de lista
+          (no se acumulan). Pro queda en $6.390/mes y Pro Max en $11.990/mes. La promo
+          mensual es por tiempo limitado; el plan anual asegura ese mismo −20% durante 12
+          meses ($76.680 y $143.880 al año respectivamente). Puedes cambiar de mensual a
+          anual (o viceversa) en cualquier momento desde tu cuenta.
         </div>
       </details>
 
@@ -997,24 +1027,25 @@
         'hero.h1':'Un plan para<br />cada <em>primera fila.</em>',
         'hero.p':'Accede al catálogo completo de experiencias VR 180° estereoscópicas. Sin contratos largos, cambia de plan cuando quieras, cancela en un clic.',
         'hero.monthly':'Mensual','hero.annual':'Anual <span class="bt-save">−20%</span>',
+        'promo.tag':'Oferta','promo.txt':'−20% en planes mensuales por tiempo limitado · ya aplicado en los precios',
         'plan.period':'CLP / mes',
         'disc.tier':'Free','disc.billed':'Para siempre, sin tarjeta',
         'disc.desc':'Prueba la experiencia FirstRow VR sin compromiso ni tarjeta de crédito.',
         'disc.f1':'Acceso a trailers y previews','disc.f2':'Contenido destacado semanal',
-        'disc.f3':'Resolución hasta 4K por ojo','disc.f4':'1 dispositivo a la vez',
+        'disc.f3':'Resolución hasta 4K','disc.f4':'1 dispositivo a la vez',
         'disc.f5':'Con anuncios','disc.f6':'Sin descarga offline',
         'disc.btn':'Crear Cuenta',
         'pro.badge':'Más Popular','pro.tier':'Pro',
-        'pro.billed.m':'Facturado mensual','pro.billed.a':'Facturado anual · $76.680/año',
+        'pro.billed.m':'Promo −20% · Facturado mensual','pro.billed.a':'Facturado anual · $76.680/año',
         'pro.desc':'El catálogo completo a tu disposición, sin interrupciones ni anuncios.',
         'pro.f1':'Catálogo completo de eventos','pro.f2':'Sin anuncios',
-        'pro.f3':'Resolución hasta 6K por ojo','pro.f4':'Audio espacial ambiónico',
+        'pro.f3':'Resolución hasta 6K','pro.f4':'Audio espacial ambiónico',
         'pro.f5':'2 dispositivos simultáneos','pro.f6':'Descarga para offline',
         'pro.btn':'Suscribirme',
         'max.tier':'Premium',
-        'max.billed.m':'Facturado mensual','max.billed.a':'Facturado anual · $143.880/año',
+        'max.billed.m':'Promo −20% · Facturado mensual','max.billed.a':'Facturado anual · $143.880/año',
         'max.desc':'La experiencia VR más completa que existe. Para los más exigentes.',
-        'max.f1':'Todo lo de Pro','max.f2':'Resolución 8K máxima por ojo',
+        'max.f1':'Todo lo de Pro','max.f2':'Resolución 8K máxima',
         'max.f3':'Estrenos anticipados','max.f4':'Eventos en vivo exclusivos',
         'max.f5':'4 dispositivos simultáneos','max.f6':'Detrás de cámaras exclusivo',
         'max.btn':'Ir Pro Max',
@@ -1023,18 +1054,18 @@
         'cmp.p':'Cada función, cada límite, cada beneficio. Compara lo que importa y elige con criterio.',
         'cmp.th.feat':'Funcionalidad',
         'cmp.th.d':'Discover <small>Gratis</small>',
-        'cmp.th.p':'Pro <small>$7.990 / mes</small>',
-        'cmp.th.m':'Pro Max <small>$14.990 / mes</small>',
-        'tb.g1':'Contenido','tb.g2':'Calidad técnica','tb.g3':'Dispositivos &amp; uso',
+        'cmp.th.p':'Pro <small>$6.390 / mes</small>',
+        'cmp.th.m':'Pro Max <small>$11.990 / mes</small>',
+        'tb.g1':'Contenido','tb.g2':'Calidad técnica','tb.g3':'Dispositivos & uso',
         'tb.g4':'Experiencia','tb.g5':'Soporte',
         'tb.f1':'Acceso al catálogo VR','tb.f2':'Estrenos anticipados (7 días antes)',
-        'tb.f3':'Eventos en vivo exclusivos','tb.f4':'Behind the scenes &amp; extras',
-        'tb.f5':'Resolución máxima por ojo','tb.f6':'Bitrate hasta',
-        'tb.f7':'Audio espacial ambiónico (HOA)','tb.f8':'HDR &amp; rango dinámico extendido',
+        'tb.f3':'Eventos en vivo exclusivos','tb.f4':'Behind the scenes & extras',
+        'tb.f5':'Resolución máxima','tb.f6':'Bitrate hasta',
+        'tb.f7':'Audio espacial ambiónico (HOA)','tb.f8':'HDR & rango dinámico extendido',
         'tb.f9':'Dispositivos simultáneos','tb.f10':'Perfiles familiares',
         'tb.f11':'Descarga offline','tb.f12':'Visores VR compatibles',
-        'tb.f13':'Reproducción sin anuncios','tb.f14':'Listas personales &amp; favoritos',
-        'tb.f15':'Multivista (cámaras simultáneas)','tb.f16':'Subtítulos &amp; multi-idioma',
+        'tb.f13':'Reproducción sin anuncios','tb.f14':'Listas personales & favoritos',
+        'tb.f15':'Multivista (cámaras simultáneas)','tb.f16':'Subtítulos & multi-idioma',
         'tb.f17':'Soporte por email','tb.f18':'Soporte prioritario 24/7',
         'tb.f19':'Cancelación en un clic',
         'tb.v.full':'Completo','tb.v.all':'Todos',
@@ -1045,9 +1076,9 @@
         'faq.q2':'¿Puedo cancelar cuando quiera? <span class="faq-icon">+</span>',
         'faq.a2':'Sí. La cancelación es en un clic desde tu panel de cuenta. Sigues teniendo acceso hasta el final del periodo que ya pagaste. No hay penalizaciones ni letra chica.',
         'faq.q3':'¿Cuál es la diferencia entre Pro y Pro Max? <span class="faq-icon">+</span>',
-        'faq.a3':'Pro te da el catálogo completo en hasta 6K por ojo, sin anuncios y con descarga offline. Pro Max sube a 8K, agrega estrenos anticipados, eventos en vivo exclusivos, multivista de cámaras simultáneas, hasta 4 dispositivos y soporte prioritario 24/7.',
+        'faq.a3':'Pro te da el catálogo completo en hasta 6K, sin anuncios y con descarga offline. Pro Max sube a 8K, agrega estrenos anticipados, eventos en vivo exclusivos, multivista de cámaras simultáneas, hasta 4 dispositivos y soporte prioritario 24/7.',
         'faq.q4':'¿Cómo funciona el plan anual con −20%? <span class="faq-icon">+</span>',
-        'faq.a4':'Al pagar 12 meses por adelantado ahorras un 20% sobre la tarifa mensual. Pro baja de $7.990 a $6.390/mes equivalentes ($76.680/año). Pro Max baja de $14.990 a $11.990/mes ($143.880/año).',
+        'faq.a4':'Tanto la promo mensual como el plan anual aplican −20% sobre el precio de lista (no se acumulan). Pro queda en $6.390/mes y Pro Max en $11.990/mes. La promo mensual es por tiempo limitado; el plan anual asegura ese mismo −20% durante 12 meses ($76.680 y $143.880 al año respectivamente).',
         'faq.q5':'¿Qué métodos de pago aceptan? <span class="faq-icon">+</span>',
         'faq.a5':'Aceptamos tarjetas de crédito y débito (Visa, Mastercard, American Express), WebPay, Mach, Mercado Pago y transferencia bancaria para planes anuales. Todos los pagos están encriptados y procesados por nuestro partner PCI-DSS.',
         'faq.q6':'¿Puedo comprar o rentar contenido sin suscripción? <span class="faq-icon">+</span>',
@@ -1069,24 +1100,25 @@
         'hero.h1':'A plan for<br />every <em>front row.</em>',
         'hero.p':'Access the full catalog of stereoscopic VR 180° experiences. No long contracts, switch plans whenever, cancel with one click.',
         'hero.monthly':'Monthly','hero.annual':'Annual <span class="bt-save">−20%</span>',
+        'promo.tag':'Offer','promo.txt':'−20% on monthly plans for a limited time · already applied to prices',
         'plan.period':'CLP / month',
         'disc.tier':'Free','disc.billed':'Free forever, no card needed',
         'disc.desc':'Try the FirstRow VR experience with no commitment or credit card.',
         'disc.f1':'Access to trailers and previews','disc.f2':'Weekly featured content',
-        'disc.f3':'Up to 4K resolution per eye','disc.f4':'1 device at a time',
+        'disc.f3':'Up to 4K resolution','disc.f4':'1 device at a time',
         'disc.f5':'Ad-supported','disc.f6':'No offline download',
         'disc.btn':'Create Account',
         'pro.badge':'Most Popular','pro.tier':'Pro',
-        'pro.billed.m':'Billed monthly','pro.billed.a':'Billed annually · $76,680/yr',
+        'pro.billed.m':'−20% promo · Billed monthly','pro.billed.a':'Billed annually · $76,680/yr',
         'pro.desc':'The full catalog at your fingertips, uninterrupted and ad-free.',
         'pro.f1':'Full event catalog','pro.f2':'Ad-free',
-        'pro.f3':'Up to 6K resolution per eye','pro.f4':'Ambisonic spatial audio',
+        'pro.f3':'Up to 6K resolution','pro.f4':'Ambisonic spatial audio',
         'pro.f5':'2 simultaneous devices','pro.f6':'Offline download',
         'pro.btn':'Subscribe',
         'max.tier':'Premium',
-        'max.billed.m':'Billed monthly','max.billed.a':'Billed annually · $143,880/yr',
+        'max.billed.m':'−20% promo · Billed monthly','max.billed.a':'Billed annually · $143,880/yr',
         'max.desc':'The most complete VR experience available. For the most demanding.',
-        'max.f1':'Everything in Pro','max.f2':'Maximum 8K resolution per eye',
+        'max.f1':'Everything in Pro','max.f2':'Maximum 8K resolution',
         'max.f3':'Early access releases','max.f4':'Exclusive live events',
         'max.f5':'4 simultaneous devices','max.f6':'Exclusive behind the scenes',
         'max.btn':'Go Pro Max',
@@ -1095,31 +1127,31 @@
         'cmp.p':'Every feature, every limit, every benefit. Compare what matters and choose wisely.',
         'cmp.th.feat':'Feature',
         'cmp.th.d':'Discover <small>Free</small>',
-        'cmp.th.p':'Pro <small>$7,990 / mo</small>',
-        'cmp.th.m':'Pro Max <small>$14,990 / mo</small>',
-        'tb.g1':'Content','tb.g2':'Technical quality','tb.g3':'Devices &amp; usage',
+        'cmp.th.p':'Pro <small>$6,390 / mo</small>',
+        'cmp.th.m':'Pro Max <small>$11,990 / mo</small>',
+        'tb.g1':'Content','tb.g2':'Technical quality','tb.g3':'Devices & usage',
         'tb.g4':'Experience','tb.g5':'Support',
         'tb.f1':'VR catalog access','tb.f2':'Early releases (7 days early)',
-        'tb.f3':'Exclusive live events','tb.f4':'Behind the scenes &amp; extras',
-        'tb.f5':'Max resolution per eye','tb.f6':'Bitrate up to',
-        'tb.f7':'Ambisonic spatial audio (HOA)','tb.f8':'HDR &amp; extended dynamic range',
+        'tb.f3':'Exclusive live events','tb.f4':'Behind the scenes & extras',
+        'tb.f5':'Max resolution','tb.f6':'Bitrate up to',
+        'tb.f7':'Ambisonic spatial audio (HOA)','tb.f8':'HDR & extended dynamic range',
         'tb.f9':'Simultaneous devices','tb.f10':'Family profiles',
         'tb.f11':'Offline download','tb.f12':'Compatible VR headsets',
-        'tb.f13':'Ad-free playback','tb.f14':'Personal lists &amp; favorites',
-        'tb.f15':'Multi-view (simultaneous cameras)','tb.f16':'Subtitles &amp; multi-language',
+        'tb.f13':'Ad-free playback','tb.f14':'Personal lists & favorites',
+        'tb.f15':'Multi-view (simultaneous cameras)','tb.f16':'Subtitles & multi-language',
         'tb.f17':'Email support','tb.f18':'Priority 24/7 support',
         'tb.f19':'One-click cancellation',
         'tb.v.full':'Full','tb.v.all':'All',
         'faq.h':'Frequently asked questions',
         'faq.p':'We answer the most common questions about your FirstRow VR subscription.',
         'faq.q1':'Which VR headsets are compatible? <span class="faq-icon">+</span>',
-        'faq.a1':'We support Meta Quest 2, 3, 3S &amp; Pro; Apple Vision Pro; PlayStation VR2; Pico 4 &amp; Pico 4 Ultra; HTC Vive XR Elite, and most WebXR-compatible headsets. You can also watch in flat 360° mode in any modern browser if you don\'t have a headset yet.',
+        'faq.a1':'We support Meta Quest 2, 3, 3S & Pro; Apple Vision Pro; PlayStation VR2; Pico 4 & Pico 4 Ultra; HTC Vive XR Elite, and most WebXR-compatible headsets. You can also watch in flat 360° mode in any modern browser if you don\'t have a headset yet.',
         'faq.q2':'Can I cancel at any time? <span class="faq-icon">+</span>',
         'faq.a2':'Yes. Cancellation is one click from your account panel. You keep access until the end of the period you already paid for. No penalties, no fine print.',
         'faq.q3':'What\'s the difference between Pro and Pro Max? <span class="faq-icon">+</span>',
-        'faq.a3':'Pro gives you the full catalog in up to 6K per eye, ad-free with offline download. Pro Max ups to 8K, adds early releases, exclusive live events, simultaneous multi-camera view, up to 4 devices, and priority 24/7 support.',
+        'faq.a3':'Pro gives you the full catalog in up to 6K, ad-free with offline download. Pro Max ups to 8K, adds early releases, exclusive live events, simultaneous multi-camera view, up to 4 devices, and priority 24/7 support.',
         'faq.q4':'How does the annual plan with −20% work? <span class="faq-icon">+</span>',
-        'faq.a4':'By paying 12 months upfront you save 20% off the monthly rate. Pro drops from $7,990 to the equivalent of $6,390/mo ($76,680/yr). Pro Max drops from $14,990 to $11,990/mo ($143,880/yr).',
+        'faq.a4':'Both the monthly promo and the annual plan apply −20% off the list price (they don\'t stack). Pro comes to $6,390/mo and Pro Max to $11,990/mo. The monthly promo is for a limited time; the annual plan locks that same −20% for 12 months ($76,680 and $143,880/yr respectively).',
         'faq.q5':'What payment methods do you accept? <span class="faq-icon">+</span>',
         'faq.a5':'We accept credit and debit cards (Visa, Mastercard, American Express), WebPay, Mach, Mercado Pago, and bank transfer for annual plans. All payments are encrypted and processed by our PCI-DSS partner.',
         'faq.q6':'Can I buy or rent content without a subscription? <span class="faq-icon">+</span>',
@@ -1148,6 +1180,8 @@
       {s:'.sub-hero-sub', k:'hero.p'},
       {s:'#btMonthly', k:'hero.monthly'},
       {s:'#btAnnual', k:'hero.annual', html:true},
+      {s:'.promo-banner .promo-tag', k:'promo.tag'},
+      {s:'.promo-banner .promo-text', k:'promo.txt'},
       {s:'.plans-grid .plan:nth-child(1) .plan-tier', k:'disc.tier'},
       {s:'.plans-grid .plan:nth-child(1) .plan-billed', k:'disc.billed'},
       {s:'.plans-grid .plan:nth-child(1) .plan-desc', k:'disc.desc'},
