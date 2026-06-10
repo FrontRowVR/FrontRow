@@ -1,5 +1,5 @@
--- ════════════════════════════════════════════════════════════════════════
--- FrontRow VR · Esquema de base de datos (Supabase / Postgres)
+﻿-- ════════════════════════════════════════════════════════════════════════
+-- FirstRow VR · Esquema de base de datos (Supabase / Postgres)
 -- ════════════════════════════════════════════════════════════════════════
 -- Este archivo documenta el esquema actual de la base de datos.
 -- Las tablas YA están creadas en producción (Supabase dashboard).

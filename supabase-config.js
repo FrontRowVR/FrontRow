@@ -1,4 +1,4 @@
-// FrontRow VR · Supabase client config
+﻿// FirstRow VR · Supabase client config
 //
 // Estas credenciales son PÚBLICAS por diseño (es la anon key).
 // Lo que protege los datos del usuario es Row Level Security (RLS) en la

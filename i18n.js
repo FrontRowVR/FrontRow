@@ -1,4 +1,4 @@
-/* FrontRow VR · Shared i18n utility
+﻿/* FirstRow VR · Shared i18n utility
  * Usage: call initI18n(translations, i18nMap) with page-specific data.
  * i18nMap: array of {s: CSSselector, k: translationKey, html?: true}
  * data-i18n="key" on any element: updated automatically by setLang()
