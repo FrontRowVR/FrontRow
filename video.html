@@ -1,4 +1,4 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="es">
 <head>
   <meta charset="UTF-8" />
@@ -7,9 +7,11 @@
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Unbounded:wght@700;800&family=DM+Sans:ital,wght@0,300;0,400;0,500;1,300&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="vr-player.css?v=5" />
   <script src="https://aframe.io/releases/1.5.0/aframe.min.js"></script>
   <script src="supabase-config.js?v=1"></script>
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="vr-player.js?v=5"></script>
   <style>
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
@@ -246,123 +248,7 @@
     }
     .vh-gallery-img:hover { opacity: .85; }
 
-    /* ── VR MODAL ── */
-    .vr-modal {
-      position: fixed; inset: 0; z-index: 2000;
-      background: #000;
-      visibility: hidden; opacity: 0; pointer-events: none;
-      transition: opacity .25s;
-    }
-    .vr-modal.open { visibility: visible; opacity: 1; pointer-events: auto; }
-    .vr-modal-bar {
-      position: absolute; top: 0; left: 0; right: 0; z-index: 10;
-      display: flex; align-items: center; justify-content: space-between;
-      padding: 1rem 1.5rem;
-      background: linear-gradient(to bottom, rgba(0,0,0,.75) 0%, transparent 100%);
-    }
-    .vr-modal-logo { display: flex; align-items: center; }
-    .vr-modal-logo .logo-img { height: 36px; }
-    .vr-modal-close {
-      background: rgba(255,255,255,.1); border: 1px solid rgba(255,255,255,.2);
-      color: var(--white); width: 40px; height: 40px;
-      border-radius: 50%; font-size: 1rem; cursor: pointer;
-      display: flex; align-items: center; justify-content: center;
-      transition: background .2s;
-    }
-    .vr-modal-close:hover { background: rgba(255,255,255,.22); }
-    .vr-modal a-scene { width: 100%; height: 100vh; display: block; }
-    .vr-modal-hint {
-      position: absolute; bottom: 1.8rem; left: 50%; transform: translateX(-50%);
-      z-index: 10; background: rgba(0,0,0,.55);
-      border: 1px solid var(--border); backdrop-filter: blur(8px);
-      padding: .5rem 1.4rem; border-radius: 999px;
-      font-size: .76rem; color: rgba(255,255,255,.6);
-      letter-spacing: .04em; white-space: nowrap; pointer-events: none;
-      animation: hintFade 5s ease forwards 3s;
-    }
-    .vr-loading {
-      position: absolute; inset: 0; z-index: 7;
-      display: none; flex-direction: column;
-      align-items: center; justify-content: center; gap: 1.2rem;
-      background: #050507;
-    }
-    .vr-loading.show { display: flex; }
-    .vr-spinner {
-      width: 52px; height: 52px;
-      border: 2px solid rgba(0,229,255,.15); border-top-color: var(--accent);
-      border-radius: 50%; animation: spin .85s linear infinite;
-    }
-    .vr-loading p { font-size: .8rem; color: rgba(255,255,255,.4); letter-spacing: .06em; }
-    .vr-error {
-      position: absolute; inset: 0; z-index: 8;
-      display: none; flex-direction: column;
-      align-items: center; justify-content: center; gap: 1rem;
-      background: #050507;
-    }
-    .vr-error.show { display: flex; }
-    .vr-error p { font-size: .85rem; color: rgba(255,100,100,.75); max-width: 360px; text-align: center; line-height: 1.75; }
-
-    /* ── VR CONTROLS BAR ── */
-    .vr-controls {
-      position: absolute; bottom: 0; left: 0; right: 0; z-index: 10;
-      display: flex; align-items: center; gap: 1rem;
-      padding: 1rem 1.5rem 1.8rem;
-      background: linear-gradient(to top, rgba(0,0,0,.9) 0%, transparent 100%);
-      transition: opacity .4s, visibility .4s;
-    }
-    .vr-controls.hidden { opacity: 0; visibility: hidden; pointer-events: none; }
-
-    .vr-ctrl-btn {
-      background: none; border: none; cursor: pointer;
-      color: var(--white); padding: .35rem;
-      display: flex; align-items: center; justify-content: center;
-      opacity: .85; transition: opacity .15s, transform .15s; flex-shrink: 0;
-    }
-    .vr-ctrl-btn:hover { opacity: 1; transform: scale(1.12); }
-    .vr-ctrl-btn svg { width: 22px; height: 22px; }
-
-    .vr-progress-wrap {
-      flex: 1; display: flex; flex-direction: column; gap: .45rem; min-width: 0;
-    }
-    .vr-seekbar {
-      -webkit-appearance: none; appearance: none;
-      width: 100%; height: 3px; outline: none; cursor: pointer;
-      border-radius: 999px; background: rgba(255,255,255,.2);
-      background-image: linear-gradient(var(--accent), var(--accent));
-      background-size: 0% 100%; background-repeat: no-repeat;
-    }
-    .vr-seekbar::-webkit-slider-thumb {
-      -webkit-appearance: none; width: 14px; height: 14px;
-      border-radius: 50%; background: var(--white); cursor: pointer;
-      box-shadow: 0 0 6px rgba(0,229,255,.55);
-    }
-    .vr-seekbar::-moz-range-thumb {
-      width: 14px; height: 14px; border: none;
-      border-radius: 50%; background: var(--white); cursor: pointer;
-    }
-    .vr-time {
-      font-size: .72rem; color: rgba(255,255,255,.5);
-      letter-spacing: .04em; white-space: nowrap; font-family: 'DM Sans', sans-serif;
-    }
-
-    .vr-volume-wrap {
-      display: flex; align-items: center; gap: .5rem; flex-shrink: 0;
-    }
-    .vr-volbar {
-      -webkit-appearance: none; appearance: none;
-      width: 72px; height: 3px; outline: none; cursor: pointer;
-      border-radius: 999px; background: rgba(255,255,255,.2);
-      background-image: linear-gradient(rgba(255,255,255,.65), rgba(255,255,255,.65));
-      background-size: 100% 100%; background-repeat: no-repeat;
-    }
-    .vr-volbar::-webkit-slider-thumb {
-      -webkit-appearance: none; width: 12px; height: 12px;
-      border-radius: 50%; background: var(--white); cursor: pointer;
-    }
-    .vr-volbar::-moz-range-thumb {
-      width: 12px; height: 12px; border: none;
-      border-radius: 50%; background: var(--white); cursor: pointer;
-    }
+    /* Reproductor VR → estilos en vr-player.css */
 
     /* ── FOOTER ── */
     footer {
@@ -406,7 +292,7 @@
 
   <!-- ══ NAV ══ -->
   <nav id="nav">
-    <a href="index.html" class="logo"><img src="FirstRow.png" alt="FirstRow VR" class="logo-img" /></a>
+    <a href="/" class="logo"><img src="FirstRow.png" alt="FirstRow VR" class="logo-img" /></a>
     <div class="nav-right">
       <ul class="nav-links">
         <li><a href="index.html#trabajo">Trabajo</a></li>
@@ -428,61 +314,11 @@
   <!-- ══ PAGE CONTENT ══ -->
   <div id="pageContent"></div>
 
-  <!-- ══ VR PLAYER MODAL ══ -->
-  <div id="vrModal" class="vr-modal">
-    <div class="vr-modal-bar">
-      <span class="vr-modal-logo"><img src="FirstRow.png" alt="FirstRow VR" class="logo-img" /></span>
-      <button class="vr-modal-close" id="closeVrPlayer" aria-label="Cerrar visor">✕</button>
-    </div>
-    <div class="vr-loading" id="vrLoading">
-      <div class="vr-spinner"></div>
-      <p>Cargando experiencia VR&hellip;</p>
-    </div>
-    <div class="vr-error" id="vrError">
-      <p id="vrErrorMsg">Error al cargar el video.</p>
-    </div>
-    <video id="vrVideo" crossorigin="anonymous" style="position:absolute;width:1px;height:1px;opacity:0;pointer-events:none;left:-9999px" loop playsinline webkit-playsinline preload="auto"></video>
-    <a-scene id="vrScene" embedded vr-mode-ui="enabled: true"
-      loading-screen="dotsColor: #00e5ff; backgroundColor: #050507"
-      renderer="antialias: true; colorManagement: true">
-      <a-sky color="#050507"></a-sky>
-      <a-entity id="vrSphere"
-        geometry="primitive: sphere; radius: 100; segmentsWidth: 64; segmentsHeight: 64; phiStart: 0; phiLength: 180; thetaStart: 0; thetaLength: 180"
-        material="shader: flat; side: back; color: #050507"
-        rotation="0 90 0">
-      </a-entity>
-      <a-camera look-controls="reverseMouseDrag: false" wasd-controls="enabled: false"></a-camera>
-    </a-scene>
-    <!-- Controls bar -->
-    <div id="vrControls" class="vr-controls">
-      <button id="vrPlayPause" class="vr-ctrl-btn" aria-label="Reproducir / Pausar">
-        <svg id="iconPlay" viewBox="0 0 24 24" fill="currentColor"><polygon points="5,3 19,12 5,21"/></svg>
-        <svg id="iconPause" viewBox="0 0 24 24" fill="currentColor" style="display:none"><rect x="6" y="4" width="4" height="16"/><rect x="14" y="4" width="4" height="16"/></svg>
-      </button>
-      <div class="vr-progress-wrap">
-        <input type="range" id="vrSeekBar" class="vr-seekbar" min="0" max="100" value="0" step="0.1" />
-        <span id="vrTime" class="vr-time">0:00 / 0:00</span>
-      </div>
-      <div class="vr-volume-wrap">
-        <button id="vrMuteBtn" class="vr-ctrl-btn" aria-label="Silenciar / Activar sonido">
-          <svg id="iconVol" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-            <polygon points="11,5 6,9 2,9 2,15 6,15 11,19"/>
-            <path d="M19.07 4.93a10 10 0 010 14.14M15.54 8.46a5 5 0 010 7.07"/>
-          </svg>
-          <svg id="iconMute" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display:none">
-            <polygon points="11,5 6,9 2,9 2,15 6,15 11,19"/>
-            <line x1="23" y1="9" x2="17" y2="15"/><line x1="17" y1="9" x2="23" y2="15"/>
-          </svg>
-        </button>
-        <input type="range" id="vrVolBar" class="vr-volbar" min="0" max="1" value="1" step="0.05" />
-      </div>
-    </div>
-    <p class="vr-modal-hint" id="vrHint">Arrastra para girar la vista · En visor VR presiona ⊙ para entrar</p>
-  </div>
+  <!-- El modal del reproductor VR lo inyecta vr-player.js -->
 
   <!-- ══ FOOTER ══ -->
   <footer id="siteFooter" style="display:none">
-    <a href="index.html" class="f-logo"><img src="FirstRow.png" alt="FirstRow VR" class="logo-img" /></a>
+    <a href="/" class="f-logo"><img src="FirstRow.png" alt="FirstRow VR" class="logo-img" /></a>
     <div class="f-links">
       <a href="index.html#trabajo">Trabajo</a>
       <a href="eventos.html">Eventos</a>
@@ -583,153 +419,7 @@
     window.addEventListener('scroll', function () { nav.classList.toggle('scrolled', window.scrollY > 30); });
 
     // ── VR Player ──
-    var vrModal      = document.getElementById('vrModal');
-    var vrVideo      = document.getElementById('vrVideo');
-    var vrLoading    = document.getElementById('vrLoading');
-    var vrError      = document.getElementById('vrError');
-    var closeBtn     = document.getElementById('closeVrPlayer');
-    var vrControls   = document.getElementById('vrControls');
-    var vrPlayPause  = document.getElementById('vrPlayPause');
-    var iconPlay     = document.getElementById('iconPlay');
-    var iconPause    = document.getElementById('iconPause');
-    var vrSeekBar    = document.getElementById('vrSeekBar');
-    var vrTime       = document.getElementById('vrTime');
-    var vrMuteBtn    = document.getElementById('vrMuteBtn');
-    var iconVol      = document.getElementById('iconVol');
-    var iconMute     = document.getElementById('iconMute');
-    var vrVolBar     = document.getElementById('vrVolBar');
-    var hideCtrlTimer;
-
-    function fmtTime(s) {
-      if (isNaN(s)) return '0:00';
-      var m = Math.floor(s / 60);
-      var ss = Math.floor(s % 60);
-      return m + ':' + (ss < 10 ? '0' : '') + ss;
-    }
-
-    function showControls() {
-      vrControls.classList.remove('hidden');
-      clearTimeout(hideCtrlTimer);
-      hideCtrlTimer = setTimeout(function () {
-        if (!vrVideo.paused) vrControls.classList.add('hidden');
-      }, 3000);
-    }
-
-    function applyVideoTexture(video) {
-      var sphere = document.getElementById('vrSphere');
-      var mesh   = sphere.getObject3D('mesh');
-      if (!mesh) { setTimeout(function () { applyVideoTexture(video); }, 200); return; }
-      var renderer = document.getElementById('vrScene').renderer;
-      var texture  = new THREE.VideoTexture(video);
-      var vw = video.videoWidth || 1; var vh = video.videoHeight || 1;
-      var isSBS = (vw / vh) >= 1.7;
-      texture.wrapS = THREE.RepeatWrapping; texture.wrapT = THREE.RepeatWrapping;
-      texture.repeat.set(isSBS ? 0.5 : 1, 1); texture.offset.set(0, 0);
-      texture.minFilter = THREE.LinearFilter; texture.magFilter = THREE.LinearFilter;
-      texture.generateMipmaps = false;
-      if (renderer && renderer.capabilities) texture.anisotropy = renderer.capabilities.getMaxAnisotropy();
-      if (THREE.SRGBColorSpace !== undefined) texture.colorSpace = THREE.SRGBColorSpace;
-      else if (THREE.sRGBEncoding !== undefined) texture.encoding = THREE.sRGBEncoding;
-      if (mesh.material) mesh.material.dispose();
-      mesh.material = new THREE.MeshBasicMaterial({ map: texture, side: THREE.BackSide });
-      mesh.material.needsUpdate = true;
-    }
-
-    function openVr(vid) {
-      vrModal.classList.add('open');
-      document.body.style.overflow = 'hidden';
-      vrError.classList.remove('show');
-      vrLoading.classList.add('show');
-      vrControls.classList.remove('hidden');
-      // Reset controls
-      vrSeekBar.value = 0;
-      vrSeekBar.style.backgroundSize = '0% 100%';
-      vrTime.textContent = '0:00 / 0:00';
-      iconPlay.style.display = 'none';
-      iconPause.style.display = '';
-      iconVol.style.display = '';
-      iconMute.style.display = 'none';
-      vrVolBar.value = 1;
-      vrVolBar.style.backgroundSize = '100% 100%';
-      vrVideo.muted = false;
-      vrVideo.volume = 1;
-      vrVideo.src = vid.src;
-      vrVideo.load();
-      vrVideo.play().then(function () {
-        vrLoading.classList.remove('show');
-        applyVideoTexture(vrVideo);
-        showControls();
-      }).catch(function (err) {
-        vrLoading.classList.remove('show');
-        vrError.classList.add('show');
-        document.getElementById('vrErrorMsg').textContent = 'No se pudo reproducir: ' + err.message;
-      });
-    }
-
-    closeBtn.addEventListener('click', function () {
-      vrModal.classList.remove('open');
-      document.body.style.overflow = '';
-      clearTimeout(hideCtrlTimer);
-      vrVideo.pause(); vrVideo.src = '';
-      var sphere = document.getElementById('vrSphere');
-      if (sphere.getObject3D('mesh') && sphere.getObject3D('mesh').material) {
-        sphere.getObject3D('mesh').material.dispose();
-      }
-    });
-
-    // ── Controls wiring ──
-    vrModal.addEventListener('mousemove', showControls);
-    vrModal.addEventListener('touchstart', showControls, { passive: true });
-
-    vrPlayPause.addEventListener('click', function () {
-      if (vrVideo.paused) vrVideo.play(); else vrVideo.pause();
-    });
-    vrVideo.addEventListener('play', function () {
-      iconPlay.style.display = 'none'; iconPause.style.display = '';
-    });
-    vrVideo.addEventListener('pause', function () {
-      iconPlay.style.display = ''; iconPause.style.display = 'none';
-      vrControls.classList.remove('hidden'); clearTimeout(hideCtrlTimer);
-    });
-
-    vrVideo.addEventListener('timeupdate', function () {
-      if (!vrVideo.duration) return;
-      var pct = (vrVideo.currentTime / vrVideo.duration) * 100;
-      vrSeekBar.value = pct;
-      vrSeekBar.style.backgroundSize = pct + '% 100%';
-      vrTime.textContent = fmtTime(vrVideo.currentTime) + ' / ' + fmtTime(vrVideo.duration);
-    });
-    vrSeekBar.addEventListener('input', function () {
-      if (!vrVideo.duration) return;
-      vrVideo.currentTime = (vrSeekBar.value / 100) * vrVideo.duration;
-      showControls();
-    });
-
-    vrVolBar.addEventListener('input', function () {
-      vrVideo.volume = parseFloat(vrVolBar.value);
-      vrVideo.muted = vrVideo.volume === 0;
-      updateMuteIcon(); showControls();
-    });
-    vrMuteBtn.addEventListener('click', function () {
-      vrVideo.muted = !vrVideo.muted;
-      if (!vrVideo.muted && vrVideo.volume === 0) { vrVideo.volume = 0.5; vrVolBar.value = 0.5; }
-      updateMuteIcon();
-    });
-    function updateMuteIcon() {
-      var muted = vrVideo.muted || vrVideo.volume === 0;
-      iconVol.style.display  = muted ? 'none' : '';
-      iconMute.style.display = muted ? '' : 'none';
-      vrVolBar.style.backgroundSize = (muted ? 0 : vrVideo.volume * 100) + '% 100%';
-    }
-
-    // Keyboard shortcuts (Space = play/pause, M = mute, ← / → = seek ±10s)
-    document.addEventListener('keydown', function (e) {
-      if (!vrModal.classList.contains('open')) return;
-      if (e.key === ' ' || e.key === 'k') { e.preventDefault(); vrPlayPause.click(); showControls(); }
-      if (e.key === 'm') { vrMuteBtn.click(); showControls(); }
-      if (e.key === 'ArrowRight') { vrVideo.currentTime = Math.min(vrVideo.duration || 0, vrVideo.currentTime + 10); showControls(); }
-      if (e.key === 'ArrowLeft')  { vrVideo.currentTime = Math.max(0, vrVideo.currentTime - 10); showControls(); }
-    });
+    // Vive ahora en vr-player.js (módulo compartido). Se abre con VRPlayer.open(url).
 
     // ── Render page from URL param ──
     function renderPage() {
@@ -816,7 +506,7 @@
       var vrBtn = document.createElement('button');
       vrBtn.className = 'btn-vr';
       vrBtn.innerHTML = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M2 12s3-7 10-7 10 7 10 7-3 7-10 7-10-7-10-7z"/><circle cx="12" cy="12" r="3"/></svg>' + VID_STR.openVr;
-      vrBtn.addEventListener('click', function () { openVr(vid); });
+      vrBtn.addEventListener('click', function () { VRPlayer.open(vid.src); });
 
       actions.appendChild(row1);
       actions.appendChild(vrBtn);
@@ -892,3 +582,5 @@
       }
     };
   </script>
+</body>
+</html>
