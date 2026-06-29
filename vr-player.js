@@ -67,7 +67,7 @@
     var s = L();
     return '' +
       '<div class="vr-modal-bar">' +
-        '<a href="/" class="vr-modal-logo" aria-label="Ir al inicio" title="Ir al inicio"><img src="FirstRow.png" alt="FirstRow VR" class="logo-img" /></a>' +
+        '<a href="/" class="vr-modal-logo" aria-label="Ir al inicio" title="Ir al inicio"><img src="FirstRow.png?v=2" alt="FirstRow VR" class="logo-img" /></a>' +
         '<button class="vr-modal-close" id="closeVrPlayer" aria-label="Cerrar visor">✕</button>' +
       '</div>' +
       '<div class="vr-loading" id="vrLoading"><div class="vr-spinner"></div><p>' + s.loading + '</p></div>' +
