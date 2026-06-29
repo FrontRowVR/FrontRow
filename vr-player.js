@@ -339,10 +339,19 @@
     // Entrar en VR + detección del visor (WebXR)
     el('vrEnterBtn').addEventListener('click', function () {
       if (!vrReady || !els.scene) return;
-      if (typeof els.scene.enterVR === 'function') {
-        var p = els.scene.enterVR();
-        if (p && p.catch) p.catch(function () {});
-      }
+      var scene = els.scene;
+      if (typeof scene.enterVR !== 'function') return;
+      // A-Frame cae a fullscreen cuando checkHeadsetConnected() es false (no detecta
+      // bien visores WebXR en desktop: Quest Link / SteamVR / emulador). Como ya
+      // confirmamos que immersive-vr está soportado (vrReady), forzamos la ruta WebXR.
+      var origCheck = scene.checkHeadsetConnected;
+      if (typeof origCheck === 'function') scene.checkHeadsetConnected = function () { return true; };
+      var restore = function () { if (typeof origCheck === 'function') scene.checkHeadsetConnected = origCheck; };
+      try {
+        var p = scene.enterVR();
+        if (p && p.then) p.then(restore, function (e) { restore(); if (window.console) console.warn('[VRPlayer] enterVR:', e && e.message ? e.message : e); });
+        else restore();
+      } catch (e) { restore(); if (window.console) console.warn('[VRPlayer] enterVR error:', e); }
       showControls();
     });
     if (navigator.xr && navigator.xr.addEventListener) {
