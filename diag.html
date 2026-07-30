@@ -67,7 +67,17 @@
   <div id="stage"></div>
   <table id="vidResults"></table>
 
-  <h2>4 · Prueba WebXR — aquí está el problema</h2>
+  <h2>4 · Render con textura de video 8K — SIN VISOR</h2>
+  <p class="sub">
+    Esto es lo único que hace el reproductor y un &lt;video&gt; normal no: copiar cada frame del
+    video a la GPU como textura. 20 s midiendo el tiempo de cada cuadro. No necesitas el visor.
+  </p>
+  <button id="flatBtn">Probar render 8K</button>
+  <button id="flat2kBtn" class="alt">Comparar con el mismo video a 1/4 de tamaño</button>
+  <div id="flatStage"></div>
+  <table id="flatResults"></table>
+
+  <h2>5 · Prueba WebXR</h2>
   <p class="sub">
     Tres pruebas que aíslan la causa. Cada una entra al visor 20 s y mide el tiempo de cada frame.
     Ponte el visor antes de pulsar. Para salir antes, usa el botón del sistema.
@@ -83,7 +93,7 @@
   <button id="xrB">B · VR con video 8K real</button>
   <table id="xrResults"></table>
 
-  <h2>5 · Resultado para copiar</h2>
+  <h2>6 · Resultado para copiar</h2>
   <textarea id="copyBox" readonly></textarea>
 
 <script>
@@ -99,6 +109,9 @@
 
   // ── 1 · Entorno ──
   var env = document.getElementById('env');
+  // Sello de versión: sin esto no hay forma de saber si el informe salió de una
+  // copia en caché de esta página.
+  row(env, 'Versión de diag.html', 'v3');
   row(env, 'URL', location.href);
   row(env, 'User agent', navigator.userAgent);
   row(env, 'Contexto seguro', window.isSecureContext ? 'sí' : 'NO', window.isSecureContext ? 'ok' : 'bad');
@@ -187,14 +200,112 @@
       .then(function () { btn.textContent = 'Listo'; stage.innerHTML = ''; });
   });
 
-  // ── 4 · Prueba WebXR ─────────────────────────────────────────────────────
+  // ── 4 · Render con VideoTexture, sin visor ───────────────────────────────
+  // Reproduce EXACTAMENTE lo que hace el reproductor (esfera + VideoTexture en
+  // un bucle de render) menos A-Frame y menos WebXR. Si aquí el tiempo por
+  // cuadro se dispara, la causa es la subida del frame a la GPU y no el visor.
+  var flatResults = document.getElementById('flatResults');
+  var flatStage = document.getElementById('flatStage');
+  var flatBusy = false;
+
+  function pct(sorted, p) { return sorted[Math.min(sorted.length - 1, Math.floor(sorted.length * p))]; }
+
+  function stats(label, times, extra) {
+    if (!times.length) { row(flatResults, label, 'no se renderizó ningún frame', 'bad'); return; }
+    var s = times.slice().sort(function (a, b) { return a - b; });
+    var med = pct(s, .5);
+    var slow = times.filter(function (t) { return t > 50; }).length;
+    row(flatResults, label,
+      times.length + ' frames · mediana ' + med.toFixed(1) + 'ms (' + (1000 / med).toFixed(0) + ' fps)' +
+      ' · p95 ' + pct(s, .95).toFixed(1) + 'ms · max ' + s[s.length - 1].toFixed(1) + 'ms' +
+      ' · frames >50ms: ' + slow + (extra ? ' · ' + extra : ''),
+      med < 20 ? 'ok' : (med < 40 ? 'warn' : 'bad'));
+  }
+
+  // scale = 1 usa el frame completo (7680x3840). scale = 0.5 lo reduce a la
+  // mitad por lado (1/4 de píxeles) pasando por un canvas intermedio, para
+  // comparar el costo con el mismo video y el mismo bucle.
+  function runFlatRender(label, scale) {
+    if (flatBusy) return;
+    if (!window.THREE) { row(flatResults, label, 'THREE no cargó', 'bad'); return; }
+    flatBusy = true;
+    flatStage.innerHTML = '';
+
+    var canvas = document.createElement('canvas');
+    canvas.width = 640; canvas.height = 360;
+    canvas.style.cssText = 'width:320px;height:180px;background:#000';
+    flatStage.appendChild(canvas);
+
+    var video = document.createElement('video');
+    video.crossOrigin = 'anonymous'; video.muted = true; video.playsInline = true;
+    video.loop = true; video.preload = 'auto';
+    video.style.cssText = 'width:160px;height:80px;margin-left:8px;vertical-align:top';
+    flatStage.appendChild(video);
+
+    var renderer = new THREE.WebGLRenderer({ canvas: canvas, antialias: false });
+    var scene = new THREE.Scene();
+    var camera = new THREE.PerspectiveCamera(70, 640 / 360, 0.1, 1000);
+    var geo = new THREE.SphereGeometry(100, 64, 48);
+    geo.scale(-1, 1, 1);
+    var mat = new THREE.MeshBasicMaterial({ color: 0x222222 });
+    scene.add(new THREE.Mesh(geo, mat));
+
+    var times = [], raf = null, t0 = 0, last = 0, scaler = null, sctx = null;
+
+    function stop(extra) {
+      if (raf) cancelAnimationFrame(raf);
+      stats(label, times, extra);
+      renderer.setAnimationLoop(null);
+      if (mat.map) mat.map.dispose();
+      renderer.dispose();
+      video.pause(); video.removeAttribute('src'); video.load();
+      flatStage.innerHTML = '';
+      flatBusy = false;
+    }
+
+    video.src = VIDEOS[0][1];
+    video.play().then(function () {
+      var texSrc = video;
+      if (scale !== 1) {
+        scaler = document.createElement('canvas');
+        scaler.width = Math.round(video.videoWidth * scale);
+        scaler.height = Math.round(video.videoHeight * scale);
+        sctx = scaler.getContext('2d');
+        texSrc = scaler;
+      }
+      var texture = scale === 1 ? new THREE.VideoTexture(video) : new THREE.CanvasTexture(scaler);
+      texture.minFilter = THREE.LinearFilter; texture.generateMipmaps = false;
+      texture.colorSpace = THREE.SRGBColorSpace;
+      mat.map = texture; mat.needsUpdate = true;
+
+      t0 = performance.now(); last = t0;
+      (function loop() {
+        var now = performance.now();
+        times.push(now - last); last = now;
+        if (sctx) { sctx.drawImage(video, 0, 0, scaler.width, scaler.height); texture.needsUpdate = true; }
+        renderer.render(scene, camera);
+        if (now - t0 > 20000) { stop(scale === 1 ? 'frame completo 7680x3840' : 'reducido a ' + scaler.width + 'x' + scaler.height); return; }
+        raf = requestAnimationFrame(loop);
+      })();
+    }).catch(function (e) {
+      row(flatResults, label, 'el video no arrancó: ' + e.message, 'bad');
+      flatBusy = false; flatStage.innerHTML = '';
+    });
+  }
+
+  document.getElementById('flatBtn').addEventListener('click', function () {
+    runFlatRender('Render VideoTexture 8K completo', 1);
+  });
+  document.getElementById('flat2kBtn').addEventListener('click', function () {
+    runFlatRender('Render mismo video a 1/4', 0.5);
+  });
+
+  // ── 5 · Prueba WebXR ─────────────────────────────────────────────────────
   // Usa el MISMO three.js que el reproductor (el que trae A-Frame), pero sin
   // A-Frame de por medio, para separar "el video es demasiado" de "algo de
   // A-Frame o de mi código".
   var xrResults = document.getElementById('xrResults');
   var xrBusy = false;
-
-  function pct(sorted, p) { return sorted[Math.min(sorted.length - 1, Math.floor(sorted.length * p))]; }
 
   function runXR(label, mode) {
     if (xrBusy) return;
