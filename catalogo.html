@@ -192,6 +192,8 @@
       transition: filter .4s, transform .55s;
     }
     .lib-card-thumb .card-poster { z-index: 0; }
+    /* Si la miniatura aún no existe, ocultarla en vez de mostrar el ícono roto */
+    .lib-card-thumb.no-poster .card-poster { display: none; }
     .lib-card-thumb video {
       z-index: 1; opacity: 0;
       transition: filter .4s, transform .55s, opacity .35s;
@@ -416,8 +418,17 @@
             price: { buy: 8.99, rent: 2.49 } },
         ]
       },
+      {
+        id: 'entretencion', num: '04', title: 'Entretención',
+        videos: [
+          { id: 'box', src: 'https://firstrow2026.b-cdn.net/Box.mp4', title: 'Box', img: 'imagenes/Box.png',
+            cat: 'Entretención', duration: '~10 min', res: '4K',
+            desc: 'Súbete al ring y vive el combate desde el rincón. Una experiencia de box en VR 180° estereoscópico donde cada golpe se siente a centímetros de ti.',
+            price: { buy: 9.99, rent: 2.99 } },
+        ]
+      },
       // ── SECCIÓN SUSCRIPCIÓN — agrega aquí los videos exclusivos ──
-      { id: 'suscripcion', num: '04', title: 'Suscripción', subscribed: true,
+      { id: 'suscripcion', num: '05', title: 'Suscripción', subscribed: true,
         videos: [
           // { id: 'tu-video', src: 'videos/TuVideo.mp4', title: 'Título', img: '...', desc: '...', price: { buy: 0, rent: 0 } },
         ]
@@ -483,6 +494,7 @@
         posterImg.src = imgSrc;
         posterImg.className = 'card-poster';
         posterImg.alt = '';
+        posterImg.addEventListener('error', function () { thumb.classList.add('no-poster'); });
         thumb.appendChild(posterImg);
 
         var video = document.createElement('video');
