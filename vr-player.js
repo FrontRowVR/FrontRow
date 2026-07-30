@@ -75,7 +75,7 @@
       '<video id="vrVideo" crossorigin="anonymous" style="position:absolute;width:1px;height:1px;opacity:0;pointer-events:none;left:-9999px" loop playsinline webkit-playsinline preload="auto"></video>' +
       '<a-scene id="vrScene" embedded vr-mode-ui="enabled: false" loading-screen="dotsColor: #00e5ff; backgroundColor: #050507" renderer="antialias: true; colorManagement: true">' +
         '<a-sky color="#050507"></a-sky>' +
-        '<a-entity id="vrSphere" geometry="primitive: sphere; radius: 100; segmentsWidth: 64; segmentsHeight: 64; phiStart: 0; phiLength: 180; thetaStart: 0; thetaLength: 180" material="shader: flat; side: back; color: #050507" rotation="0 90 0"></a-entity>' +
+        // Las mallas del video (una por ojo) las crea buildRig() directamente en THREE.
         '<a-camera look-controls="reverseMouseDrag: false" wasd-controls="enabled: false"></a-camera>' +
       '</a-scene>' +
       '<div id="vrControls" class="vr-controls">' +
@@ -153,41 +153,109 @@
     }, 3000);
   }
 
-  // Empaquetado estéreo: respeta la elección manual; en 'auto' lo deduce de la
-  // relación de aspecto del frame (SBS ~2:1 → mitad izquierda; si no, mono).
+  // ── Rig estéreo: UNA MALLA POR OJO ──────────────────────────────────────
+  // Dentro del visor, three.js renderiza la escena una vez por ojo y decide qué
+  // ve cada cámara con "layers": la izquierda ve la capa 1 y la derecha la 2.
+  // Con una sola malla ambos ojos reciben la MISMA mitad del frame, así que el
+  // video se ve plano (sin profundidad) dentro del visor. Por eso montamos dos
+  // mallas que comparten la textura del video y solo difieren en sus UV.
+  var rig = { meshes: [], texture: null };
+
+  // Empaquetado estéreo. Respeta la elección manual; en 'auto' compara el
+  // aspecto real con el que tendría el mismo video si fuera mono (1:1 en 180°,
+  // 2:1 en 360°), en vez de asumir que todo lo más ancho que 16:9 es SBS.
   function resolveStereo(video) {
     if (state.stereo !== 'auto') return state.stereo;
-    var vw = video.videoWidth || 1, vh = video.videoHeight || 1;
-    return (vw / vh) >= 1.7 ? 'sbs' : 'mono';
+    var vw = video.videoWidth || 0, vh = video.videoHeight || 0;
+    if (!vw || !vh) return 'mono';
+    var r = (vw / vh) / (state.projection === 360 ? 2 : 1);
+    if (r >= 1.6)  return 'sbs';   // ~el doble de ancho → ojos lado a lado
+    if (r <= 0.65) return 'tb';    // ~la mitad de alto  → ojos apilados
+    return 'mono';
   }
 
-  function applyVideoTexture(video) {
-    var sphere = el('vrSphere');
-    var mesh = sphere && sphere.getObject3D('mesh');
-    if (!mesh) { setTimeout(function () { applyVideoTexture(video); }, 200); return; }
-    var renderer = els.scene.renderer;
+  // Hemisferio (180°) o esfera completa (360°) alrededor del espectador.
+  // phiStart = -90° - phiLength/2 deja el CENTRO del video en -Z (justo al
+  // frente de la cámara) y hace que u crezca hacia la derecha.
+  // scale(-1,1,1) voltea las caras hacia adentro sin espejar la imagen: es el
+  // mismo truco de <a-videosphere>. Usar side: BackSide en su lugar deja el
+  // video invertido en horizontal.
+  function eyeGeometry(deg, mode, eye) {
+    var phiLength = deg * Math.PI / 180;
+    var geo = new THREE.SphereGeometry(100, 64, 48, -Math.PI / 2 - phiLength / 2, phiLength, 0, Math.PI);
+    geo.scale(-1, 1, 1);
+    var uv = geo.attributes.uv, i;
+    if (mode === 'sbs') {
+      for (i = 0; i < uv.count; i++) uv.setX(i, uv.getX(i) * 0.5 + (eye === 'right' ? 0.5 : 0));
+    } else if (mode === 'tb') {
+      // uv.y = 1 es el borde SUPERIOR del frame → el ojo izquierdo va arriba.
+      for (i = 0; i < uv.count; i++) uv.setY(i, uv.getY(i) * 0.5 + (eye === 'right' ? 0 : 0.5));
+    }
+    uv.needsUpdate = true;
+    return geo;
+  }
+
+  function disposeRig() {
+    var parent = els.scene && els.scene.object3D;
+    rig.meshes.forEach(function (m) {
+      if (parent) parent.remove(m);
+      m.geometry.dispose();
+      m.material.dispose();
+    });
+    rig.meshes = [];
+    if (rig.texture) { rig.texture.dispose(); rig.texture = null; }
+  }
+
+  // Fuera del visor la cámara solo ve la capa 0, así que hay que habilitarle la
+  // capa 1 para que la vista plana muestre el ojo izquierdo.
+  function enableFlatEye() {
+    var cam = els.scene && els.scene.camera;
+    if (cam) cam.layers.enable(1);
+  }
+
+  function buildRig(video) {
+    if (!window.THREE || !els.scene) return;
+    if (!els.scene.hasLoaded || !els.scene.object3D) {
+      els.scene.addEventListener('loaded', function () { buildRig(video); }, { once: true });
+      return;
+    }
+    disposeRig();
+
     var texture = new THREE.VideoTexture(video);
-    texture.wrapS = THREE.RepeatWrapping; texture.wrapT = THREE.RepeatWrapping;
-    // Vista plana / magic-window: mostramos el ojo IZQUIERDO del par estéreo.
-    var mode = resolveStereo(video);
-    if (mode === 'sbs')     { texture.repeat.set(0.5, 1); texture.offset.set(0, 0);   } // mitad izquierda
-    else if (mode === 'tb') { texture.repeat.set(1, 0.5); texture.offset.set(0, 0.5); } // mitad superior
-    else                    { texture.repeat.set(1, 1);   texture.offset.set(0, 0);   } // mono
-    texture.minFilter = THREE.LinearFilter; texture.magFilter = THREE.LinearFilter;
+    texture.minFilter = THREE.LinearFilter;
+    texture.magFilter = THREE.LinearFilter;
     texture.generateMipmaps = false;
+    var renderer = els.scene.renderer;
     if (renderer && renderer.capabilities) texture.anisotropy = renderer.capabilities.getMaxAnisotropy();
     if (THREE.SRGBColorSpace !== undefined) texture.colorSpace = THREE.SRGBColorSpace;
     else if (THREE.sRGBEncoding !== undefined) texture.encoding = THREE.sRGBEncoding;
-    if (mesh.material) mesh.material.dispose();
-    mesh.material = new THREE.MeshBasicMaterial({ map: texture, side: THREE.BackSide });
-    mesh.material.needsUpdate = true;
+    rig.texture = texture;
+
+    var mode = resolveStereo(video);
+    [['left', 1], ['right', 2]].forEach(function (pair) {
+      var mesh = new THREE.Mesh(
+        eyeGeometry(state.projection, mode, pair[0]),
+        new THREE.MeshBasicMaterial({ map: texture })
+      );
+      mesh.layers.set(pair[1]);   // 1 = ojo izquierdo · 2 = ojo derecho
+      mesh.frustumCulled = false;
+      els.scene.object3D.add(mesh);
+      rig.meshes.push(mesh);
+    });
+    enableFlatEye();
   }
 
   // 180° = hemisferio, 360° = esfera completa (regenera la geometría).
   function setProjection(deg) {
     state.projection = deg;
-    el('vrSphere').setAttribute('geometry', 'phiLength', deg);
-    setTimeout(function () { if (els.video.src) applyVideoTexture(els.video); }, 0);
+    if (els.video && els.video.src) buildRig(els.video);
+  }
+
+  // Marca el botón activo en el panel de ajustes.
+  function setActive(group, val) {
+    if (!els.settingsPanel) return;
+    els.settingsPanel.querySelectorAll('.vr-set-opts[data-set="' + group + '"] .vr-set-opt')
+      .forEach(function (b) { b.classList.toggle('is-active', b.getAttribute('data-val') === String(val)); });
   }
 
   function updateMuteIcon() {
@@ -197,9 +265,18 @@
     els.volBar.style.backgroundSize = (muted ? 0 : v.volume * 100) + '% 100%';
   }
 
-  function open(src) {
+  // open(src, opts) — opts.stereo: 'auto'|'mono'|'sbs'|'tb' · opts.projection: 180|360
+  // Cada video declara su propio formato en el catálogo; 'auto' solo es el
+  // respaldo cuando no se especifica, porque adivinar por aspecto no es fiable
+  // (un 2:1 puede ser 360° mono, VR180 SBS o VR180 TB).
+  function open(src, opts) {
     init();
+    opts = opts || {};
     var v = els.video;
+    state.stereo     = opts.stereo || 'auto';
+    state.projection = opts.projection ? parseInt(opts.projection, 10) : 180;
+    setActive('stereo', state.stereo);
+    setActive('projection', state.projection);
     els.modal.classList.add('open');
     document.body.style.overflow = 'hidden';
     els.error.classList.remove('show');
@@ -216,7 +293,7 @@
     v.src = src; v.load();
     v.play().then(function () {
       els.loading.classList.remove('show');
-      applyVideoTexture(v);
+      buildRig(v);
       v.playbackRate = state.speed;
       showControls();
     }).catch(function (err) {
@@ -228,15 +305,18 @@
 
   function close() {
     if (!els.modal) return;
+    // Si seguimos dentro del visor hay que cerrar la sesión WebXR: ocultar el
+    // modal no la termina y el visor se queda con la escena colgada.
+    if (els.scene && els.scene.is && els.scene.is('vr-mode') && typeof els.scene.exitVR === 'function') {
+      els.scene.exitVR();
+    }
     els.modal.classList.remove('open');
     document.body.style.overflow = '';
     clearTimeout(hideTimer);
     els.video.pause();
     els.video.removeAttribute('src');
     els.video.load();
-    var sphere = el('vrSphere');
-    var mesh = sphere && sphere.getObject3D('mesh');
-    if (mesh && mesh.material) mesh.material.dispose();
+    disposeRig();
     if (document.fullscreenElement) {
       var exit = document.exitFullscreen || document.webkitExitFullscreen;
       if (exit) exit.call(document);
@@ -295,16 +375,12 @@
     panel.addEventListener('mousemove', showControls);
     document.addEventListener('click', function () { panel.classList.remove('open'); });
 
-    function setActive(group, val) {
-      panel.querySelectorAll('.vr-set-opts[data-set="' + group + '"] .vr-set-opt')
-        .forEach(function (b) { b.classList.toggle('is-active', b.getAttribute('data-val') === String(val)); });
-    }
     panel.querySelectorAll('.vr-set-opt').forEach(function (btn) {
       btn.addEventListener('click', function () {
         var group = btn.parentElement.getAttribute('data-set');
         var val = btn.getAttribute('data-val');
         setActive(group, val);
-        if (group === 'stereo')          { state.stereo = val; if (v.src) applyVideoTexture(v); }
+        if (group === 'stereo')          { state.stereo = val; if (v.src) buildRig(v); }
         else if (group === 'projection') { setProjection(parseInt(val, 10)); }
         else if (group === 'speed')      { state.speed = parseFloat(val); v.playbackRate = state.speed; }
         showControls();
@@ -358,6 +434,11 @@
       navigator.xr.addEventListener('devicechange', checkVR);
     }
     els.scene.addEventListener('enter-vr', function () { if (els.readyBadge) els.readyBadge.classList.remove('show'); });
+    // La cámara se crea (y puede reemplazarse) de forma asíncrona: hay que
+    // rehabilitarle la capa 1 cada vez o la vista plana se queda en negro.
+    els.scene.addEventListener('camera-set-active', enableFlatEye);
+    if (els.scene.hasLoaded) enableFlatEye();
+    else els.scene.addEventListener('loaded', enableFlatEye);
     checkVR();
 
     // Indicador de buffering
@@ -382,7 +463,7 @@
     function recover() {
       if (!els.modal.classList.contains('open')) return;
       if (v.paused) { var p = v.play(); if (p && p.catch) p.catch(function () {}); }
-      applyVideoTexture(v);
+      buildRig(v);
     }
     function bindCanvas() {
       var canvas = els.scene.renderer && els.scene.renderer.domElement;

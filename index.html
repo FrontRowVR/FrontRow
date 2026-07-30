@@ -1051,7 +1051,7 @@
   <script src="https://aframe.io/releases/1.5.0/aframe.min.js"></script>
   <script src="supabase-config.js?v=1"></script>
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-  <script src="vr-player.js?v=7"></script>
+  <script src="vr-player.js?v=8"></script>
 </head>
 <body>
 
@@ -1610,19 +1610,19 @@
       });
 
       // ── Bind showcase items (click → VR player) ──
+      function openShowcase(item) {
+        var cat = parseInt(item.getAttribute('data-cat'));
+        var vid = parseInt(item.getAttribute('data-vid'));
+        var v = VR_CATEGORIES[cat] && VR_CATEGORIES[cat].videos[vid];
+        if (!v) return;
+        // stereo / projection viajan al reproductor: sin ellos adivina por el
+        // aspecto del frame y se equivoca con facilidad.
+        VRPlayer.open(v.src, { stereo: v.stereo, projection: v.projection });
+      }
       document.querySelectorAll('#showcaseGrid .sc-item[data-cat]').forEach(function (item) {
-        item.addEventListener('click', function () {
-          var cat = parseInt(item.getAttribute('data-cat'));
-          var vid = parseInt(item.getAttribute('data-vid'));
-          VRPlayer.open(VR_CATEGORIES[cat].videos[vid].src);
-        });
+        item.addEventListener('click', function () { openShowcase(item); });
         item.addEventListener('keydown', function (e) {
-          if (e.key === 'Enter' || e.key === ' ') {
-            e.preventDefault();
-            var cat = parseInt(item.getAttribute('data-cat'));
-            var vid = parseInt(item.getAttribute('data-vid'));
-            VRPlayer.open(VR_CATEGORIES[cat].videos[vid].src);
-          }
+          if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); openShowcase(item); }
         });
       });
 

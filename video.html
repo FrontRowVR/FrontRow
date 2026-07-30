@@ -11,7 +11,7 @@
   <script src="https://aframe.io/releases/1.5.0/aframe.min.js"></script>
   <script src="supabase-config.js?v=1"></script>
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-  <script src="vr-player.js?v=7"></script>
+  <script src="vr-player.js?v=8"></script>
   <style>
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
@@ -363,6 +363,10 @@
     });
 
     // ── Video catalog data ──
+    // stereo:     'sbs' (ojos lado a lado) · 'tb' (apilados) · 'mono' · 'auto'
+    // projection: 180 (hemisferio) · 360 (esfera completa)
+    // Si se omiten, el reproductor usa 'auto' + 180°, que solo es una conjetura
+    // a partir del aspecto del frame. Conviene declararlos siempre.
     const VIDEO_CATALOG = [
       { id: 'danza',      src: 'https://firstrow2026.b-cdn.net/Dancing%20Girl.mp4',    title: 'Danza',
         cat: 'Entretenimiento', duration: '~12 min', res: '4K',
@@ -387,6 +391,11 @@
       { id: 'box',        src: 'https://firstrow2026.b-cdn.net/Box.mp4',                title: 'Box',
         cat: 'Entretención',    duration: '~10 min', res: '4K',
         img: 'imagenes/Box.png',
+        // 7680x3840. Cada ojo queda en 3840x3840 (1:1), que es justo lo que
+        // pide un hemisferio de 180°x180°. Su metadata GSpherical dice
+        // "top-bottom", pero con esas medidas no cuadra → verificar en el visor
+        // y, si se ve mal, cambiar a stereo: 'tb'.
+        stereo: 'sbs', projection: 180,
         desc: 'Súbete al ring y vive el combate desde el rincón. Una experiencia de box en VR 180° estereoscópico donde cada golpe se siente a centímetros de ti, con la intensidad del público alrededor.',
         price: { buy: 9.99, rent: 2.99 } },
     ];
@@ -511,7 +520,9 @@
       var vrBtn = document.createElement('button');
       vrBtn.className = 'btn-vr';
       vrBtn.innerHTML = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M2 12s3-7 10-7 10 7 10 7-3 7-10 7-10-7-10-7z"/><circle cx="12" cy="12" r="3"/></svg>' + VID_STR.openVr;
-      vrBtn.addEventListener('click', function () { VRPlayer.open(vid.src); });
+      vrBtn.addEventListener('click', function () {
+        VRPlayer.open(vid.src, { stereo: vid.stereo, projection: vid.projection });
+      });
 
       actions.appendChild(row1);
       actions.appendChild(vrBtn);
