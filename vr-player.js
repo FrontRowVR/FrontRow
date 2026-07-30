@@ -20,11 +20,13 @@
     es: { loading: 'Cargando experiencia VR…', error: 'No se pudo reproducir: ',
           hint: 'Arrastra para girar la vista · Pulsa el botón VR para entrar',
           stereo: '3D / Estéreo', projection: 'Proyección', speed: 'Velocidad',
-          vrBadge: 'Visor VR listo · pulsa para entrar', vrOn: 'Entrar en VR (visor listo)', vrOff: 'No se detecta un visor VR' },
+          vrBadge: 'Visor VR listo · pulsa para entrar', vrOn: 'Entrar en VR (visor listo)', vrOff: 'No se detecta un visor VR',
+          tooHeavy: 'Este dispositivo no logra reproducir el video. Suele ocurrir cuando la resolución o el códec superan lo que puede decodificar por hardware (en 8K solo HEVC/AV1 van acelerados; H.264 cae a software y bloquea el navegador).' },
     en: { loading: 'Loading VR experience…', error: 'Could not play: ',
           hint: 'Drag to look around · Press the VR button to enter',
           stereo: '3D / Stereo', projection: 'Projection', speed: 'Speed',
-          vrBadge: 'VR headset ready · tap to enter', vrOn: 'Enter VR (headset ready)', vrOff: 'No VR headset detected' }
+          vrBadge: 'VR headset ready · tap to enter', vrOn: 'Enter VR (headset ready)', vrOff: 'No VR headset detected',
+          tooHeavy: 'This device cannot play the video. It usually means the resolution or codec exceeds what it can decode in hardware (at 8K only HEVC/AV1 are accelerated; H.264 falls back to software and freezes the browser).' }
   };
   function lang() {
     return (document.documentElement.lang || 'es').toLowerCase().indexOf('en') === 0 ? 'en' : 'es';
@@ -36,6 +38,24 @@
   var els = {};
   var hideTimer = null;
   var inited = false;
+  var startWatch = null;
+
+  // ── Vigilante de arranque ───────────────────────────────────────────────
+  // Un códec que el equipo no decodifica por hardware no produce ningún error:
+  // el navegador cae a decodificación por software y la pestaña se congela sin
+  // decir nada. Si a los 25 s el video sigue en 0, avisamos en vez de dejar el
+  // spinner girando para siempre.
+  function armStartWatchdog() {
+    clearTimeout(startWatch);
+    startWatch = setTimeout(function () {
+      if (!els.modal || !els.modal.classList.contains('open')) return;
+      if (els.video.currentTime > 0.1) return;
+      els.loading.classList.remove('show');
+      els.error.classList.add('show');
+      el('vrErrorMsg').textContent = L().tooHeavy;
+    }, 25000);
+  }
+  function disarmStartWatchdog() { clearTimeout(startWatch); startWatch = null; }
 
   // ── Disponibilidad del visor VR (WebXR) ──
   var vrReady = false;
@@ -225,11 +245,16 @@
     texture.minFilter = THREE.LinearFilter;
     texture.magFilter = THREE.LinearFilter;
     texture.generateMipmaps = false;
-    var renderer = els.scene.renderer;
-    if (renderer && renderer.capabilities) texture.anisotropy = renderer.capabilities.getMaxAnisotropy();
+    // Sin mipmaps el filtrado anisotrópico no aporta nada (es una técnica que
+    // se apoya en ellos), así que no se toca: solo encarecía el muestreo.
     if (THREE.SRGBColorSpace !== undefined) texture.colorSpace = THREE.SRGBColorSpace;
     else if (THREE.sRGBEncoding !== undefined) texture.encoding = THREE.sRGBEncoding;
     rig.texture = texture;
+
+    if (video.videoWidth > 4096 && window.console) {
+      console.info('[VRPlayer] frame ' + video.videoWidth + 'x' + video.videoHeight +
+        ' — a esta resolución solo HEVC/AV1 se decodifican por hardware; en H.264 el navegador cae a software.');
+    }
 
     var mode = resolveStereo(video);
     [['left', 1], ['right', 2]].forEach(function (pair) {
@@ -291,12 +316,14 @@
     els.volBar.value = 1; els.volBar.style.backgroundSize = '100% 100%';
     v.muted = false; v.volume = 1;
     v.src = src; v.load();
+    armStartWatchdog();
     v.play().then(function () {
       els.loading.classList.remove('show');
       buildRig(v);
       v.playbackRate = state.speed;
       showControls();
     }).catch(function (err) {
+      disarmStartWatchdog();
       els.loading.classList.remove('show');
       els.error.classList.add('show');
       el('vrErrorMsg').textContent = L().error + (err && err.message ? err.message : err);
@@ -313,6 +340,7 @@
     els.modal.classList.remove('open');
     document.body.style.overflow = '';
     clearTimeout(hideTimer);
+    disarmStartWatchdog();
     els.video.pause();
     els.video.removeAttribute('src');
     els.video.load();
@@ -448,6 +476,7 @@
     ['playing', 'canplay', 'timeupdate'].forEach(function (ev) {
       v.addEventListener(ev, function () { els.buffer.classList.remove('show'); });
     });
+    v.addEventListener('playing', disarmStartWatchdog);
 
     // Atajos de teclado
     document.addEventListener('keydown', function (e) {
