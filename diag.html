@@ -1,0 +1,226 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Diagnóstico · FirstRow VR</title>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      background: #050507; color: #e8e8f2;
+      font-family: ui-monospace, 'Cascadia Mono', Menlo, Consolas, monospace;
+      font-size: 17px; line-height: 1.65; padding: 1.5rem 5vw 5rem;
+    }
+    h1 { font-size: 1.5rem; margin-bottom: .3rem; color: #fff; }
+    h2 {
+      font-size: 1.05rem; margin: 2.2rem 0 .8rem; color: #00e5ff;
+      border-bottom: 1px solid rgba(255,255,255,.12); padding-bottom: .4rem;
+    }
+    .sub { color: #7a7a8c; margin-bottom: .6rem; font-size: .92rem; }
+    table { width: 100%; border-collapse: collapse; }
+    td { padding: .32rem .5rem .32rem 0; vertical-align: top; word-break: break-word; }
+    td.k { color: #7a7a8c; width: 42%; }
+    .ok   { color: #4ade80; }
+    .bad  { color: #f87171; }
+    .warn { color: #fbbf24; }
+    button {
+      background: #00e5ff; color: #000; border: none; cursor: pointer;
+      font-family: inherit; font-size: 1rem; font-weight: 700;
+      padding: .8rem 1.5rem; margin: .35rem .5rem .35rem 0;
+    }
+    button:disabled { opacity: .4; cursor: default; }
+    #vidResults td { border-bottom: 1px solid rgba(255,255,255,.07); }
+    .note {
+      background: rgba(0,229,255,.08); border-left: 3px solid #00e5ff;
+      padding: .8rem 1rem; margin: 1rem 0; font-size: .92rem; color: #c8c8d4;
+    }
+    #copyBox {
+      width: 100%; height: 240px; margin-top: 1rem; background: #0a0a10;
+      color: #c8c8d4; border: 1px solid rgba(255,255,255,.15);
+      font-family: inherit; font-size: .8rem; padding: .7rem;
+    }
+  </style>
+</head>
+<body>
+  <h1>Diagnóstico FirstRow VR</h1>
+  <p class="sub">Abre esta página <strong>en firstrow.cl</strong> (el CDN bloquea otros dominios) y en el mismo navegador donde falla.</p>
+
+  <div class="note">
+    Pulsa <strong>Probar videos</strong> y espera. Al final, copia el texto del recuadro y pásamelo.
+  </div>
+
+  <h2>1 · Entorno</h2>
+  <table id="env"></table>
+
+  <h2>2 · Soporte de códecs</h2>
+  <p class="sub">Todos los videos del catálogo son 7680×3840. Cuatro son HEVC y uno (Box) es H.264.</p>
+  <table id="codecs"></table>
+
+  <h2>3 · Reproducción real</h2>
+  <button id="runBtn">Probar videos</button>
+  <button id="glBtn">Probar textura WebGL</button>
+  <table id="vidResults"></table>
+
+  <h2>4 · Resultado para copiar</h2>
+  <textarea id="copyBox" readonly></textarea>
+
+<script>
+(function () {
+  var LOG = [];
+  function row(table, k, v, cls) {
+    var tr = table.insertRow();
+    tr.insertCell().outerHTML = '<td class="k">' + k + '</td>';
+    var td = tr.insertCell();
+    td.textContent = v;
+    if (cls) td.className = cls;
+    LOG.push(k + ': ' + v);
+    document.getElementById('copyBox').value = LOG.join('\n');
+  }
+
+  // ── 1 · Entorno ──
+  var env = document.getElementById('env');
+  row(env, 'URL', location.href);
+  row(env, 'User agent', navigator.userAgent);
+  row(env, 'Contexto seguro (https)', window.isSecureContext ? 'sí' : 'NO', window.isSecureContext ? 'ok' : 'bad');
+  row(env, 'Memoria del equipo', (navigator.deviceMemory || '?') + ' GB');
+  row(env, 'Núcleos CPU', navigator.hardwareConcurrency || '?');
+
+  // WebGL: el tamaño máximo de textura decide si un frame de 7680 px cabe
+  var gl = null, canvas = document.createElement('canvas');
+  try { gl = canvas.getContext('webgl2') || canvas.getContext('webgl'); } catch (e) {}
+  if (!gl) {
+    row(env, 'WebGL', 'NO DISPONIBLE', 'bad');
+  } else {
+    var dbg = gl.getExtension('WEBGL_debug_renderer_info');
+    row(env, 'WebGL', gl.getParameter(gl.VERSION));
+    if (dbg) row(env, 'GPU', gl.getParameter(dbg.UNMASKED_RENDERER_WEBGL));
+    var maxTex = gl.getParameter(gl.MAX_TEXTURE_SIZE);
+    // Un video de 7680 px de ancho necesita MAX_TEXTURE_SIZE >= 8192.
+    row(env, 'MAX_TEXTURE_SIZE', maxTex + (maxTex >= 8192 ? '  (alcanza para 7680px)' : '  (INSUFICIENTE para 7680px)'),
+        maxTex >= 8192 ? 'ok' : 'bad');
+  }
+
+  // WebXR
+  if (!navigator.xr) {
+    row(env, 'WebXR', 'navigator.xr no existe', 'bad');
+  } else {
+    row(env, 'WebXR', 'disponible');
+    if (navigator.xr.isSessionSupported) {
+      navigator.xr.isSessionSupported('immersive-vr').then(function (ok) {
+        row(env, 'Sesión immersive-vr', ok ? 'soportada' : 'NO soportada', ok ? 'ok' : 'bad');
+      }).catch(function (e) { row(env, 'Sesión immersive-vr', 'error: ' + e, 'bad'); });
+    }
+  }
+
+  // ── 2 · Códecs ──
+  var probe = document.createElement('video');
+  var CODECS = [
+    ['HEVC / H.265 (hvc1)', 'video/mp4; codecs="hvc1.1.6.L153.B0"'],
+    ['HEVC / H.265 (hev1)', 'video/mp4; codecs="hev1.1.6.L153.B0"'],
+    ['H.264 High @ L5.2',   'video/mp4; codecs="avc1.640034"'],
+    ['H.264 Main @ L6.0',   'video/mp4; codecs="avc1.4D003C"'],
+    ['AV1',                 'video/mp4; codecs="av01.0.13M.08"'],
+    ['VP9',                 'video/webm; codecs="vp9"']
+  ];
+  var ct = document.getElementById('codecs');
+  CODECS.forEach(function (c) {
+    var r = probe.canPlayType(c[1]);
+    var ms = (window.MediaSource && MediaSource.isTypeSupported) ? MediaSource.isTypeSupported(c[1]) : '?';
+    var txt = (r || 'no') + '   ·   MediaSource: ' + ms;
+    row(ct, c[0], txt, r === 'probably' ? 'ok' : (r === 'maybe' ? 'warn' : 'bad'));
+  });
+
+  // ── 3 · Reproducción ──
+  var VIDEOS = [
+    ['Dancing Girl (HEVC)',   'https://firstrow2026.b-cdn.net/Dancing%20Girl.mp4'],
+    ['Indoor Kitchen (HEVC)', 'https://firstrow2026.b-cdn.net/Indoor%20Kitchen.mp4'],
+    ['Outfit of the Day (HEVC)', 'https://firstrow2026.b-cdn.net/Outfit%20of%20the%20Day.mp4'],
+    ['Makeup Girl (HEVC)',    'https://firstrow2026.b-cdn.net/Makeup%20Girl_GRWM.mp4'],
+    ['Box (H.264)',           'https://firstrow2026.b-cdn.net/Box.mp4']
+  ];
+  var ERR = { 1: 'ABORTED', 2: 'NETWORK', 3: 'DECODE', 4: 'SRC_NOT_SUPPORTED' };
+  var results = document.getElementById('vidResults');
+  var lastVideo = null;
+
+  // Prueba un único video: mide cuánto tarda en dar metadata y en avanzar el
+  // tiempo de reproducción. Si el tiempo no avanza, el equipo no lo decodifica.
+  function testOne(name, url) {
+    return new Promise(function (resolve) {
+      var v = document.createElement('video');
+      v.crossOrigin = 'anonymous';   // igual que el reproductor real
+      v.muted = true; v.playsInline = true; v.preload = 'auto';
+      v.style.cssText = 'position:fixed;left:-9999px;width:1px;height:1px';
+      document.body.appendChild(v);
+      var t0 = Date.now(), meta = null, done = false;
+
+      function finish(status, cls) {
+        if (done) return;
+        done = true;
+        var dims = v.videoWidth ? v.videoWidth + 'x' + v.videoHeight : 'sin dimensiones';
+        var detail = status + '  ·  ' + dims +
+          '  ·  metadata: ' + (meta === null ? 'nunca' : meta + 'ms') +
+          '  ·  readyState: ' + v.readyState +
+          '  ·  currentTime: ' + v.currentTime.toFixed(2) + 's';
+        row(results, name, detail, cls);
+        v.pause(); v.removeAttribute('src'); v.load(); v.remove();
+        resolve();
+      }
+
+      v.addEventListener('loadedmetadata', function () { meta = Date.now() - t0; });
+      v.addEventListener('error', function () {
+        var e = v.error;
+        finish('ERROR ' + (e ? (ERR[e.code] || e.code) : '?') + (e && e.message ? ' — ' + e.message : ''), 'bad');
+      });
+
+      v.src = url;
+      v.play().catch(function (err) { finish('play() rechazado: ' + err.name + ' — ' + err.message, 'bad'); });
+
+      // 20 s de margen: si el tiempo no avanzó, no se está decodificando
+      setTimeout(function () {
+        if (done) return;
+        if (v.currentTime > 0.1) { lastVideo = v; finish('REPRODUCE', 'ok'); }
+        else if (v.readyState >= 1) finish('CARGA PERO NO AVANZA (no lo decodifica)', 'bad');
+        else finish('NI SIQUIERA CARGA METADATA', 'bad');
+      }, 20000);
+    });
+  }
+
+  document.getElementById('runBtn').addEventListener('click', function () {
+    this.disabled = true;
+    this.textContent = 'Probando… (hasta 20s por video)';
+    var btn = this;
+    // Secuencial: en paralelo se estorban entre ellos y falsea el resultado
+    VIDEOS.reduce(function (chain, v) {
+      return chain.then(function () { return testOne(v[0], v[1]); });
+    }, Promise.resolve()).then(function () {
+      btn.textContent = 'Listo — copia el recuadro de abajo';
+    });
+  });
+
+  // Sube un frame real a WebGL: aquí se ve si el tamaño de textura es el problema
+  document.getElementById('glBtn').addEventListener('click', function () {
+    var v = document.createElement('video');
+    v.crossOrigin = 'anonymous'; v.muted = true; v.playsInline = true;
+    v.src = VIDEOS[0][1];
+    v.addEventListener('loadeddata', function () {
+      if (!gl) { row(results, 'Textura WebGL', 'sin WebGL', 'bad'); return; }
+      var tex = gl.createTexture();
+      gl.bindTexture(gl.TEXTURE_2D, tex);
+      gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR);
+      gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
+      gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
+      var t0 = performance.now();
+      gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, v);
+      var ms = (performance.now() - t0).toFixed(1);
+      var err = gl.getError();
+      row(results, 'Subida de textura ' + v.videoWidth + 'x' + v.videoHeight,
+          err === gl.NO_ERROR ? ('OK en ' + ms + ' ms') : ('ERROR glGetError=' + err),
+          err === gl.NO_ERROR ? 'ok' : 'bad');
+      v.pause(); v.removeAttribute('src'); v.load();
+    });
+    v.play().catch(function (e) { row(results, 'Textura WebGL', 'no se pudo reproducir: ' + e.message, 'bad'); });
+  });
+})();
+</script>
+</body>
+</html>

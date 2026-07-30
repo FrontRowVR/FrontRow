@@ -233,6 +233,18 @@
     if (cam) cam.layers.enable(1);
   }
 
+  // Reparto de capas. Dentro del visor cada ojo ve SOLO su malla (1 y 2). Fuera
+  // del visor la malla izquierda se publica además en la capa 0, que toda cámara
+  // ve por defecto: así la vista plana nunca depende de que enableFlatEye() haya
+  // alcanzado a correr (si fallaba, la pantalla quedaba negra en todos los videos).
+  function applyEyeLayers() {
+    if (rig.meshes.length < 2) return;
+    var inVR = !!(els.scene && els.scene.is && els.scene.is('vr-mode'));
+    rig.meshes[0].layers.set(1);
+    if (!inVR) rig.meshes[0].layers.enable(0);
+    rig.meshes[1].layers.set(2);
+  }
+
   function buildRig(video) {
     if (!window.THREE || !els.scene) return;
     if (!els.scene.hasLoaded || !els.scene.object3D) {
@@ -267,6 +279,7 @@
       els.scene.object3D.add(mesh);
       rig.meshes.push(mesh);
     });
+    applyEyeLayers();
     enableFlatEye();
   }
 
@@ -461,7 +474,11 @@
     if (navigator.xr && navigator.xr.addEventListener) {
       navigator.xr.addEventListener('devicechange', checkVR);
     }
-    els.scene.addEventListener('enter-vr', function () { if (els.readyBadge) els.readyBadge.classList.remove('show'); });
+    els.scene.addEventListener('enter-vr', function () {
+      if (els.readyBadge) els.readyBadge.classList.remove('show');
+      applyEyeLayers();
+    });
+    els.scene.addEventListener('exit-vr', applyEyeLayers);
     // La cámara se crea (y puede reemplazarse) de forma asíncrona: hay que
     // rehabilitarle la capa 1 cada vez o la vista plana se queda en negro.
     els.scene.addEventListener('camera-set-active', enableFlatEye);
