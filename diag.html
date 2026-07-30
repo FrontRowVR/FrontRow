@@ -4,12 +4,13 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Diagnóstico · FirstRow VR</title>
+  <script src="https://aframe.io/releases/1.5.0/aframe.min.js"></script>
   <style>
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
     body {
       background: #050507; color: #e8e8f2;
       font-family: ui-monospace, 'Cascadia Mono', Menlo, Consolas, monospace;
-      font-size: 17px; line-height: 1.65; padding: 1.5rem 5vw 5rem;
+      font-size: 16px; line-height: 1.6; padding: 1.5rem 5vw 6rem;
     }
     h1 { font-size: 1.5rem; margin-bottom: .3rem; color: #fff; }
     h2 {
@@ -19,49 +20,70 @@
     .sub { color: #7a7a8c; margin-bottom: .6rem; font-size: .92rem; }
     table { width: 100%; border-collapse: collapse; }
     td { padding: .32rem .5rem .32rem 0; vertical-align: top; word-break: break-word; }
-    td.k { color: #7a7a8c; width: 42%; }
-    .ok   { color: #4ade80; }
-    .bad  { color: #f87171; }
-    .warn { color: #fbbf24; }
+    td.k { color: #7a7a8c; width: 40%; }
+    .ok { color: #4ade80; } .bad { color: #f87171; } .warn { color: #fbbf24; }
     button {
       background: #00e5ff; color: #000; border: none; cursor: pointer;
-      font-family: inherit; font-size: 1rem; font-weight: 700;
-      padding: .8rem 1.5rem; margin: .35rem .5rem .35rem 0;
+      font-family: inherit; font-size: .95rem; font-weight: 700;
+      padding: .8rem 1.3rem; margin: .35rem .5rem .35rem 0;
     }
+    button.alt { background: #2a2a3a; color: #e8e8f2; }
     button:disabled { opacity: .4; cursor: default; }
-    #vidResults td { border-bottom: 1px solid rgba(255,255,255,.07); }
+    #vidResults td, #xrResults td { border-bottom: 1px solid rgba(255,255,255,.07); }
     .note {
       background: rgba(0,229,255,.08); border-left: 3px solid #00e5ff;
       padding: .8rem 1rem; margin: 1rem 0; font-size: .92rem; color: #c8c8d4;
     }
-    #copyBox {
-      width: 100%; height: 240px; margin-top: 1rem; background: #0a0a10;
-      color: #c8c8d4; border: 1px solid rgba(255,255,255,.15);
-      font-family: inherit; font-size: .8rem; padding: .7rem;
+    .warnbox {
+      background: rgba(251,191,36,.1); border-left: 3px solid #fbbf24;
+      padding: .8rem 1rem; margin: 1rem 0; font-size: .92rem; color: #e0d5b0;
     }
+    #stage { margin: .8rem 0; min-height: 124px; }
+    #stage video { width: 220px; height: 110px; background: #000; object-fit: cover; }
+    #copyBox {
+      width: 100%; height: 260px; margin-top: 1rem; background: #0a0a10;
+      color: #c8c8d4; border: 1px solid rgba(255,255,255,.15);
+      font-family: inherit; font-size: .78rem; padding: .7rem;
+    }
+    canvas.xr { position: fixed; left: -9999px; width: 4px; height: 4px; }
   </style>
 </head>
 <body>
   <h1>Diagnóstico FirstRow VR</h1>
-  <p class="sub">Abre esta página <strong>en firstrow.cl</strong> (el CDN bloquea otros dominios) y en el mismo navegador donde falla.</p>
-
-  <div class="note">
-    Pulsa <strong>Probar videos</strong> y espera. Al final, copia el texto del recuadro y pásamelo.
-  </div>
+  <p class="sub">Ábrela <strong>en firstrow.cl</strong> (el CDN bloquea otros dominios) y en el navegador donde falla.</p>
 
   <h2>1 · Entorno</h2>
   <table id="env"></table>
 
   <h2>2 · Soporte de códecs</h2>
-  <p class="sub">Todos los videos del catálogo son 7680×3840. Cuatro son HEVC y uno (Box) es H.264.</p>
   <table id="codecs"></table>
 
-  <h2>3 · Reproducción real</h2>
-  <button id="runBtn">Probar videos</button>
-  <button id="glBtn">Probar textura WebGL</button>
+  <h2>3 · Reproducción plana</h2>
+  <div class="warnbox">
+    Descarga bastantes datos (~90 MB por video). El video se muestra a la vista a propósito:
+    si queda oculto, Chrome lo pausa solo y el resultado sale falseado.
+  </div>
+  <button id="runBtn">Probar los 5 videos</button>
+  <div id="stage"></div>
   <table id="vidResults"></table>
 
-  <h2>4 · Resultado para copiar</h2>
+  <h2>4 · Prueba WebXR — aquí está el problema</h2>
+  <p class="sub">
+    Tres pruebas que aíslan la causa. Cada una entra al visor 20 s y mide el tiempo de cada frame.
+    Ponte el visor antes de pulsar. Para salir antes, usa el botón del sistema.
+  </p>
+  <div class="note">
+    <strong>Cómo leer el resultado:</strong><br />
+    A falla → el problema es la sesión WebXR, no el video.<br />
+    A bien, C bien, B falla → el problema es <strong>subir el frame de 8K a la GPU en cada cuadro</strong>.<br />
+    A bien, C falla → el problema es el tamaño de la textura de 8K en sí.
+  </div>
+  <button id="xrA" class="alt">A · VR sin video</button>
+  <button id="xrC" class="alt">C · VR con textura 8K fija</button>
+  <button id="xrB">B · VR con video 8K real</button>
+  <table id="xrResults"></table>
+
+  <h2>5 · Resultado para copiar</h2>
   <textarea id="copyBox" readonly></textarea>
 
 <script>
@@ -69,10 +91,8 @@
   var LOG = [];
   function row(table, k, v, cls) {
     var tr = table.insertRow();
-    tr.insertCell().outerHTML = '<td class="k">' + k + '</td>';
-    var td = tr.insertCell();
-    td.textContent = v;
-    if (cls) td.className = cls;
+    var tdk = tr.insertCell(); tdk.className = 'k'; tdk.textContent = k;
+    var td = tr.insertCell(); td.textContent = v; if (cls) td.className = cls;
     LOG.push(k + ': ' + v);
     document.getElementById('copyBox').value = LOG.join('\n');
   }
@@ -81,145 +101,206 @@
   var env = document.getElementById('env');
   row(env, 'URL', location.href);
   row(env, 'User agent', navigator.userAgent);
-  row(env, 'Contexto seguro (https)', window.isSecureContext ? 'sí' : 'NO', window.isSecureContext ? 'ok' : 'bad');
-  row(env, 'Memoria del equipo', (navigator.deviceMemory || '?') + ' GB');
-  row(env, 'Núcleos CPU', navigator.hardwareConcurrency || '?');
+  row(env, 'Contexto seguro', window.isSecureContext ? 'sí' : 'NO', window.isSecureContext ? 'ok' : 'bad');
+  row(env, 'Memoria / CPU', (navigator.deviceMemory || '?') + ' GB · ' + (navigator.hardwareConcurrency || '?') + ' núcleos');
 
-  // WebGL: el tamaño máximo de textura decide si un frame de 7680 px cabe
-  var gl = null, canvas = document.createElement('canvas');
-  try { gl = canvas.getContext('webgl2') || canvas.getContext('webgl'); } catch (e) {}
-  if (!gl) {
-    row(env, 'WebGL', 'NO DISPONIBLE', 'bad');
-  } else {
+  var gl = null;
+  try { var c = document.createElement('canvas'); gl = c.getContext('webgl2') || c.getContext('webgl'); } catch (e) {}
+  if (!gl) row(env, 'WebGL', 'NO DISPONIBLE', 'bad');
+  else {
     var dbg = gl.getExtension('WEBGL_debug_renderer_info');
     row(env, 'WebGL', gl.getParameter(gl.VERSION));
     if (dbg) row(env, 'GPU', gl.getParameter(dbg.UNMASKED_RENDERER_WEBGL));
     var maxTex = gl.getParameter(gl.MAX_TEXTURE_SIZE);
-    // Un video de 7680 px de ancho necesita MAX_TEXTURE_SIZE >= 8192.
-    row(env, 'MAX_TEXTURE_SIZE', maxTex + (maxTex >= 8192 ? '  (alcanza para 7680px)' : '  (INSUFICIENTE para 7680px)'),
-        maxTex >= 8192 ? 'ok' : 'bad');
+    row(env, 'MAX_TEXTURE_SIZE', maxTex + (maxTex >= 8192 ? '  (alcanza para 7680px)' : '  (INSUFICIENTE)'), maxTex >= 8192 ? 'ok' : 'bad');
   }
+  row(env, 'THREE (el del reproductor)', window.THREE ? THREE.REVISION : 'no cargó', window.THREE ? '' : 'bad');
 
-  // WebXR
-  if (!navigator.xr) {
-    row(env, 'WebXR', 'navigator.xr no existe', 'bad');
-  } else {
+  if (!navigator.xr) row(env, 'WebXR', 'navigator.xr no existe', 'bad');
+  else {
     row(env, 'WebXR', 'disponible');
-    if (navigator.xr.isSessionSupported) {
-      navigator.xr.isSessionSupported('immersive-vr').then(function (ok) {
-        row(env, 'Sesión immersive-vr', ok ? 'soportada' : 'NO soportada', ok ? 'ok' : 'bad');
-      }).catch(function (e) { row(env, 'Sesión immersive-vr', 'error: ' + e, 'bad'); });
-    }
+    navigator.xr.isSessionSupported('immersive-vr').then(function (ok) {
+      row(env, 'Sesión immersive-vr', ok ? 'soportada' : 'NO soportada', ok ? 'ok' : 'bad');
+    }).catch(function (e) { row(env, 'Sesión immersive-vr', 'error: ' + e, 'bad'); });
   }
 
   // ── 2 · Códecs ──
   var probe = document.createElement('video');
-  var CODECS = [
-    ['HEVC / H.265 (hvc1)', 'video/mp4; codecs="hvc1.1.6.L153.B0"'],
-    ['HEVC / H.265 (hev1)', 'video/mp4; codecs="hev1.1.6.L153.B0"'],
-    ['H.264 High @ L5.2',   'video/mp4; codecs="avc1.640034"'],
-    ['H.264 Main @ L6.0',   'video/mp4; codecs="avc1.4D003C"'],
-    ['AV1',                 'video/mp4; codecs="av01.0.13M.08"'],
-    ['VP9',                 'video/webm; codecs="vp9"']
-  ];
   var ct = document.getElementById('codecs');
-  CODECS.forEach(function (c) {
-    var r = probe.canPlayType(c[1]);
-    var ms = (window.MediaSource && MediaSource.isTypeSupported) ? MediaSource.isTypeSupported(c[1]) : '?';
-    var txt = (r || 'no') + '   ·   MediaSource: ' + ms;
-    row(ct, c[0], txt, r === 'probably' ? 'ok' : (r === 'maybe' ? 'warn' : 'bad'));
+  [['HEVC (hvc1)', 'video/mp4; codecs="hvc1.1.6.L153.B0"'],
+   ['H.264 Main@L6.0', 'video/mp4; codecs="avc1.4D003C"'],
+   ['AV1', 'video/mp4; codecs="av01.0.13M.08"']].forEach(function (x) {
+    var r = probe.canPlayType(x[1]);
+    row(ct, x[0], (r || 'no'), r === 'probably' ? 'ok' : (r ? 'warn' : 'bad'));
   });
 
-  // ── 3 · Reproducción ──
+  // ── 3 · Reproducción plana ──
   var VIDEOS = [
-    ['Dancing Girl (HEVC)',   'https://firstrow2026.b-cdn.net/Dancing%20Girl.mp4'],
+    ['Dancing Girl (HEVC)', 'https://firstrow2026.b-cdn.net/Dancing%20Girl.mp4'],
     ['Indoor Kitchen (HEVC)', 'https://firstrow2026.b-cdn.net/Indoor%20Kitchen.mp4'],
     ['Outfit of the Day (HEVC)', 'https://firstrow2026.b-cdn.net/Outfit%20of%20the%20Day.mp4'],
-    ['Makeup Girl (HEVC)',    'https://firstrow2026.b-cdn.net/Makeup%20Girl_GRWM.mp4'],
-    ['Box (H.264)',           'https://firstrow2026.b-cdn.net/Box.mp4']
+    ['Makeup Girl (HEVC)', 'https://firstrow2026.b-cdn.net/Makeup%20Girl_GRWM.mp4'],
+    ['Box (H.264)', 'https://firstrow2026.b-cdn.net/Box.mp4']
   ];
   var ERR = { 1: 'ABORTED', 2: 'NETWORK', 3: 'DECODE', 4: 'SRC_NOT_SUPPORTED' };
   var results = document.getElementById('vidResults');
-  var lastVideo = null;
+  var stage = document.getElementById('stage');
 
-  // Prueba un único video: mide cuánto tarda en dar metadata y en avanzar el
-  // tiempo de reproducción. Si el tiempo no avanza, el equipo no lo decodifica.
   function testOne(name, url) {
     return new Promise(function (resolve) {
       var v = document.createElement('video');
-      v.crossOrigin = 'anonymous';   // igual que el reproductor real
-      v.muted = true; v.playsInline = true; v.preload = 'auto';
-      v.style.cssText = 'position:fixed;left:-9999px;width:1px;height:1px';
-      document.body.appendChild(v);
+      v.crossOrigin = 'anonymous';
+      v.muted = true; v.playsInline = true; v.preload = 'auto'; v.controls = false;
+      // VISIBLE a propósito: oculto, Chrome pausa el video por ahorro de energía
+      // y el diagnóstico reporta un AbortError que no tiene nada que ver.
+      stage.innerHTML = '';
+      stage.appendChild(v);
       var t0 = Date.now(), meta = null, done = false;
 
       function finish(status, cls) {
-        if (done) return;
-        done = true;
-        var dims = v.videoWidth ? v.videoWidth + 'x' + v.videoHeight : 'sin dimensiones';
-        var detail = status + '  ·  ' + dims +
+        if (done) return; done = true;
+        row(results, name, status + '  ·  ' + (v.videoWidth ? v.videoWidth + 'x' + v.videoHeight : 'sin dims') +
           '  ·  metadata: ' + (meta === null ? 'nunca' : meta + 'ms') +
-          '  ·  readyState: ' + v.readyState +
-          '  ·  currentTime: ' + v.currentTime.toFixed(2) + 's';
-        row(results, name, detail, cls);
+          '  ·  readyState: ' + v.readyState + '  ·  currentTime: ' + v.currentTime.toFixed(2) + 's', cls);
         v.pause(); v.removeAttribute('src'); v.load(); v.remove();
         resolve();
       }
-
       v.addEventListener('loadedmetadata', function () { meta = Date.now() - t0; });
       v.addEventListener('error', function () {
         var e = v.error;
-        finish('ERROR ' + (e ? (ERR[e.code] || e.code) : '?') + (e && e.message ? ' — ' + e.message : ''), 'bad');
+        finish('ERROR ' + (e ? (ERR[e.code] || e.code) : '?'), 'bad');
       });
-
       v.src = url;
       v.play().catch(function (err) { finish('play() rechazado: ' + err.name + ' — ' + err.message, 'bad'); });
-
-      // 20 s de margen: si el tiempo no avanzó, no se está decodificando
       setTimeout(function () {
         if (done) return;
-        if (v.currentTime > 0.1) { lastVideo = v; finish('REPRODUCE', 'ok'); }
-        else if (v.readyState >= 1) finish('CARGA PERO NO AVANZA (no lo decodifica)', 'bad');
-        else finish('NI SIQUIERA CARGA METADATA', 'bad');
-      }, 20000);
+        if (v.currentTime > 0.1) finish('REPRODUCE', 'ok');
+        else if (v.readyState >= 1) finish('CARGA PERO NO AVANZA', 'bad');
+        else finish('NI METADATA', 'bad');
+      }, 12000);
     });
   }
 
   document.getElementById('runBtn').addEventListener('click', function () {
-    this.disabled = true;
-    this.textContent = 'Probando… (hasta 20s por video)';
-    var btn = this;
-    // Secuencial: en paralelo se estorban entre ellos y falsea el resultado
-    VIDEOS.reduce(function (chain, v) {
-      return chain.then(function () { return testOne(v[0], v[1]); });
-    }, Promise.resolve()).then(function () {
-      btn.textContent = 'Listo — copia el recuadro de abajo';
-    });
+    var btn = this; btn.disabled = true; btn.textContent = 'Probando… (12s por video)';
+    VIDEOS.reduce(function (ch, v) { return ch.then(function () { return testOne(v[0], v[1]); }); }, Promise.resolve())
+      .then(function () { btn.textContent = 'Listo'; stage.innerHTML = ''; });
   });
 
-  // Sube un frame real a WebGL: aquí se ve si el tamaño de textura es el problema
-  document.getElementById('glBtn').addEventListener('click', function () {
-    var v = document.createElement('video');
-    v.crossOrigin = 'anonymous'; v.muted = true; v.playsInline = true;
-    v.src = VIDEOS[0][1];
-    v.addEventListener('loadeddata', function () {
-      if (!gl) { row(results, 'Textura WebGL', 'sin WebGL', 'bad'); return; }
-      var tex = gl.createTexture();
-      gl.bindTexture(gl.TEXTURE_2D, tex);
-      gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR);
-      gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
-      gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
-      var t0 = performance.now();
-      gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, v);
-      var ms = (performance.now() - t0).toFixed(1);
-      var err = gl.getError();
-      row(results, 'Subida de textura ' + v.videoWidth + 'x' + v.videoHeight,
-          err === gl.NO_ERROR ? ('OK en ' + ms + ' ms') : ('ERROR glGetError=' + err),
-          err === gl.NO_ERROR ? 'ok' : 'bad');
-      v.pause(); v.removeAttribute('src'); v.load();
-    });
-    v.play().catch(function (e) { row(results, 'Textura WebGL', 'no se pudo reproducir: ' + e.message, 'bad'); });
-  });
+  // ── 4 · Prueba WebXR ─────────────────────────────────────────────────────
+  // Usa el MISMO three.js que el reproductor (el que trae A-Frame), pero sin
+  // A-Frame de por medio, para separar "el video es demasiado" de "algo de
+  // A-Frame o de mi código".
+  var xrResults = document.getElementById('xrResults');
+  var xrBusy = false;
+
+  function pct(sorted, p) { return sorted[Math.min(sorted.length - 1, Math.floor(sorted.length * p))]; }
+
+  function runXR(label, mode) {
+    if (xrBusy) return;
+    if (!window.THREE) { row(xrResults, label, 'THREE no cargó', 'bad'); return; }
+    if (!navigator.xr) { row(xrResults, label, 'sin WebXR', 'bad'); return; }
+    xrBusy = true;
+
+    var canvas = document.createElement('canvas');
+    canvas.className = 'xr';
+    document.body.appendChild(canvas);
+
+    var renderer, scene, camera, video = null, texture = null, times = [], last = 0, t0 = 0;
+
+    function cleanup(session) {
+      try { if (session) session.end(); } catch (e) {}
+      if (renderer) { renderer.setAnimationLoop(null); renderer.dispose(); }
+      if (texture) texture.dispose();
+      if (video) { video.pause(); video.removeAttribute('src'); video.load(); video.remove(); }
+      canvas.remove();
+      xrBusy = false;
+    }
+
+    function report() {
+      if (!times.length) { row(xrResults, label, 'no se renderizó ningún frame', 'bad'); return; }
+      var s = times.slice().sort(function (a, b) { return a - b; });
+      var slow = times.filter(function (t) { return t > 50; }).length;
+      var txt = times.length + ' frames · mediana ' + pct(s, .5).toFixed(1) + 'ms' +
+        ' · p95 ' + pct(s, .95).toFixed(1) + 'ms · max ' + s[s.length - 1].toFixed(1) + 'ms' +
+        ' · frames >50ms: ' + slow;
+      var cls = pct(s, .5) < 20 ? 'ok' : (pct(s, .5) < 40 ? 'warn' : 'bad');
+      row(xrResults, label, txt, cls);
+    }
+
+    function buildScene() {
+      renderer = new THREE.WebGLRenderer({ canvas: canvas, antialias: false });
+      renderer.xr.enabled = true;
+      scene = new THREE.Scene();
+      camera = new THREE.PerspectiveCamera(70, 1, 0.1, 1000);
+
+      var geo = new THREE.SphereGeometry(100, 64, 48);
+      geo.scale(-1, 1, 1);
+      var mat;
+
+      if (mode === 'empty') {
+        mat = new THREE.MeshBasicMaterial({ color: 0x0066aa, wireframe: true });
+      } else if (mode === 'static8k') {
+        // Textura de 7680x3840 subida UNA sola vez: mide el costo del tamaño
+        // sin el costo de re-subirla en cada frame.
+        var cv = document.createElement('canvas');
+        cv.width = 7680; cv.height = 3840;
+        var cx = cv.getContext('2d');
+        var g = cx.createLinearGradient(0, 0, 7680, 3840);
+        g.addColorStop(0, '#00e5ff'); g.addColorStop(1, '#ff0066');
+        cx.fillStyle = g; cx.fillRect(0, 0, 7680, 3840);
+        texture = new THREE.CanvasTexture(cv);
+        texture.colorSpace = THREE.SRGBColorSpace;
+        mat = new THREE.MeshBasicMaterial({ map: texture });
+      } else {
+        mat = new THREE.MeshBasicMaterial({ color: 0x111111 });
+      }
+      scene.add(new THREE.Mesh(geo, mat));
+      return mat;
+    }
+
+    function start(session) {
+      renderer.xr.setSession(session);
+      t0 = performance.now(); last = t0;
+      renderer.setAnimationLoop(function () {
+        var now = performance.now();
+        times.push(now - last); last = now;
+        renderer.render(scene, camera);
+        if (now - t0 > 20000) { report(); cleanup(session); }
+      });
+      session.addEventListener('end', function () { if (xrBusy) { report(); cleanup(null); } });
+    }
+
+    var mat = buildScene();
+
+    function go(session) {
+      if (mode !== 'video') { start(session); return; }
+      video = document.createElement('video');
+      video.crossOrigin = 'anonymous'; video.muted = true; video.playsInline = true;
+      video.loop = true; video.preload = 'auto';
+      video.style.cssText = 'position:fixed;left:4px;bottom:4px;width:160px;height:80px;z-index:5';
+      document.body.appendChild(video);
+      video.src = VIDEOS[0][1];
+      video.play().then(function () {
+        texture = new THREE.VideoTexture(video);
+        texture.minFilter = THREE.LinearFilter; texture.generateMipmaps = false;
+        texture.colorSpace = THREE.SRGBColorSpace;
+        mat.map = texture; mat.needsUpdate = true;
+        start(session);
+      }).catch(function (e) {
+        row(xrResults, label, 'el video no arrancó: ' + e.message, 'bad');
+        cleanup(session);
+      });
+    }
+
+    navigator.xr.requestSession('immersive-vr', { optionalFeatures: ['local-floor'] })
+      .then(go)
+      .catch(function (e) { row(xrResults, label, 'requestSession falló: ' + e.name + ' — ' + e.message, 'bad'); cleanup(null); });
+  }
+
+  document.getElementById('xrA').addEventListener('click', function () { runXR('A · VR sin video', 'empty'); });
+  document.getElementById('xrC').addEventListener('click', function () { runXR('C · VR textura 8K fija', 'static8k'); });
+  document.getElementById('xrB').addEventListener('click', function () { runXR('B · VR video 8K real', 'video'); });
 })();
 </script>
 </body>
