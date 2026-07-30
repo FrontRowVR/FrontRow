@@ -22,13 +22,17 @@
           stereo: '3D / Estéreo', projection: 'Proyección', speed: 'Velocidad',
           vrBadge: 'Visor VR listo · pulsa para entrar', vrOn: 'Entrar en VR (visor listo)', vrOff: 'No se detecta un visor VR',
           tooHeavy: 'Este dispositivo no logra reproducir el video. Suele ocurrir cuando la resolución o el códec superan lo que puede decodificar por hardware (en 8K solo HEVC/AV1 van acelerados; H.264 cae a software y bloquea el navegador).',
-          tooBig: 'El video excede lo que puede manejar la GPU de este equipo. ' },
+          tooBig: 'El video excede lo que puede manejar la GPU de este equipo. ',
+          xrFail: 'No se pudo abrir la sesión VR. ',
+          xrHint: 'El navegador reporta que el visor está disponible, pero el sistema rechaza la sesión. Revisa que el visor esté encendido y conectado, y que su runtime OpenXR esté activo (Meta Quest Link o SteamVR).' },
     en: { loading: 'Loading VR experience…', error: 'Could not play: ',
           hint: 'Drag to look around · Press the VR button to enter',
           stereo: '3D / Stereo', projection: 'Projection', speed: 'Speed',
           vrBadge: 'VR headset ready · tap to enter', vrOn: 'Enter VR (headset ready)', vrOff: 'No VR headset detected',
           tooHeavy: 'This device cannot play the video. It usually means the resolution or codec exceeds what it can decode in hardware (at 8K only HEVC/AV1 are accelerated; H.264 falls back to software and freezes the browser).',
-          tooBig: 'The video exceeds what this GPU can handle. ' }
+          tooBig: 'The video exceeds what this GPU can handle. ',
+          xrFail: 'Could not open the VR session. ',
+          xrHint: 'The browser reports the headset as available but the system refuses the session. Check that the headset is on and connected, and that its OpenXR runtime is active (Meta Quest Link or SteamVR).' }
   };
   function lang() {
     return (document.documentElement.lang || 'es').toLowerCase().indexOf('en') === 0 ? 'en' : 'es';
@@ -68,6 +72,16 @@
     els.enterBtn.classList.toggle('is-ready', vrReady);
     els.enterBtn.title = vrReady ? L().vrOn : L().vrOff;
   }
+  // Aviso visible dentro del visor. Sin esto, un fallo de requestSession solo
+  // quedaba en la consola y el botón parecía no hacer nada.
+  function showToast(msg) {
+    if (!els.toast) return;
+    els.toast.textContent = msg;
+    els.toast.classList.add('show');
+    clearTimeout(showToast._t);
+    showToast._t = setTimeout(function () { els.toast.classList.remove('show'); }, 9000);
+  }
+
   function showReadyBadge() {
     if (!els.readyBadge) return;
     els.readyBadge.classList.add('show');
@@ -158,6 +172,7 @@
       '</div>' +
       '<div id="vrBuffer" class="vr-buffer"></div>' +
       '<div id="vrReadyBadge" class="vr-ready-badge"><span class="vr-ready-badge-dot"></span><span>' + s.vrBadge + '</span></div>' +
+      '<div id="vrToast" class="vr-toast"></div>' +
       '<p class="vr-modal-hint" id="vrHint">' + s.hint + '</p>';
   }
 
@@ -481,11 +496,21 @@
       var origCheck = scene.checkHeadsetConnected;
       if (typeof origCheck === 'function') scene.checkHeadsetConnected = function () { return true; };
       var restore = function () { if (typeof origCheck === 'function') scene.checkHeadsetConnected = origCheck; };
+      // isSessionSupported() puede decir que sí y requestSession() rechazar igual:
+      // lo primero solo mira si el navegador soporta el modo, no si hay un visor
+      // realmente activo. Hay que mostrar el motivo, no tragárselo.
+      function fail(e) {
+        restore();
+        var cause = e && e.cause ? e.cause : e;
+        var detail = cause && cause.name ? cause.name + ' — ' + (cause.message || '') : String(cause);
+        if (window.console) console.warn('[VRPlayer] enterVR:', detail);
+        showToast(L().xrFail + detail + '  ·  ' + L().xrHint);
+      }
       try {
         var p = scene.enterVR();
-        if (p && p.then) p.then(restore, function (e) { restore(); if (window.console) console.warn('[VRPlayer] enterVR:', e && e.message ? e.message : e); });
+        if (p && p.then) p.then(restore, fail);
         else restore();
-      } catch (e) { restore(); if (window.console) console.warn('[VRPlayer] enterVR error:', e); }
+      } catch (e) { fail(e); }
       showControls();
     });
     if (navigator.xr && navigator.xr.addEventListener) {
@@ -568,7 +593,8 @@
       settingsPanel: el('vrSettingsPanel'),
       buffer: el('vrBuffer'),
       enterBtn: el('vrEnterBtn'),
-      readyBadge: el('vrReadyBadge')
+      readyBadge: el('vrReadyBadge'),
+      toast: el('vrToast')
     };
     wire();
   }
