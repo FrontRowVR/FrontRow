@@ -21,12 +21,14 @@
           hint: 'Arrastra para girar la vista · Pulsa el botón VR para entrar',
           stereo: '3D / Estéreo', projection: 'Proyección', speed: 'Velocidad',
           vrBadge: 'Visor VR listo · pulsa para entrar', vrOn: 'Entrar en VR (visor listo)', vrOff: 'No se detecta un visor VR',
-          tooHeavy: 'Este dispositivo no logra reproducir el video. Suele ocurrir cuando la resolución o el códec superan lo que puede decodificar por hardware (en 8K solo HEVC/AV1 van acelerados; H.264 cae a software y bloquea el navegador).' },
+          tooHeavy: 'Este dispositivo no logra reproducir el video. Suele ocurrir cuando la resolución o el códec superan lo que puede decodificar por hardware (en 8K solo HEVC/AV1 van acelerados; H.264 cae a software y bloquea el navegador).',
+          tooBig: 'El video excede lo que puede manejar la GPU de este equipo. ' },
     en: { loading: 'Loading VR experience…', error: 'Could not play: ',
           hint: 'Drag to look around · Press the VR button to enter',
           stereo: '3D / Stereo', projection: 'Projection', speed: 'Speed',
           vrBadge: 'VR headset ready · tap to enter', vrOn: 'Enter VR (headset ready)', vrOff: 'No VR headset detected',
-          tooHeavy: 'This device cannot play the video. It usually means the resolution or codec exceeds what it can decode in hardware (at 8K only HEVC/AV1 are accelerated; H.264 falls back to software and freezes the browser).' }
+          tooHeavy: 'This device cannot play the video. It usually means the resolution or codec exceeds what it can decode in hardware (at 8K only HEVC/AV1 are accelerated; H.264 falls back to software and freezes the browser).',
+          tooBig: 'The video exceeds what this GPU can handle. ' }
   };
   function lang() {
     return (document.documentElement.lang || 'es').toLowerCase().indexOf('en') === 0 ? 'en' : 'es';
@@ -252,6 +254,21 @@
       return;
     }
     disposeRig();
+
+    // Cortafuegos: una VideoTexture más grande que MAX_TEXTURE_SIZE no se puede
+    // crear, y el navegador se queda intentándolo frame tras frame hasta que la
+    // pestaña deja de responder. Mejor decirlo que colgarse.
+    var caps = els.scene.renderer && els.scene.renderer.capabilities;
+    var maxTex = caps ? caps.maxTextureSize : 0;
+    if (maxTex && video.videoWidth && (video.videoWidth > maxTex || video.videoHeight > maxTex)) {
+      disarmStartWatchdog();
+      els.loading.classList.remove('show');
+      els.error.classList.add('show');
+      el('vrErrorMsg').textContent = L().tooBig +
+        'Frame: ' + video.videoWidth + '×' + video.videoHeight +
+        ' · Máximo de esta GPU: ' + maxTex + '×' + maxTex + '.';
+      return;
+    }
 
     var texture = new THREE.VideoTexture(video);
     texture.minFilter = THREE.LinearFilter;
